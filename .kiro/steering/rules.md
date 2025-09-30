@@ -9,3 +9,4 @@ inclusion: always
 - MUST run all commands to check for type errors, lint errors, build issues, unit tests, integration tests, and end-to-end tests.
   MUST FIX ALL ERRORS until everything passes.
   After all checks and tests have successfully passed, MUST post a final summary comment of the completed tasks.
+- Never run `npm run start` at foreground. Only background.
