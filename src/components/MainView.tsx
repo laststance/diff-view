@@ -6,6 +6,7 @@ import { useAppStore } from '../store/appStore';
 import { Layout } from './Layout';
 import { TextPane } from './TextPane';
 import { PasteArea } from './PasteArea';
+import { DiffViewer } from './DiffViewer';
 
 /**
  * Main view component with proper layout structure
@@ -44,57 +45,67 @@ export const MainView: React.FC = () => {
       {/* Main Content Area with Responsive Grid */}
       <div className="h-full flex flex-col space-y-4">
         {/* Content Input Section */}
-        <div
-          className={`grid gap-4 h-full ${
-            viewMode === 'split' ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'
-          }`}
-        >
-          {/* Left Content Pane */}
-          <div className="flex flex-col space-y-4 h-full">
-            <TextPane
-              id="left"
-              value={leftContent}
-              onChange={setLeftContent}
-              placeholder="Paste or type your original content here..."
-              title="Original"
-              fontSize={fontSize}
-              wordWrap={wordWrap}
-              showLineNumbers={showLineNumbers}
-            />
-
-            {/* PasteArea for left pane when empty */}
-            {!leftContent && (
-              <PasteArea
-                onContentPaste={(content, _fileName) => {
-                  setLeftContent(content);
-                }}
-                className="min-h-[120px]"
+        <div className="space-y-4">
+          {/* Input Panes Row */}
+          <div
+            className={`grid gap-4 ${
+              viewMode === 'split'
+                ? 'grid-cols-1 lg:grid-cols-2'
+                : 'grid-cols-1'
+            }`}
+          >
+            {/* Left Content Pane */}
+            <div className="flex flex-col space-y-4">
+              <TextPane
+                id="left"
+                value={leftContent}
+                onChange={setLeftContent}
+                placeholder="Paste or type your original content here..."
+                title="Original"
+                fontSize={fontSize}
+                wordWrap={wordWrap}
+                showLineNumbers={showLineNumbers}
               />
-            )}
+
+              {/* PasteArea for left pane when empty */}
+              {!leftContent && (
+                <PasteArea
+                  onContentPaste={(content, _fileName) => {
+                    setLeftContent(content);
+                  }}
+                  className="min-h-[120px]"
+                />
+              )}
+            </div>
+
+            {/* Right Content Pane */}
+            <div className="flex flex-col space-y-4">
+              <TextPane
+                id="right"
+                value={rightContent}
+                onChange={setRightContent}
+                placeholder="Paste or type your modified content here..."
+                title="Modified"
+                fontSize={fontSize}
+                wordWrap={wordWrap}
+                showLineNumbers={showLineNumbers}
+              />
+
+              {/* PasteArea for right pane when empty */}
+              {!rightContent && (
+                <PasteArea
+                  onContentPaste={(content, _fileName) => {
+                    setRightContent(content);
+                  }}
+                  className="min-h-[120px]"
+                />
+              )}
+            </div>
           </div>
 
-          {/* Right Content Pane */}
-          <div className="flex flex-col space-y-4 h-full">
-            <TextPane
-              id="right"
-              value={rightContent}
-              onChange={setRightContent}
-              placeholder="Paste or type your modified content here..."
-              title="Modified"
-              fontSize={fontSize}
-              wordWrap={wordWrap}
-              showLineNumbers={showLineNumbers}
-            />
-
-            {/* PasteArea for right pane when empty */}
-            {!rightContent && (
-              <PasteArea
-                onContentPaste={(content, _fileName) => {
-                  setRightContent(content);
-                }}
-                className="min-h-[120px]"
-              />
-            )}
+          {/* Diff Viewer Row */}
+          <div className="min-h-[400px]">
+            <DiffViewer className="w-full" />
           </div>
         </div>
 

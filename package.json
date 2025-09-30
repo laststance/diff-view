@@ -62,6 +62,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "@git-diff-view/react": "^0.0.32",
     "electron-squirrel-startup": "^1.0.1",
     "lucide-react": "^0.544.0",
     "react": "^18.3.1",
