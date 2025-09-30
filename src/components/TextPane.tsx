@@ -1,6 +1,8 @@
 import React, { useRef, useCallback, useEffect, useMemo } from 'react';
 import { FileText, Copy } from 'lucide-react';
 
+// ContentWarning component removed
+
 export interface TextPaneProps {
   id: 'left' | 'right';
   value: string;
@@ -219,7 +221,7 @@ export const TextPane: React.FC<TextPaneProps> = ({
         </div>
 
         <div className="flex items-center space-x-3">
-          {/* Content Statistics */}
+          {/* Content Statistics with Size Indicator */}
           <div
             id={`text-pane-${id}-stats`}
             className="text-xs text-gray-500 dark:text-gray-400 flex items-center space-x-2"
@@ -227,13 +229,7 @@ export const TextPane: React.FC<TextPaneProps> = ({
             aria-live="polite"
             aria-label={`Content statistics: ${stats.chars} characters, ${stats.lines} lines, ${stats.words} words`}
           >
-            <span aria-label={`${stats.chars} characters`}>
-              {stats.chars} chars
-            </span>
-            <span aria-hidden="true">•</span>
-            <span aria-label={`${stats.lines} lines`}>{stats.lines} lines</span>
-            <span aria-hidden="true">•</span>
-            <span aria-label={`${stats.words} words`}>{stats.words} words</span>
+<span aria-label={`${stats.words} words`}>{stats.words} words</span>
           </div>
 
           {/* Action Buttons */}
@@ -258,7 +254,7 @@ export const TextPane: React.FC<TextPaneProps> = ({
         </div>
       </div>
 
-      {/* Text Area */}
+{/* Text Area */}
       <div className="flex-1 relative">
         <textarea
           ref={textareaRef}

@@ -1,7 +1,11 @@
 import React from 'react';
 import { GitCompare } from 'lucide-react';
 
+import { useAppStore, useErrorActions } from '../store/appStore';
+
 import { Toolbar } from './Toolbar';
+// ErrorToast and LoadingIndicator components removed
+
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -15,8 +19,14 @@ interface LayoutProps {
 /**
  * Main Layout component with header, content area, and status bar
  * Implements responsive design with CSS Grid/Flexbox
+ * Includes global error handling and loading state management
  */
 export const Layout: React.FC<LayoutProps> = ({ children, diffStats }) => {
+  const { currentError, loadingStates } = useAppStore();
+  const { clearError } = useErrorActions();
+
+  // Check if any loading operation is active
+  const isAnyLoading = Object.values(loadingStates).some((loading) => loading);
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
       {/* Skip to main content link for screen readers */}
@@ -86,7 +96,10 @@ export const Layout: React.FC<LayoutProps> = ({ children, diffStats }) => {
             aria-live="polite"
             aria-label="Diff statistics"
           >
-            {diffStats ? (
+
+
+            {/* Diff statistics */}
+            {!isAnyLoading && diffStats ? (
               <>
                 <span
                   className="text-green-600 dark:text-green-400"
@@ -107,21 +120,32 @@ export const Layout: React.FC<LayoutProps> = ({ children, diffStats }) => {
                   {diffStats.changes} changes
                 </span>
               </>
-            ) : (
+            ) : !isAnyLoading ? (
               <span className="text-gray-500 dark:text-gray-400">
                 Ready to compare
               </span>
-            )}
+            ) : null}
           </div>
 
-          <div
-            className="text-gray-500 dark:text-gray-400"
-            aria-label="Application mode: Offline"
-          >
-            Offline Mode
+          <div className="flex items-center space-x-4">
+            {/* Error indicator in status bar */}
+            {currentError && (
+              <span className="text-red-600 dark:text-red-400 text-xs">
+                Error: {currentError.message}
+              </span>
+            )}
+
+            <div
+              className="text-gray-500 dark:text-gray-400"
+              aria-label="Application mode: Offline"
+            >
+              Offline Mode
+            </div>
           </div>
         </div>
       </footer>
+
+
     </div>
   );
 };

@@ -28,7 +28,13 @@ const createWindow = () => {
 
   // Show window when ready to prevent visual flash
   mainWindow.once('ready-to-show', () => {
-    mainWindow?.show();
+    if (process.env.ELECTRON_TEST_MODE === 'true') {
+      // In test mode, show without stealing focus
+      mainWindow?.showInactive();
+    } else {
+      // In normal mode, show and focus the window
+      mainWindow?.show();
+    }
   });
 
   // and load the index.html of the app.

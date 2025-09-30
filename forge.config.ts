@@ -10,13 +10,55 @@ import { FuseV1Options, FuseVersion } from '@electron/fuses';
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
+    icon: './assets/icons/icon', // Electron will automatically append the correct extension
+    name: 'Diff View',
+    executableName: 'diff-view',
+    appBundleId: 'com.diffview.app',
+    appCategoryType: 'public.app-category.developer-tools',
+    win32metadata: {
+      CompanyName: 'Diff View',
+      FileDescription:
+        'An offline desktop application for GitHub-style text comparison and diff visualization',
+      OriginalFilename: 'diff-view.exe',
+      ProductName: 'Diff View',
+      InternalName: 'diff-view',
+    },
   },
   rebuildConfig: {},
   makers: [
-    new MakerSquirrel({}),
+    new MakerSquirrel({
+      name: 'diff-view',
+      authors: 'Diff View',
+      description:
+        'An offline desktop application for GitHub-style text comparison and diff visualization',
+      iconUrl: './assets/icons/win/icon.ico',
+      setupIcon: './assets/icons/win/icon.ico',
+    }),
     new MakerZIP({}, ['darwin']),
-    new MakerRpm({}),
-    new MakerDeb({}),
+    new MakerRpm({
+      options: {
+        name: 'diff-view',
+        productName: 'Diff View',
+        genericName: 'Text Diff Viewer',
+        description:
+          'An offline desktop application for GitHub-style text comparison and diff visualization',
+        categories: ['Development', 'Utility'],
+        icon: './assets/icons/linux/icon-256x256.png',
+      },
+    }),
+    new MakerDeb({
+      options: {
+        name: 'diff-view',
+        productName: 'Diff View',
+        genericName: 'Text Diff Viewer',
+        description:
+          'An offline desktop application for GitHub-style text comparison and diff visualization',
+        categories: ['Development', 'Utility'],
+        icon: './assets/icons/linux/icon-256x256.png',
+        maintainer: 'Ryota Murakami <dojce1048@gmail.com>',
+        homepage: 'https://github.com/diff-view/diff-view',
+      },
+    }),
   ],
   plugins: [
     new VitePlugin({

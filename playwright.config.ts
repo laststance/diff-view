@@ -4,6 +4,8 @@ import { defineConfig } from '@playwright/test';
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
+  // Global timeout for all tests
+  timeout: 3 * 1000,
   testDir: './tests/e2e',
   /* Run tests in files in parallel */
   fullyParallel: false, // Electron tests should run sequentially

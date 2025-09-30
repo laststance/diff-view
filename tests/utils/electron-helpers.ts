@@ -8,6 +8,10 @@ export class ElectronTestHelper {
     this.app = await electron.launch({
       args: ['.'],
       cwd: process.cwd(),
+      env: {
+        ...process.env,
+        ELECTRON_TEST_MODE: 'true',
+      },
     });
 
     this.window = await this.app.firstWindow();

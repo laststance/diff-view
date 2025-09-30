@@ -1,10 +1,13 @@
 import React, { Component, ReactNode } from 'react';
+import { AlertTriangle, RefreshCw, RotateCcw } from 'lucide-react';
 
-import type { ErrorBoundaryState } from '../types/app';
+import type { ErrorBoundaryState, AppError } from '../types/app';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
   fallback?: (error: Error, errorInfo: React.ErrorInfo) => ReactNode;
+  onError?: (error: AppError) => void;
+  level?: 'page' | 'component' | 'section';
 }
 
 export class ErrorBoundary extends Component<
@@ -31,6 +34,18 @@ export class ErrorBoundary extends Component<
       errorInfo,
     });
 
+    // Create AppError object and notify parent
+    if (this.props.onError) {
+      const appError: AppError = {
+        type: 'unknown',
+        message: error.message || 'An unexpected error occurred',
+        details: `${error.stack}\n\nComponent Stack:${errorInfo.componentStack}`,
+        timestamp: Date.now(),
+        recoverable: true,
+      };
+      this.props.onError(appError);
+    }
+
     // In development, you might want to send this to an error reporting service
     if (process.env.NODE_ENV === 'development') {
       console.group('Error Boundary Details');
@@ -52,74 +67,88 @@ export class ErrorBoundary extends Component<
         return this.props.fallback(this.state.error, this.state.errorInfo);
       }
 
-      // Default fallback UI
+      // Default fallback UI based on error boundary level
+      const isPageLevel = this.props.level === 'page';
+      const containerClass = isPageLevel
+        ? 'min-h-screen bg-red-50 dark:bg-red-900/10 flex items-center justify-center p-4'
+        : 'bg-red-50 dark:bg-red-900/20 rounded-lg p-4 border border-red-200 dark:border-red-800';
+
       return (
-        <div className="min-h-screen bg-red-50 flex items-center justify-center p-4">
-          <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6">
+        <div className={containerClass}>
+          <div
+            className={`${isPageLevel ? 'max-w-md w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6' : 'w-full'}`}
+          >
             <div className="flex items-center mb-4">
               <div className="flex-shrink-0">
-                <svg
-                  className="h-8 w-8 text-red-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-                  />
-                </svg>
+                <AlertTriangle className="h-8 w-8 text-red-500 dark:text-red-400" />
               </div>
               <div className="ml-3">
-                <h3 className="text-lg font-medium text-gray-900">
-                  Something went wrong
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                  {isPageLevel ? 'Application Error' : 'Component Error'}
                 </h3>
               </div>
             </div>
 
             <div className="mb-4">
-              <p className="text-sm text-gray-600 mb-2">
-                The application encountered an unexpected error. This is likely
-                a temporary issue.
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                {isPageLevel
+                  ? 'The application encountered an unexpected error. This is likely a temporary issue.'
+                  : 'This component encountered an error and cannot be displayed properly.'}
               </p>
 
-              {process.env.NODE_ENV === 'development' && this.state.error && (
-                <details className="mt-4">
-                  <summary className="text-sm font-medium text-gray-700 cursor-pointer">
-                    Error Details (Development)
-                  </summary>
-                  <div className="mt-2 p-3 bg-gray-100 rounded text-xs font-mono text-gray-800 overflow-auto max-h-32">
-                    <div className="mb-2">
-                      <strong>Error:</strong> {this.state.error.message}
-                    </div>
-                    {this.state.error.stack && (
-                      <div>
-                        <strong>Stack:</strong>
-                        <pre className="whitespace-pre-wrap">
-                          {this.state.error.stack}
-                        </pre>
+              {this.state.error && (
+                <div className="mt-3 p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                  <p className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">
+                    Error: {this.state.error.message}
+                  </p>
+
+                  {process.env.NODE_ENV === 'development' && (
+                    <details className="mt-2">
+                      <summary className="text-xs font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:underline">
+                        Show technical details (Development)
+                      </summary>
+                      <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-800 rounded text-xs font-mono text-gray-800 dark:text-gray-200 overflow-auto max-h-32">
+                        {this.state.error.stack && (
+                          <div className="mb-2">
+                            <strong>Stack Trace:</strong>
+                            <pre className="whitespace-pre-wrap mt-1">
+                              {this.state.error.stack}
+                            </pre>
+                          </div>
+                        )}
+                        {this.state.errorInfo && (
+                          <div>
+                            <strong>Component Stack:</strong>
+                            <pre className="whitespace-pre-wrap mt-1">
+                              {this.state.errorInfo.componentStack}
+                            </pre>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                </details>
+                    </details>
+                  )}
+                </div>
               )}
             </div>
 
-            <div className="flex space-x-3">
+            <div className="flex flex-wrap gap-3">
               <button
                 onClick={this.handleReset}
-                className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
               >
+                <RefreshCw className="h-4 w-4" />
                 Try Again
               </button>
-              <button
-                onClick={() => window.location.reload()}
-                className="flex-1 bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-              >
-                Reload App
-              </button>
+
+              {isPageLevel && (
+                <button
+                  onClick={() => window.location.reload()}
+                  className="inline-flex items-center gap-2 bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                  Reload App
+                </button>
+              )}
             </div>
           </div>
         </div>

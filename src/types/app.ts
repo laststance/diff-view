@@ -56,6 +56,16 @@ export interface AppState {
   diffData: DiffData | null;
   isProcessing: boolean;
 
+  // Error state
+  currentError: AppError | null;
+  errorHistory: AppError[];
+
+  // Loading states
+  loadingStates: LoadingStates;
+
+  // Content limits
+  contentLimits: ContentLimits;
+
   // Settings
   syntaxHighlighting: boolean;
   showLineNumbers: boolean;
@@ -94,6 +104,23 @@ export interface AppActions {
   setDiffData: (data: DiffData | null) => void;
   setProcessing: (processing: boolean) => void;
 
+  // Error handling actions
+  setError: (error: AppError | null) => void;
+  clearError: () => void;
+  addErrorToHistory: (error: AppError) => void;
+  clearErrorHistory: () => void;
+
+  // Loading state actions
+  setLoadingState: (operation: keyof LoadingStates, loading: boolean) => void;
+  clearAllLoadingStates: () => void;
+
+  // Content validation actions
+  validateContentSize: (content: string) => {
+    valid: boolean;
+    warnings: string[];
+  };
+  setContentLimits: (limits: Partial<ContentLimits>) => void;
+
   // Settings actions
   setSyntaxHighlighting: (enabled: boolean) => void;
   setShowLineNumbers: (enabled: boolean) => void;
@@ -105,6 +132,38 @@ export interface AppActions {
 
 // Combined store interface
 export interface AppStore extends AppState, AppActions {}
+
+// Error types for different kinds of application errors
+export type ErrorType =
+  | 'diff-computation'
+  | 'content-size'
+  | 'memory-limit'
+  | 'processing-timeout'
+  | 'invalid-content'
+  | 'unknown';
+
+export interface AppError {
+  type: ErrorType;
+  message: string;
+  details?: string;
+  timestamp: number;
+  recoverable: boolean;
+}
+
+// Content size limits and warnings
+export interface ContentLimits {
+  maxFileSize: number; // in bytes
+  maxLines: number;
+  maxCharacters: number;
+  warningThreshold: number; // percentage of max before warning
+}
+
+// Loading states for different operations
+export interface LoadingStates {
+  diffComputation: boolean;
+  contentValidation: boolean;
+  fileProcessing: boolean;
+}
 
 // Error boundary state
 export interface ErrorBoundaryState {

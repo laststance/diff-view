@@ -1,8 +1,16 @@
 {
   "name": "diff-view",
-  "productName": "diff-view",
+  "productName": "Diff View",
   "version": "1.0.0",
   "description": "An offline desktop application for GitHub-style text comparison and diff visualization",
+  "homepage": "https://github.com/diff-view/diff-view",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/diff-view/diff-view.git"
+  },
+  "bugs": {
+    "url": "https://github.com/diff-view/diff-view/issues"
+  },
   "main": ".vite/build/main.js",
   "scripts": {
     "start": "electron-forge start",
