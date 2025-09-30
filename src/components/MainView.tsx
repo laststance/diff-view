@@ -1,9 +1,11 @@
 import React, { useMemo } from 'react';
-import { FileText, Type, Palette } from 'lucide-react';
+import { Type, Palette } from 'lucide-react';
 
 import { useAppStore } from '../store/appStore';
 
 import { Layout } from './Layout';
+import { TextPane } from './TextPane';
+import { PasteArea } from './PasteArea';
 
 /**
  * Main view component with proper layout structure
@@ -48,71 +50,51 @@ export const MainView: React.FC = () => {
           }`}
         >
           {/* Left Content Pane */}
-          <div className="flex flex-col bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-            <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700">
-              <div className="flex items-center space-x-2">
-                <FileText className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Original
-                </span>
-              </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">
-                {leftContent.length} chars, {leftContent.split('\n').length}{' '}
-                lines
-              </div>
-            </div>
-            <div className="flex-1 p-3">
-              <textarea
-                value={leftContent}
-                onChange={(e) => setLeftContent(e.target.value)}
-                placeholder="Paste or type your original content here..."
-                className={`w-full h-full min-h-[300px] resize-none border-0 bg-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-0 ${
-                  fontSize === 'small'
-                    ? 'text-sm'
-                    : fontSize === 'large'
-                      ? 'text-lg'
-                      : 'text-base'
-                } ${wordWrap ? 'whitespace-pre-wrap' : 'whitespace-pre'}`}
-                style={{
-                  fontFamily:
-                    'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace',
+          <div className="flex flex-col space-y-4 h-full">
+            <TextPane
+              id="left"
+              value={leftContent}
+              onChange={setLeftContent}
+              placeholder="Paste or type your original content here..."
+              title="Original"
+              fontSize={fontSize}
+              wordWrap={wordWrap}
+              showLineNumbers={showLineNumbers}
+            />
+
+            {/* PasteArea for left pane when empty */}
+            {!leftContent && (
+              <PasteArea
+                onContentPaste={(content, _fileName) => {
+                  setLeftContent(content);
                 }}
+                className="min-h-[120px]"
               />
-            </div>
+            )}
           </div>
 
           {/* Right Content Pane */}
-          <div className="flex flex-col bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-            <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700">
-              <div className="flex items-center space-x-2">
-                <FileText className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Modified
-                </span>
-              </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">
-                {rightContent.length} chars, {rightContent.split('\n').length}{' '}
-                lines
-              </div>
-            </div>
-            <div className="flex-1 p-3">
-              <textarea
-                value={rightContent}
-                onChange={(e) => setRightContent(e.target.value)}
-                placeholder="Paste or type your modified content here..."
-                className={`w-full h-full min-h-[300px] resize-none border-0 bg-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-0 ${
-                  fontSize === 'small'
-                    ? 'text-sm'
-                    : fontSize === 'large'
-                      ? 'text-lg'
-                      : 'text-base'
-                } ${wordWrap ? 'whitespace-pre-wrap' : 'whitespace-pre'}`}
-                style={{
-                  fontFamily:
-                    'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace',
+          <div className="flex flex-col space-y-4 h-full">
+            <TextPane
+              id="right"
+              value={rightContent}
+              onChange={setRightContent}
+              placeholder="Paste or type your modified content here..."
+              title="Modified"
+              fontSize={fontSize}
+              wordWrap={wordWrap}
+              showLineNumbers={showLineNumbers}
+            />
+
+            {/* PasteArea for right pane when empty */}
+            {!rightContent && (
+              <PasteArea
+                onContentPaste={(content, _fileName) => {
+                  setRightContent(content);
                 }}
+                className="min-h-[120px]"
               />
-            </div>
+            )}
           </div>
         </div>
 

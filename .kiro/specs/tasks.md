@@ -79,14 +79,14 @@
   - Test CSS Grid/Flexbox layout behavior across different window sizes
   - _Requirements: 4.1, 4.2, 4.3, 6.1_
 
-- [ ] 7. Create text input components
+- [x] 7. Create text input components
   - Implement TextPane component for left and right text areas
   - Add paste functionality with clipboard API integration
   - Create PasteArea component with drag-and-drop support
   - Implement character and line count display
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
 
-- [ ] 7.1 Test text input functionality with Playwright
+- [x] 7.1 Test text input functionality with Playwright
   - Write tests for TextPane component text input and editing
   - Test clipboard paste functionality (Ctrl+V/Cmd+V)
   - Verify drag-and-drop file support in PasteArea component
