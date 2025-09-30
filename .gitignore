@@ -90,3 +90,10 @@ typings/
 
 # Electron-Forge
 out/
+
+# tests
+playwright-report/
+test-results/
+artifacts/
+screenshots/
+
