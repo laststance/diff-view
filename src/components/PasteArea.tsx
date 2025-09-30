@@ -283,9 +283,16 @@ export const PasteArea: React.FC<PasteAreaProps> = ({
         onClick={handleClick}
         onPaste={handlePaste}
         tabIndex={disabled ? -1 : 0}
-        className="outline-none"
+        className="outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg"
         role="button"
-        aria-label="Drop files or click to select"
+        aria-label="Drop files, click to select, or paste content with Ctrl+V"
+        aria-describedby="paste-area-instructions"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleClick();
+          }
+        }}
       >
         {isProcessing ? (
           <div className="flex flex-col items-center space-y-3">
@@ -330,7 +337,11 @@ export const PasteArea: React.FC<PasteAreaProps> = ({
 
       {/* Supported file types info */}
       {!isProcessing && !error && (
-        <div className="mt-4 text-xs text-gray-500 dark:text-gray-400">
+        <div
+          id="paste-area-instructions"
+          className="mt-4 text-xs text-gray-500 dark:text-gray-400"
+          aria-label="File format and usage instructions"
+        >
           <p>Supported formats:</p>
           <p className="mt-1">
             {acceptedFileTypes.slice(0, 6).join(', ')}

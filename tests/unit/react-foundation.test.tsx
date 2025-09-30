@@ -191,7 +191,7 @@ describe('React Application Foundation', () => {
         expect(screen.getByText(/Theme: system/)).toBeInTheDocument();
         expect(screen.getByText(/Font: medium/)).toBeInTheDocument();
       }
-      
+
       // Check that PasteArea is shown when content is empty
       expect(screen.getByText('Original')).toBeInTheDocument();
       expect(screen.getByText('Modified')).toBeInTheDocument();
@@ -220,7 +220,7 @@ describe('React Application Foundation', () => {
       render(<MainView />);
 
       // Find the unified view button by its title attribute
-      const unifiedButton = screen.getByTitle('Unified View');
+      const unifiedButton = screen.getByTitle('Unified View (Ctrl+Shift+V)');
 
       fireEvent.click(unifiedButton);
 

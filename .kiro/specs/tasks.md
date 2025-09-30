@@ -149,14 +149,14 @@
   - Test content persistence during application session
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 8.1_
 
-- [ ] 12. Implement keyboard shortcuts and accessibility
+- [x] 12. Implement keyboard shortcuts and accessibility
   - Add standard keyboard shortcuts (Ctrl+C, Ctrl+V, Ctrl+A, etc.)
   - Implement application-specific shortcuts for view switching
   - Add proper ARIA labels and accessibility attributes
   - Create keyboard navigation support for all interactive elements
   - _Requirements: 8.1, 4.4_
 
-- [ ] 12.1 Test keyboard shortcuts and accessibility with Playwright
+- [x] 12.1 Test keyboard shortcuts and accessibility with Playwright
   - Write tests for standard keyboard shortcuts (Ctrl+C, Ctrl+V, Ctrl+A, etc.)
   - Test application-specific shortcuts for view switching and navigation
   - Verify ARIA labels and accessibility attributes using axe-playwright

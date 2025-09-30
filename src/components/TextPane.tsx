@@ -191,16 +191,28 @@ export const TextPane: React.FC<TextPaneProps> = ({
     <div
       data-testid={`text-pane-${id}`}
       className="flex flex-col bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm h-full"
+      role="region"
+      aria-label={`${title || (id === 'left' ? 'Original' : 'Modified')} text pane`}
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-750 rounded-t-lg">
+      <div
+        className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-750 rounded-t-lg"
+        role="banner"
+        aria-label="Text pane header"
+      >
         <div className="flex items-center space-x-2">
-          <FileText className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <FileText
+            className="h-4 w-4 text-gray-500 dark:text-gray-400"
+            aria-hidden="true"
+          />
+          <h2 className="text-sm font-medium text-gray-700 dark:text-gray-300">
             {title || (id === 'left' ? 'Original' : 'Modified')}
-          </span>
+          </h2>
           {language && (
-            <span className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded">
+            <span
+              className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded"
+              aria-label={`Language: ${language}`}
+            >
               {language}
             </span>
           )}
@@ -208,24 +220,38 @@ export const TextPane: React.FC<TextPaneProps> = ({
 
         <div className="flex items-center space-x-3">
           {/* Content Statistics */}
-          <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center space-x-2">
-            <span>{stats.chars} chars</span>
-            <span>•</span>
-            <span>{stats.lines} lines</span>
-            <span>•</span>
-            <span>{stats.words} words</span>
+          <div
+            id={`text-pane-${id}-stats`}
+            className="text-xs text-gray-500 dark:text-gray-400 flex items-center space-x-2"
+            role="status"
+            aria-live="polite"
+            aria-label={`Content statistics: ${stats.chars} characters, ${stats.lines} lines, ${stats.words} words`}
+          >
+            <span aria-label={`${stats.chars} characters`}>
+              {stats.chars} chars
+            </span>
+            <span aria-hidden="true">•</span>
+            <span aria-label={`${stats.lines} lines`}>{stats.lines} lines</span>
+            <span aria-hidden="true">•</span>
+            <span aria-label={`${stats.words} words`}>{stats.words} words</span>
           </div>
 
           {/* Action Buttons */}
           {!readOnly && (
-            <div className="flex items-center space-x-1">
+            <div
+              className="flex items-center space-x-1"
+              role="group"
+              aria-label="Text actions"
+            >
               <button
                 onClick={handleCopy}
                 disabled={!value}
-                className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Copy content"
+                className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
+                title="Copy content to clipboard"
+                aria-label="Copy content to clipboard"
+                type="button"
               >
-                <Copy className="h-3 w-3" />
+                <Copy className="h-3 w-3" aria-hidden="true" />
               </button>
             </div>
           )}
@@ -244,7 +270,7 @@ export const TextPane: React.FC<TextPaneProps> = ({
           onScroll={handleScroll}
           placeholder={placeholder}
           readOnly={readOnly}
-          className={`w-full ${fixedHeight || value.length > 100 ? 'h-[400px]' : 'h-full min-h-[300px]'} resize-none border-0 bg-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-0 p-3 ${fontSizeClass} ${
+          className={`w-full ${fixedHeight || value.length > 100 ? 'h-[400px]' : 'h-full min-h-[300px]'} resize-none border-0 bg-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-800 p-3 ${fontSizeClass} ${
             wordWrap ? 'whitespace-pre-wrap' : 'whitespace-pre'
           }`}
           style={{
@@ -255,6 +281,10 @@ export const TextPane: React.FC<TextPaneProps> = ({
           autoComplete="off"
           autoCorrect="off"
           autoCapitalize="off"
+          aria-label={`${title || (id === 'left' ? 'Original' : 'Modified')} text content`}
+          aria-describedby={`text-pane-${id}-stats`}
+          aria-multiline="true"
+          role="textbox"
         />
 
         {/* Line Numbers Overlay (if enabled) */}

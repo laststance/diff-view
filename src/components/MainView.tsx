@@ -81,9 +81,14 @@ export const MainView: React.FC = () => {
   return (
     <Layout diffStats={diffStats}>
       {/* Main Content Area with Responsive Grid */}
-      <div className="h-full flex flex-col space-y-4" data-testid="main-view">
+      <div
+        className="h-full flex flex-col space-y-4"
+        data-testid="main-view"
+        role="application"
+        aria-label="Text comparison interface"
+      >
         {/* Content Input Section */}
-        <div className="space-y-4">
+        <section className="space-y-4" aria-label="Text input area">
           {/* Input Panes Row */}
           <div
             className={`grid gap-4 ${
@@ -91,6 +96,8 @@ export const MainView: React.FC = () => {
                 ? 'grid-cols-1 lg:grid-cols-2'
                 : 'grid-cols-1'
             }`}
+            role="group"
+            aria-label="Text input panes"
           >
             {/* Left Content Pane */}
             <div className="flex flex-col space-y-4">
@@ -166,10 +173,14 @@ export const MainView: React.FC = () => {
           </div>
 
           {/* Diff Viewer Row */}
-          <div className="min-h-[400px]">
+          <section
+            className="min-h-[400px]"
+            aria-label="Diff visualization"
+            role="region"
+          >
             <DiffViewer className="w-full" />
-          </div>
-        </div>
+          </section>
+        </section>
 
         {/* Settings Preview Section (Development) */}
         {process.env.NODE_ENV === 'development' && (

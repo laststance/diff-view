@@ -25,21 +25,35 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({ className }) => {
       <div
         className={`diff-viewer-container ${className || ''}`}
         data-testid="diff-viewer"
+        role="region"
+        aria-label="Diff visualization area"
+        aria-live="polite"
       >
         {/* Always show the container for debugging */}
-        <div className="p-4 bg-blue-50 border border-blue-200 rounded">
-          <p>DiffViewer Debug Info:</p>
-          <p>Left content: {leftContent?.length || 0} chars</p>
-          <p>Right content: {rightContent?.length || 0} chars</p>
-          <p>Processing: {isProcessing ? 'Yes' : 'No'}</p>
-          <p>Diff data: {diffData ? 'Present' : 'None'}</p>
-          <p>View mode: {viewMode}</p>
-          <p>Theme: {theme}</p>
+        <div
+          className="p-4 bg-blue-50 border border-blue-200 rounded"
+          role="status"
+          aria-label="Diff viewer debug information"
+        >
+          <h3 className="font-medium mb-2">DiffViewer Debug Info:</h3>
+          <ul className="space-y-1 text-sm">
+            <li>Left content: {leftContent?.length || 0} chars</li>
+            <li>Right content: {rightContent?.length || 0} chars</li>
+            <li>Processing: {isProcessing ? 'Yes' : 'No'}</li>
+            <li>Diff data: {diffData ? 'Present' : 'None'}</li>
+            <li>View mode: {viewMode}</li>
+            <li>Theme: {theme}</li>
+          </ul>
         </div>
 
         {/* Placeholder for actual diff view */}
         {leftContent && rightContent && (
-          <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded">
+          <div
+            className="mt-4 p-4 bg-green-50 border border-green-200 rounded"
+            role="region"
+            aria-label="Diff comparison result"
+          >
+            <h3 className="font-medium mb-2">Diff Comparison</h3>
             <p>Diff would be rendered here</p>
             <p>
               Comparing {leftContent.split('\n').length} lines vs{' '}
