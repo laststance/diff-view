@@ -65,14 +65,14 @@
   - Test application initialization and component mounting
   - _Requirements: 5.2, 4.1, 4.4_
 
-- [ ] 6. Implement core layout and UI structure
+- [x] 6. Implement core layout and UI structure
   - Create main Layout component with header, content area, and status bar
   - Implement responsive design with proper CSS Grid/Flexbox
   - Add Lucide React icons for UI elements
   - Create Toolbar component with view controls and settings
   - _Requirements: 4.1, 4.2, 4.3, 6.1_
 
-- [ ] 6.1 Test UI layout and components with Playwright
+- [x] 6.1 Test UI layout and components with Playwright
   - Write tests for Layout component rendering and responsive behavior
   - Test Lucide React icons display and accessibility
   - Verify Toolbar component functionality and user interactions

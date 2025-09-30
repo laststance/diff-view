@@ -12,6 +12,9 @@ export class ElectronTestHelper {
 
     this.window = await this.app.firstWindow();
     await this.window.waitForLoadState('domcontentloaded');
+
+    // Wait for the React app to be ready
+    await this.window.waitForSelector('#root', { timeout: 10000 });
   }
 
   async close(): Promise<void> {
