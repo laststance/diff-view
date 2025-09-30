@@ -37,14 +37,14 @@
   - Test window security settings and proper isolation
   - _Requirements: 8.2, 8.3, 8.4, 8.5_
 
-- [ ] 4. Create secure preload script and IPC communication
+- [x] 4. Create secure preload script and IPC communication
   - Implement preload script with context isolation enabled
   - Create secure API interface for renderer process communication
   - Set up IPC handlers for window controls and application actions
   - Implement theme management IPC communication
   - _Requirements: 3.1, 3.2, 3.3, 6.4_
 
-- [ ] 4.1 Test IPC communication with Playwright
+- [x] 4.1 Test IPC communication with Playwright
   - Write tests for secure preload script API exposure
   - Test IPC message passing between main and renderer processes
   - Verify window control functions (minimize, maximize, close)

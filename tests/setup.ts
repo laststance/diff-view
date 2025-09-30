@@ -1,23 +1,22 @@
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 
-// Mock Electron APIs for unit tests
-const mockElectronAPI = {
-  minimizeWindow: vi.fn(),
-  maximizeWindow: vi.fn(),
-  closeWindow: vi.fn(),
-  clearContent: vi.fn(),
-  exportDiff: vi.fn(),
-  getTheme: vi.fn().mockResolvedValue('light'),
-  setTheme: vi.fn(),
-};
+import type { ElectronAPI } from '../src/types/electron';
 
-// Extend the Window interface for TypeScript
-declare global {
-  interface Window {
-    electronAPI: typeof mockElectronAPI;
-  }
-}
+// Mock Electron APIs for unit tests
+const mockElectronAPI: ElectronAPI = {
+  minimizeWindow: vi.fn().mockResolvedValue(undefined),
+  maximizeWindow: vi.fn().mockResolvedValue(undefined),
+  closeWindow: vi.fn().mockResolvedValue(undefined),
+  isWindowMaximized: vi.fn().mockResolvedValue(false),
+  clearContent: vi.fn().mockResolvedValue(true),
+  exportDiff: vi.fn().mockResolvedValue(true),
+  getTheme: vi.fn().mockResolvedValue('light'),
+  setTheme: vi.fn().mockResolvedValue('light'),
+  shouldUseDarkColors: vi.fn().mockResolvedValue(false),
+  onThemeUpdated: vi.fn(),
+  removeThemeListeners: vi.fn(),
+};
 
 // Make the mock available globally
 Object.defineProperty(window, 'electronAPI', {

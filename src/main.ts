@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain, nativeTheme } from 'electron';
 import path from 'node:path';
 
 import started from 'electron-squirrel-startup';
@@ -8,14 +8,27 @@ if (started) {
   app.quit();
 }
 
+let mainWindow: BrowserWindow | null = null;
+
 const createWindow = () => {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+  mainWindow = new BrowserWindow({
+    width: 1200,
+    height: 800,
+    minWidth: 800,
+    minHeight: 600,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: false, // Required for some diff functionality
     },
+    show: false, // Don't show until ready-to-show
+  });
+
+  // Show window when ready to prevent visual flash
+  mainWindow.once('ready-to-show', () => {
+    mainWindow?.show();
   });
 
   // and load the index.html of the app.
@@ -27,9 +40,81 @@ const createWindow = () => {
     );
   }
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // Open the DevTools in development
+  if (process.env.NODE_ENV === 'development') {
+    mainWindow.webContents.openDevTools();
+  }
 };
+
+// IPC Handlers for secure communication
+
+// Window control handlers
+ipcMain.handle('window:minimize', () => {
+  if (mainWindow) {
+    mainWindow.minimize();
+  }
+});
+
+ipcMain.handle('window:maximize', () => {
+  if (mainWindow) {
+    if (mainWindow.isMaximized()) {
+      mainWindow.unmaximize();
+    } else {
+      mainWindow.maximize();
+    }
+  }
+});
+
+ipcMain.handle('window:close', () => {
+  if (mainWindow) {
+    mainWindow.close();
+  }
+});
+
+ipcMain.handle('window:isMaximized', () => {
+  return mainWindow?.isMaximized() ?? false;
+});
+
+// Theme management handlers
+ipcMain.handle('theme:get', () => {
+  return nativeTheme.themeSource;
+});
+
+ipcMain.handle('theme:set', (_event, theme: 'system' | 'light' | 'dark') => {
+  if (['system', 'light', 'dark'].includes(theme)) {
+    nativeTheme.themeSource = theme;
+    return theme;
+  }
+  throw new Error('Invalid theme value');
+});
+
+ipcMain.handle('theme:shouldUseDarkColors', () => {
+  return nativeTheme.shouldUseDarkColors;
+});
+
+// Application action handlers
+ipcMain.handle('app:clearContent', () => {
+  // This will be handled by the renderer process
+  // Just acknowledge the request
+  return true;
+});
+
+ipcMain.handle('app:exportDiff', async (_event, content: string) => {
+  // For now, just return success
+  // In a full implementation, this would open a save dialog
+  console.log('Export diff requested:', content.length, 'characters');
+  return true;
+});
+
+// Listen for theme changes and notify renderer
+nativeTheme.on('updated', () => {
+  if (mainWindow) {
+    mainWindow.webContents.send('theme:updated', {
+      shouldUseDarkColors: nativeTheme.shouldUseDarkColors,
+      themeSource: nativeTheme.themeSource,
+    });
+  }
+});
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
