@@ -76,11 +76,11 @@ test.describe('UI Layout and Components', () => {
   test.describe('Toolbar Component', () => {
     test('should display view mode toggle buttons', async () => {
       // Check split view button
-      const splitViewButton = page.locator('button[title="Split View"]');
+      const splitViewButton = page.locator('button[title*="Split View"]');
       await expect(splitViewButton).toBeVisible();
 
       // Check unified view button
-      const unifiedViewButton = page.locator('button[title="Unified View"]');
+      const unifiedViewButton = page.locator('button[title*="Unified View"]');
       await expect(unifiedViewButton).toBeVisible();
 
       // One of the buttons should be active (have bg-white class)
@@ -94,8 +94,8 @@ test.describe('UI Layout and Components', () => {
     });
 
     test('should toggle between split and unified view modes', async () => {
-      const splitViewButton = page.locator('button[title="Split View"]');
-      const unifiedViewButton = page.locator('button[title="Unified View"]');
+      const splitViewButton = page.locator('button[title*="Split View"]');
+      const unifiedViewButton = page.locator('button[title*="Unified View"]');
 
       // Determine initial state
       const initialSplitActive = await splitViewButton.evaluate((el) =>
@@ -271,8 +271,8 @@ test.describe('UI Layout and Components', () => {
       expect(iconCount).toBeGreaterThan(0);
 
       // Check that parent buttons have proper titles for screen readers
-      await expect(page.locator('button[title="Split View"]')).toBeVisible();
-      await expect(page.locator('button[title="Unified View"]')).toBeVisible();
+      await expect(page.locator('button[title*="Split View"]')).toBeVisible();
+      await expect(page.locator('button[title*="Unified View"]')).toBeVisible();
       await expect(page.locator('button[title*="Theme:"]')).toBeVisible();
       await expect(page.locator('button[title*="Font Size:"]')).toBeVisible();
     });
@@ -307,8 +307,8 @@ test.describe('UI Layout and Components', () => {
       await page.setViewportSize({ width: 768, height: 600 });
 
       // Toolbar buttons should still be clickable
-      const splitViewButton = page.locator('button[title="Split View"]');
-      const unifiedViewButton = page.locator('button[title="Unified View"]');
+      const splitViewButton = page.locator('button[title*="Split View"]');
+      const unifiedViewButton = page.locator('button[title*="Unified View"]');
 
       await expect(splitViewButton).toBeVisible();
       await expect(unifiedViewButton).toBeVisible();

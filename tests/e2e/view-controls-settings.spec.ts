@@ -19,7 +19,7 @@ test.beforeAll(async () => {
 
   // Wait for the app to be ready
   await page.waitForLoadState('domcontentloaded');
-  await page.waitForSelector('button[title="Split View"]', { timeout: 10000 });
+  await page.waitForSelector('button[title*="Split View"]', { timeout: 10000 });
 });
 
 test.afterAll(async () => {
@@ -31,12 +31,12 @@ test.describe('View Controls and Settings', () => {
     // Reset the app state before each test
     await page.reload();
     await page.waitForLoadState('domcontentloaded');
-    await page.waitForSelector('button[title="Split View"]', { timeout: 5000 });
+    await page.waitForSelector('button[title*="Split View"]', { timeout: 5000 });
   });
 
   test('should toggle between split and unified view modes', async () => {
-    const splitButton = page.locator('button[title="Split View"]');
-    const unifiedButton = page.locator('button[title="Unified View"]');
+    const splitButton = page.locator('button[title*="Split View"]');
+    const unifiedButton = page.locator('button[title*="Unified View"]');
 
     // Determine initial state
     const initialSplitActive = await splitButton.evaluate((el) =>
@@ -192,7 +192,7 @@ test.describe('View Controls and Settings', () => {
 
   test('should have scroll synchronization infrastructure in place', async () => {
     // Ensure we're in split view
-    const splitButton = page.locator('button[title="Split View"]');
+    const splitButton = page.locator('button[title*="Split View"]');
     await splitButton.click();
 
     const leftTextarea = page.locator('textarea').first();
@@ -222,7 +222,7 @@ test.describe('View Controls and Settings', () => {
   });
 
   test('should not synchronize scrolling in unified view', async () => {
-    const unifiedButton = page.locator('button[title="Unified View"]');
+    const unifiedButton = page.locator('button[title*="Unified View"]');
 
     // Ensure we're in unified view
     const isUnifiedActive = await unifiedButton.evaluate((el) =>
@@ -266,8 +266,8 @@ test.describe('View Controls and Settings', () => {
   });
 
   test('should maintain view mode state across interactions', async () => {
-    const splitButton = page.locator('button[title="Split View"]');
-    const unifiedButton = page.locator('button[title="Unified View"]');
+    const splitButton = page.locator('button[title*="Split View"]');
+    const unifiedButton = page.locator('button[title*="Unified View"]');
 
     // Switch to unified view
     await unifiedButton.click();

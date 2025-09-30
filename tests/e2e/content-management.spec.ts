@@ -249,8 +249,8 @@ test.describe('Content Management Functionality', () => {
 
     test('should toggle view mode with Ctrl+Shift+V keyboard shortcut', async () => {
       // Check initial view mode (should be split)
-      const splitButton = page.locator('button[title="Split View"]');
-      const unifiedButton = page.locator('button[title="Unified View"]');
+      const splitButton = page.locator('button[title*="Split View"]');
+      const unifiedButton = page.locator('button[title*="Unified View"]');
 
       await expect(splitButton).toHaveClass(/bg-white/);
 
@@ -342,11 +342,11 @@ test.describe('Content Management Functionality', () => {
       await rightTextarea.fill(rightContent);
 
       // Switch to unified view
-      const unifiedButton = page.locator('button[title="Unified View"]');
+      const unifiedButton = page.locator('button[title*="Unified View"]');
       await unifiedButton.click();
 
       // Switch back to split view
-      const splitButton = page.locator('button[title="Split View"]');
+      const splitButton = page.locator('button[title*="Split View"]');
       await splitButton.click();
 
       // Verify content is still there

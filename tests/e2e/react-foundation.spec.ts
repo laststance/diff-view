@@ -45,8 +45,8 @@ test.describe('React Application Foundation', () => {
     await expect(page.locator('text=Modified')).toBeVisible();
 
     // Check that view mode buttons are present
-    await expect(page.locator('button[title="Split View"]')).toBeVisible();
-    await expect(page.locator('button[title="Unified View"]')).toBeVisible();
+    await expect(page.locator('button[title*="Split View"]')).toBeVisible();
+    await expect(page.locator('button[title*="Unified View"]')).toBeVisible();
 
     // Check that textareas exist
     await expect(page.locator('textarea')).toHaveCount(2);
@@ -68,14 +68,14 @@ test.describe('React Application Foundation', () => {
     await expect(rightTextarea).toHaveValue('Hello World Right');
 
     // Test view mode change
-    const unifiedButton = page.locator('button[title="Unified View"]');
+    const unifiedButton = page.locator('button[title*="Unified View"]');
     await unifiedButton.click();
 
     // Verify the unified button is now active (has active styling)
     await expect(unifiedButton).toHaveClass(/bg-white|shadow-sm/);
 
     // Change back to split
-    const splitButton = page.locator('button[title="Split View"]');
+    const splitButton = page.locator('button[title*="Split View"]');
     await splitButton.click();
     await expect(splitButton).toHaveClass(/bg-white|shadow-sm/);
   });
@@ -86,7 +86,7 @@ test.describe('React Application Foundation', () => {
     await leftTextarea.fill('Persistent content test');
 
     // Change view mode
-    const unifiedButton = page.locator('button[title="Unified View"]');
+    const unifiedButton = page.locator('button[title*="Unified View"]');
     await unifiedButton.click();
 
     // Clear and refill to test persistence
@@ -124,7 +124,7 @@ test.describe('React Application Foundation', () => {
     await expect(leftTextarea).toHaveValue(largeContent);
 
     // Verify the application is still responsive
-    const unifiedButton = page.locator('button[title="Unified View"]');
+    const unifiedButton = page.locator('button[title*="Unified View"]');
     await unifiedButton.click();
     await expect(unifiedButton).toHaveClass(/bg-white|shadow-sm/);
   });
@@ -228,8 +228,8 @@ test.describe('TypeScript Type Safety', () => {
 
     // Test that all expected elements exist (validates TypeScript compilation)
     await expect(page.locator('textarea')).toHaveCount(2);
-    await expect(page.locator('button[title="Split View"]')).toBeVisible();
-    await expect(page.locator('button[title="Unified View"]')).toBeVisible();
+    await expect(page.locator('button[title*="Split View"]')).toBeVisible();
+    await expect(page.locator('button[title*="Unified View"]')).toBeVisible();
 
     // Test that state updates work as expected (validates store types)
     const leftTextarea = page.locator('textarea').first();
@@ -239,15 +239,15 @@ test.describe('TypeScript Type Safety', () => {
     await expect(leftTextarea).toHaveValue('TypeScript test content');
 
     // Test view mode buttons (validates interaction types)
-    const unifiedButton = page.locator('button[title="Unified View"]');
+    const unifiedButton = page.locator('button[title*="Unified View"]');
     await unifiedButton.click();
     await expect(unifiedButton).toHaveClass(/bg-white|shadow-sm/);
   });
 
   test('should maintain type safety in state management', async () => {
     // Test that only valid values are accepted
-    const splitButton = page.locator('button[title="Split View"]');
-    const unifiedButton = page.locator('button[title="Unified View"]');
+    const splitButton = page.locator('button[title*="Split View"]');
+    const unifiedButton = page.locator('button[title*="Unified View"]');
 
     // Test valid view mode values
     await splitButton.click();
@@ -266,8 +266,8 @@ test.describe('TypeScript Type Safety', () => {
 test.describe('Application Initialization', () => {
   test('should initialize with correct default values', async () => {
     // Verify one of the view mode buttons is active (depends on persisted state)
-    const splitButton = page.locator('button[title="Split View"]');
-    const unifiedButton = page.locator('button[title="Unified View"]');
+    const splitButton = page.locator('button[title*="Split View"]');
+    const unifiedButton = page.locator('button[title*="Unified View"]');
 
     const splitActive = await splitButton.evaluate((el) =>
       el.className.includes('bg-white')

@@ -75,7 +75,7 @@ test.describe('Diff Display Features', () => {
     await expect(diffViewer).toBeVisible();
 
     // Test split view (default)
-    const splitViewButton = page.locator('button[title="Split View"]');
+    const splitViewButton = page.locator('button[title*="Split View"]');
     await expect(splitViewButton).toBeVisible();
 
     // Verify split view is active (button should have active styling)
@@ -83,7 +83,7 @@ test.describe('Diff Display Features', () => {
     expect(splitButtonClass).toContain('bg-white');
 
     // Test unified view
-    const unifiedViewButton = page.locator('button[title="Unified View"]');
+    const unifiedViewButton = page.locator('button[title*="Unified View"]');
     await expect(unifiedViewButton).toBeVisible();
     await unifiedViewButton.click();
 
@@ -372,7 +372,7 @@ Line 5 newly added`);
     );
 
     // Switch to unified view
-    const unifiedViewButton = page.locator('button[title="Unified View"]');
+    const unifiedViewButton = page.locator('button[title*="Unified View"]');
     await unifiedViewButton.click();
     await page.waitForTimeout(300);
 
@@ -383,7 +383,7 @@ Line 5 newly added`);
     );
 
     // Switch back to split view
-    const splitViewButton = page.locator('button[title="Split View"]');
+    const splitViewButton = page.locator('button[title*="Split View"]');
     await splitViewButton.click();
     await page.waitForTimeout(300);
 
