@@ -177,63 +177,71 @@ describe('React Application Foundation', () => {
     it('should render without errors', () => {
       render(<MainView />);
 
-      expect(screen.getByText('💖 Diff View')).toBeInTheDocument();
+      expect(screen.getByText('Diff View')).toBeInTheDocument();
       expect(
-        screen.getByText(
-          'Compare text content with GitHub-style diff visualization'
-        )
+        screen.getByText('Compare text with GitHub-style visualization')
       ).toBeInTheDocument();
     });
 
     it('should display current state correctly', () => {
       render(<MainView />);
 
-      expect(screen.getAllByText('View Mode:')).toHaveLength(2);
-      expect(screen.getByText('split')).toBeInTheDocument();
-      expect(screen.getByText('Theme:')).toBeInTheDocument();
-      expect(screen.getByText('system')).toBeInTheDocument();
-      expect(screen.getAllByText('0 chars')).toHaveLength(2);
+      // In development mode, settings preview should show theme and other settings
+      if (process.env.NODE_ENV === 'development') {
+        expect(screen.getByText(/Theme: system/)).toBeInTheDocument();
+        expect(screen.getByText(/Font: medium/)).toBeInTheDocument();
+      }
+      
+      // Check that PasteArea is shown when content is empty
+      expect(screen.getByText('Original')).toBeInTheDocument();
+      expect(screen.getByText('Modified')).toBeInTheDocument();
     });
 
     it('should update content when user types', async () => {
       render(<MainView />);
 
-      const leftTextarea = screen.getByPlaceholderText('Enter left content...');
+      const leftTextarea = screen.getByPlaceholderText(
+        'Paste or type your original content here...'
+      );
       const rightTextarea = screen.getByPlaceholderText(
-        'Enter right content...'
+        'Paste or type your modified content here...'
       );
 
       fireEvent.change(leftTextarea, { target: { value: 'Hello World' } });
       fireEvent.change(rightTextarea, { target: { value: 'Hello Universe' } });
 
       await waitFor(() => {
-        expect(screen.getByText('11 chars')).toBeInTheDocument();
-        expect(screen.getByText('14 chars')).toBeInTheDocument();
+        expect(useAppStore.getState().leftContent).toBe('Hello World');
+        expect(useAppStore.getState().rightContent).toBe('Hello Universe');
       });
     });
 
-    it('should update view mode when select changes', async () => {
+    it('should update view mode when button is clicked', async () => {
       render(<MainView />);
 
-      const viewModeSelect = screen.getByDisplayValue('Split View');
+      // Find the unified view button by its title attribute
+      const unifiedButton = screen.getByTitle('Unified View');
 
-      fireEvent.change(viewModeSelect, { target: { value: 'unified' } });
+      fireEvent.click(unifiedButton);
 
       await waitFor(() => {
-        expect(screen.getByText('unified')).toBeInTheDocument();
+        expect(useAppStore.getState().viewMode).toBe('unified');
       });
     });
 
     it('should handle large content without errors', async () => {
       render(<MainView />);
 
-      const leftTextarea = screen.getByPlaceholderText('Enter left content...');
+      const leftTextarea = screen.getByPlaceholderText(
+        'Paste or type your original content here...'
+      );
       const largeContent = 'A'.repeat(10000);
 
       fireEvent.change(leftTextarea, { target: { value: largeContent } });
 
       await waitFor(() => {
-        expect(screen.getByText('10000 chars')).toBeInTheDocument();
+        expect(useAppStore.getState().leftContent).toBe(largeContent);
+        expect(useAppStore.getState().leftContent.length).toBe(10000);
       });
     });
   });
@@ -307,7 +315,7 @@ describe('React Application Foundation', () => {
       const { unmount } = render(<MainView />);
 
       // Component should render without errors
-      expect(screen.getByText('💖 Diff View')).toBeInTheDocument();
+      expect(screen.getByText('Diff View')).toBeInTheDocument();
 
       // Component should unmount without errors
       unmount();

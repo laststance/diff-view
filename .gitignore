@@ -96,4 +96,5 @@ playwright-report/
 test-results/
 artifacts/
 screenshots/
-
+debug-diff-viewer.png
+debug-screenshot.png

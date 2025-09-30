@@ -118,17 +118,17 @@
   - Write tests for split view and unified view mode switching
   - Test line number display accuracy and alignment
   - Verify syntax highlighting for different programming languages
-  - Test color coding for additions, deletions, and modifications
+  - Test color coding for additions, deletions, and modifications@i
   - _Requirements: 2.2, 2.3, 2.4, 2.5, 2.6, 2.7_
 
-- [ ] 10. Create view mode controls and settings
+- [x] 10. Create view mode controls and settings
   - Implement ViewModeToggle component for split/unified switching
   - Add theme switcher for light and dark modes
   - Create font size adjustment controls
   - Implement synchronized scrolling between panes in split view
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6_
 
-- [ ] 10.1 Test view controls and settings with Playwright
+- [x] 10.1 Test view controls and settings with Playwright
   - Write tests for ViewModeToggle component functionality
   - Test theme switcher between light and dark modes
   - Verify font size adjustment controls and visual changes

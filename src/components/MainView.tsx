@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { Type, Palette } from 'lucide-react';
 
 import { useAppStore } from '../store/appStore';
@@ -25,6 +25,44 @@ export const MainView: React.FC = () => {
   } = useAppStore();
   const { setLeftContent, setRightContent } = useAppStore();
 
+  // State for synchronized scrolling
+  const [leftScrollPosition, setLeftScrollPosition] = useState({
+    top: 0,
+    left: 0,
+  });
+  const [rightScrollPosition, setRightScrollPosition] = useState({
+    top: 0,
+    left: 0,
+  });
+  const [lastScrollSource, setLastScrollSource] = useState<
+    'left' | 'right' | null
+  >(null);
+
+  // Handle synchronized scrolling between panes
+  const handleLeftScroll = useCallback(
+    (scrollTop: number, scrollLeft: number) => {
+      if (viewMode === 'split') {
+        setLastScrollSource('left');
+        setRightScrollPosition({ top: scrollTop, left: scrollLeft });
+        // Reset the scroll source after a short delay to allow for natural scrolling
+        setTimeout(() => setLastScrollSource(null), 150);
+      }
+    },
+    [viewMode]
+  );
+
+  const handleRightScroll = useCallback(
+    (scrollTop: number, scrollLeft: number) => {
+      if (viewMode === 'split') {
+        setLastScrollSource('right');
+        setLeftScrollPosition({ top: scrollTop, left: scrollLeft });
+        // Reset the scroll source after a short delay to allow for natural scrolling
+        setTimeout(() => setLastScrollSource(null), 150);
+      }
+    },
+    [viewMode]
+  );
+
   // Calculate mock diff stats for status bar
   const diffStats = useMemo(() => {
     if (!leftContent || !rightContent) return undefined;
@@ -43,7 +81,7 @@ export const MainView: React.FC = () => {
   return (
     <Layout diffStats={diffStats}>
       {/* Main Content Area with Responsive Grid */}
-      <div className="h-full flex flex-col space-y-4">
+      <div className="h-full flex flex-col space-y-4" data-testid="main-view">
         {/* Content Input Section */}
         <div className="space-y-4">
           {/* Input Panes Row */}
@@ -65,6 +103,18 @@ export const MainView: React.FC = () => {
                 fontSize={fontSize}
                 wordWrap={wordWrap}
                 showLineNumbers={showLineNumbers}
+                onScroll={handleLeftScroll}
+                scrollTop={
+                  lastScrollSource === 'right'
+                    ? leftScrollPosition.top
+                    : undefined
+                }
+                scrollLeft={
+                  lastScrollSource === 'right'
+                    ? leftScrollPosition.left
+                    : undefined
+                }
+                fixedHeight={!!(leftContent && rightContent)}
               />
 
               {/* PasteArea for left pane when empty */}
@@ -89,6 +139,18 @@ export const MainView: React.FC = () => {
                 fontSize={fontSize}
                 wordWrap={wordWrap}
                 showLineNumbers={showLineNumbers}
+                onScroll={handleRightScroll}
+                scrollTop={
+                  lastScrollSource === 'left'
+                    ? rightScrollPosition.top
+                    : undefined
+                }
+                scrollLeft={
+                  lastScrollSource === 'left'
+                    ? rightScrollPosition.left
+                    : undefined
+                }
+                fixedHeight={!!(leftContent && rightContent)}
               />
 
               {/* PasteArea for right pane when empty */}

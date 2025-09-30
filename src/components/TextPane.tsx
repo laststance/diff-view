@@ -12,6 +12,10 @@ export interface TextPaneProps {
   fontSize?: 'small' | 'medium' | 'large';
   wordWrap?: boolean;
   showLineNumbers?: boolean;
+  onScroll?: (scrollTop: number, scrollLeft: number) => void;
+  scrollTop?: number;
+  scrollLeft?: number;
+  fixedHeight?: boolean;
 }
 
 /**
@@ -30,6 +34,10 @@ export const TextPane: React.FC<TextPaneProps> = ({
   fontSize = 'medium',
   wordWrap = false,
   showLineNumbers = true,
+  onScroll,
+  scrollTop,
+  scrollLeft,
+  fixedHeight = false,
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -138,14 +146,40 @@ export const TextPane: React.FC<TextPaneProps> = ({
     }
   }, []);
 
-  // Auto-resize textarea height based on content
+  // Auto-resize textarea height based on content (only if not fixed height)
   useEffect(() => {
     const textarea = textareaRef.current;
-    if (textarea) {
+    if (textarea && !fixedHeight) {
       textarea.style.height = 'auto';
       textarea.style.height = `${Math.max(300, textarea.scrollHeight)}px`;
     }
-  }, [value]);
+  }, [value, fixedHeight]);
+
+  // Handle scroll synchronization
+  const handleScroll = useCallback(
+    (e: React.UIEvent<HTMLTextAreaElement>) => {
+      const target = e.target as HTMLTextAreaElement;
+      if (onScroll) {
+        onScroll(target.scrollTop, target.scrollLeft);
+      }
+    },
+    [onScroll]
+  );
+
+  // Apply external scroll position
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (textarea && scrollTop !== undefined && scrollLeft !== undefined) {
+      // Only update if the scroll position is different to avoid infinite loops
+      if (
+        textarea.scrollTop !== scrollTop ||
+        textarea.scrollLeft !== scrollLeft
+      ) {
+        textarea.scrollTop = scrollTop;
+        textarea.scrollLeft = scrollLeft;
+      }
+    }
+  }, [scrollTop, scrollLeft]);
 
   const fontSizeClass = {
     small: 'text-sm',
@@ -203,9 +237,10 @@ export const TextPane: React.FC<TextPaneProps> = ({
           onChange={(e) => onChange(e.target.value)}
           onPaste={handlePaste}
           onKeyDown={handleKeyDown}
+          onScroll={handleScroll}
           placeholder={placeholder}
           readOnly={readOnly}
-          className={`w-full h-full min-h-[300px] resize-none border-0 bg-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-0 p-3 ${fontSizeClass} ${
+          className={`w-full ${fixedHeight || value.length > 100 ? 'h-[400px]' : 'h-full min-h-[300px]'} resize-none border-0 bg-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-0 p-3 ${fontSizeClass} ${
             wordWrap ? 'whitespace-pre-wrap' : 'whitespace-pre'
           }`}
           style={{
