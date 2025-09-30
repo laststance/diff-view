@@ -2,10 +2,11 @@ import { test, expect } from '@playwright/test';
 import { _electron as electron } from 'playwright';
 
 test('Electron app launches and closes successfully', async () => {
-  // Launch Electron app
+  // Launch Electron app in headless mode
   const electronApp = await electron.launch({
     args: ['.'],
     cwd: process.cwd(),
+    headless: true,
   });
 
   // Verify the app launched
@@ -28,10 +29,11 @@ test('Electron app launches and closes successfully', async () => {
 });
 
 test('Electron app basic functionality', async () => {
-  // Launch Electron app
+  // Launch Electron app in headless mode
   const electronApp = await electron.launch({
     args: ['.'],
     cwd: process.cwd(),
+    headless: true,
   });
 
   // Wait for the app to be ready

@@ -30,7 +30,7 @@
   - Configure window creation with proper security settings
   - _Requirements: 8.2, 8.3, 8.4, 8.5_
 
-- [ ] 3.1 Test main process functionality with Playwright
+- [x] 3.1 Test main process functionality with Playwright
   - Write tests for application window creation and management
   - Test application lifecycle events (startup, close, minimize, maximize)
   - Verify native menu functionality and platform-specific behaviors
