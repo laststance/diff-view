@@ -1,0 +1,99 @@
+---
+description: Testing and verification processes for quality assurance
+globs: *.spec.ts,*.test.ts,*.test.tsx,playwright.config.ts
+---
+
+# Testing & Verification Processes
+
+## Test Strategy
+
+### Multi-Layer Testing
+- **Unit Tests**: Individual function and component testing with Vitest
+- **Integration Tests**: Component interaction and data flow testing
+- **E2E Tests**: Full user journey testing with Playwright
+
+### Test Organization
+- **[tests/unit/](mdc:tests/unit/)** - Unit test files
+- **[tests/integration/](mdc:tests/integration/)** - Integration test files
+- **[tests/e2e/](mdc:tests/e2e/)** - End-to-end test files
+- **[tests/utils/](mdc:tests/utils/)** - Test utilities and helpers
+
+## Playwright E2E Testing
+
+### Setup Requirements
+- **Build First**: Always run `yarn build` or `pnpm build` before `playwright test`
+- **Reporter**: Use `--reporter=list` for clear test reporting
+- **No Debug Mode**: Never use `--debug` flag in CI/production
+- **Port Management**: Use `npx kill-port <portnumber>` to resolve port conflicts
+
+### Testing Best Practices
+- **Screenshot Verification**: Always verify DOM changes with screenshots, never snapshots
+- **Timing Considerations**: Wait 3 seconds after interactions before verification
+- **Retry Logic**: If verification fails, wait another 3 seconds and retry
+- **State Management**: Account for state-change lag in async operations
+
+### Test Structure
+```typescript
+// Example E2E test structure
+test.describe('Feature Name', () => {
+  test.beforeEach(async ({ page }) => {
+    // Setup for each test
+  });
+
+  test('should perform user action', async ({ page }) => {
+    // Arrange
+    // Act
+    // Assert with proper waiting
+  });
+});
+```
+
+## Development Workflow Testing
+
+### Pre-Implementation Testing
+1. **Launch Dev Server**: Start the development server first
+2. **Manual Verification**: Use Playwright tools to verify current behavior
+3. **Screenshot Baseline**: Capture current state for comparison
+
+### Post-Implementation Testing
+1. **Automated Tests**: Run full test suite after changes
+2. **Visual Verification**: Capture screenshots to verify UI changes
+3. **Cross-Browser**: Test across different browsers and devices
+4. **Performance**: Verify no performance regressions
+
+## Verification Checklist
+
+### Code Quality Gates
+- ✅ **Linting**: No ESLint errors or warnings
+- ✅ **Type Checking**: No TypeScript compilation errors
+- ✅ **Test Coverage**: All new code covered by tests
+- ✅ **Build Success**: Application builds without errors
+
+### Runtime Verification
+- ✅ **Functionality**: All features work as expected
+- ✅ **Visual Design**: UI matches design specifications
+- ✅ **Performance**: No performance regressions
+- ✅ **Accessibility**: WCAG compliance maintained
+
+## Test Data Management
+
+### Factories and Mocks
+- **Consistent Test Data**: Use factories for predictable test data
+- **Mock External Dependencies**: Isolate unit tests from external services
+- **Realistic Data**: Use production-like data for integration tests
+
+### Test Utilities
+- **[tests/utils/electron-helpers.ts](mdc:tests/utils/electron-helpers.ts)** - Electron-specific test utilities
+- **[tests/setup.ts](mdc:tests/setup.ts)** - Global test configuration
+
+## CI/CD Integration
+
+### Automated Testing Pipeline
+- **Pre-commit Hooks**: Run linting and type checking
+- **Pull Request Checks**: Full test suite execution
+- **Deployment Gates**: E2E tests must pass before deployment
+
+### Test Reporting
+- **Playwright HTML Reports**: Visual test execution reports
+- **Coverage Reports**: Code coverage tracking and reporting
+- **Performance Metrics**: Track and report performance regressions

@@ -1,0 +1,83 @@
+---
+description: Development workflow and process requirements for consistent delivery
+alwaysApply: true
+---
+
+# Development Workflow & Process
+
+## Design → Rationale → Implementation → Verification
+
+### 1. Design Phase
+- **Solution Planning**: Design the complete solution before implementation
+- **Architecture Decisions**: Consider all technical implications
+- **Risk Assessment**: Identify potential issues and mitigation strategies
+
+### 2. Rationale Phase
+- **Apple HIG Compliance**: Explain how design follows Human Interface Guidelines
+- **Best Practices**: Reference industry standards and proven patterns
+- **Technical Justification**: Explain why specific technologies/approaches were chosen
+
+### 3. Implementation Phase
+- **Code Quality**: Follow established coding standards and patterns
+- **Documentation**: Add comprehensive docstrings and comments
+- **Error Handling**: Implement proper error handling and edge cases
+
+### 4. Verification Phase
+- **Testing**: Comprehensive test coverage for all changes
+- **Linting**: No lint errors allowed
+- **Type Checking**: No TypeScript errors allowed
+- **Visual Verification**: Screenshots to confirm UI changes
+
+## Development Process Priorities
+
+### High Priority Items
+1. **Storybook & Tailwind Sync**: Complete design system documentation
+2. **Type Safety**: Full TypeScript coverage with strict settings
+3. **Automation**: Comprehensive linting and CI/CD pipelines
+4. **Maintainability**: Long-term code sustainability and versioning strategy
+
+## Pre-Exit Checklist (Critical Requirements)
+
+### Mandatory Verification Steps
+- ✅ **Playwright MCP Tools**: Must use for debugging and visual verification
+- ✅ **Screenshot Verification**: Capture screenshots showing expected design
+- ✅ **Debug Code Removal**: Remove all console.log and temporary code
+- ✅ **Test Cleanup**: Delete experimental tests and files
+- ✅ **Lint & Type Check**: Zero errors in linting and TypeScript compilation
+
+## Development Environment
+
+### Setup Requirements
+1. **Dev Server First**: Launch development server before any coding
+2. **Playwright Tools**: Use MCP tools for page interaction and verification
+3. **State Management**: Account for async state changes (3-second wait periods)
+
+### Tool Usage Guidelines
+- **MCP Playwright Tools**: Required for all browser-based testing and verification
+- **Screenshot Over Snapshot**: Always use screenshots for DOM verification
+- **Timing Considerations**: Wait 3 seconds after interactions, retry if needed
+
+## Quality Assurance Standards
+
+### Code Quality Gates
+- **Zero Lint Errors**: All code must pass ESLint without warnings
+- **Zero Type Errors**: Full TypeScript compilation success
+- **Test Coverage**: All new features must have corresponding tests
+- **Documentation**: All functions and classes must have descriptive docstrings
+
+### Performance Standards
+- **Bundle Size**: Monitor and optimize bundle sizes
+- **Runtime Performance**: No performance regressions introduced
+- **Memory Usage**: Efficient memory management practices
+
+## Communication & Collaboration
+
+### Code Review Standards
+- **Descriptive Commits**: Clear, actionable commit messages
+- **Documentation Updates**: Keep documentation in sync with code changes
+- **Issue Tracking**: Proper issue creation and management
+
+### Knowledge Sharing
+- **Architecture Decisions**: Document significant technical decisions
+- **Pattern Usage**: Explain why specific patterns were chosen
+- **Future Considerations**: Note implications for future development

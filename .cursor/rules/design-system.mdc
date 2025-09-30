@@ -1,0 +1,69 @@
+---
+description: Design system and UI principles based on Apple Human Interface Guidelines
+globs: *.tsx,*.css,*.scss,*.module.css
+---
+
+# Design System & UI Principles
+
+## Apple Human Interface Guidelines (HIG)
+
+### Typography
+- **Font Family**: SF Pro (Text/Display variants)
+- **Line Height**: Optimized for readability across all text sizes
+- **Letter Spacing**: Carefully tuned for legibility
+- **Responsive Typography**: Scales appropriately across device sizes
+
+### Layout & Spacing
+- **Grid System**: 4/8px base grid system
+- **Key Margins**: 16px, 20px, 24px for component hierarchy
+- **Consistent Spacing**: All components follow the same spacing patterns
+- **Responsive Layout**: Adapts gracefully to different screen sizes
+
+### Colors
+- **Role-based Colors**: Accent, Label, Background, Fill color roles
+- **Light/Dark Mode**: Full support for both themes
+- **Accessibility**: WCAG 2.2 AA+ contrast compliance
+- **System Preferences**: Respects "Increase Contrast" and "Reduce Transparency"
+
+### Interactive Elements
+- **Minimum Tap Areas**: 44×44px minimum for all interactive elements
+- **Touch-friendly**: All UI elements sized appropriately for touch interaction
+- **Keyboard Navigation**: Full keyboard accessibility support
+- **Screen Reader**: Complete screen reader compatibility
+
+### Motion & Animation
+- **Meaningful Transitions**: Only use motion that serves a purpose
+- **Reduced Motion**: Provide static alternatives when `prefers-reduced-motion` is enabled
+- **Smooth Animations**: 60fps animations with proper easing curves
+- **Performance**: Hardware-accelerated animations only
+
+### Visual Hierarchy
+- **Corner Radius**: Applied by element hierarchy (4px, 8px, 12px, 20px)
+- **Elevation**: Clear visual separation between layers
+- **Focus States**: Clear indication of keyboard focus
+- **Loading States**: Informative feedback during async operations
+
+## Component Design Principles
+
+### Consistency
+- **Design Tokens**: Centralized token system for colors, spacing, typography
+- **Component Library**: Reusable components with consistent behavior
+- **Pattern Library**: Established patterns for common UI scenarios
+
+### Accessibility First
+- **WCAG 2.2 AA+**: All components meet or exceed accessibility standards
+- **Color Independence**: Information not conveyed by color alone
+- **Motor Accessibility**: Works with switch control and other assistive technologies
+- **Cognitive Accessibility**: Clear, simple, and predictable interactions
+
+## Tailwind CSS Integration
+
+### Design Token Management
+- **[tailwind.config.js](mdc:tailwind.config.js)** - Centralized design tokens
+- **Custom Properties**: CSS custom properties for dynamic theming
+- **Responsive Utilities**: Mobile-first responsive design utilities
+
+### Component Architecture
+- **shadcn/ui Integration**: Modern component library integration
+- **Storybook Sync**: Design system documentation and testing
+- **Accessibility Testing**: Automated a11y testing for all components
