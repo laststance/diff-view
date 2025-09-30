@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { ElectronApplication, Page } from 'playwright';
-import { _electron as electron } from 'playwright';
+import { ElectronApplication, Page , _electron as electron } from 'playwright';
 
 let electronApp: ElectronApplication;
 let page: Page;

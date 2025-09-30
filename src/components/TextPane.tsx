@@ -188,7 +188,10 @@ export const TextPane: React.FC<TextPaneProps> = ({
   }[fontSize];
 
   return (
-    <div className="flex flex-col bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm h-full">
+    <div
+      data-testid={`text-pane-${id}`}
+      className="flex flex-col bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm h-full"
+    >
       {/* Header */}
       <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-750 rounded-t-lg">
         <div className="flex items-center space-x-2">
@@ -233,6 +236,7 @@ export const TextPane: React.FC<TextPaneProps> = ({
       <div className="flex-1 relative">
         <textarea
           ref={textareaRef}
+          data-testid={`textarea-${id}`}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onPaste={handlePaste}

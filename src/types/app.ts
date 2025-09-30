@@ -80,6 +80,11 @@ export interface AppActions {
   setRightContent: (content: string) => void;
   clearContent: () => void;
 
+  // Content management actions
+  swapContent: () => void;
+  replaceLeftWithRight: () => void;
+  replaceRightWithLeft: () => void;
+
   // UI actions
   setViewMode: (mode: ViewMode) => void;
   setTheme: (theme: Theme) => void;

@@ -58,6 +58,41 @@ export const useAppStore = create<AppStore>()(
             'clearContent'
           ),
 
+        // Content management actions
+        swapContent: () =>
+          set(
+            (state) => ({
+              ...state,
+              leftContent: state.rightContent,
+              rightContent: state.leftContent,
+              diffData: null, // Reset diff data when content changes
+            }),
+            false,
+            'swapContent'
+          ),
+
+        replaceLeftWithRight: () =>
+          set(
+            (state) => ({
+              ...state,
+              leftContent: state.rightContent,
+              diffData: null, // Reset diff data when content changes
+            }),
+            false,
+            'replaceLeftWithRight'
+          ),
+
+        replaceRightWithLeft: () =>
+          set(
+            (state) => ({
+              ...state,
+              rightContent: state.leftContent,
+              diffData: null, // Reset diff data when content changes
+            }),
+            false,
+            'replaceRightWithLeft'
+          ),
+
         // UI actions
         setViewMode: (mode) =>
           set((state) => ({ ...state, viewMode: mode }), false, 'setViewMode'),
@@ -138,6 +173,9 @@ export const useContentActions = () =>
     setLeftContent: state.setLeftContent,
     setRightContent: state.setRightContent,
     clearContent: state.clearContent,
+    swapContent: state.swapContent,
+    replaceLeftWithRight: state.replaceLeftWithRight,
+    replaceRightWithLeft: state.replaceRightWithLeft,
   }));
 
 export const useUIActions = () =>

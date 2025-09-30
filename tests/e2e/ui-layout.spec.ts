@@ -189,7 +189,7 @@ test.describe('UI Layout and Components', () => {
     });
 
     test('should display clear content button', async () => {
-      const clearButton = page.locator('button[title="Clear All Content"]');
+      const clearButton = page.locator('button[title*="Clear All Content"]');
       await expect(clearButton).toBeVisible();
 
       // Should show Trash2 icon
@@ -201,7 +201,7 @@ test.describe('UI Layout and Components', () => {
     });
 
     test('should enable clear button when content is present', async () => {
-      const clearButton = page.locator('button[title="Clear All Content"]');
+      const clearButton = page.locator('button[title*="Clear All Content"]');
       const leftTextarea = page.locator('textarea').first();
 
       // Add some content

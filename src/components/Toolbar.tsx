@@ -10,6 +10,9 @@ import {
   ZoomIn,
   ZoomOut,
   RotateCcw,
+  ArrowLeftRight,
+  ArrowRight,
+  ArrowLeft,
 } from 'lucide-react';
 
 import { useAppStore } from '../store/appStore';
@@ -19,17 +22,23 @@ import { useAppStore } from '../store/appStore';
  * Provides controls for view mode, theme, font size, and content management
  */
 export const Toolbar: React.FC = () => {
-  const {
-    viewMode,
-    theme,
-    fontSize,
-    leftContent,
-    rightContent,
-    setViewMode,
-    setTheme,
-    setFontSize,
-    clearContent,
-  } = useAppStore();
+  const viewMode = useAppStore((state) => state.viewMode);
+  const theme = useAppStore((state) => state.theme);
+  const fontSize = useAppStore((state) => state.fontSize);
+  const leftContent = useAppStore((state) => state.leftContent);
+  const rightContent = useAppStore((state) => state.rightContent);
+  const setViewMode = useAppStore((state) => state.setViewMode);
+  const setTheme = useAppStore((state) => state.setTheme);
+  const setFontSize = useAppStore((state) => state.setFontSize);
+
+  const clearContent = useAppStore((state) => state.clearContent);
+  const swapContent = useAppStore((state) => state.swapContent);
+  const replaceLeftWithRight = useAppStore(
+    (state) => state.replaceLeftWithRight
+  );
+  const replaceRightWithLeft = useAppStore(
+    (state) => state.replaceRightWithLeft
+  );
 
   const handleClearContent = () => {
     // Show confirmation if there's substantial content
@@ -43,6 +52,40 @@ export const Toolbar: React.FC = () => {
     }
 
     clearContent();
+  };
+
+  const handleSwapContent = () => {
+    if (leftContent || rightContent) {
+      swapContent();
+    }
+  };
+
+  const handleReplaceLeftWithRight = () => {
+    if (rightContent) {
+      const confirmed =
+        leftContent.length > 50
+          ? window.confirm(
+              'Replace left content with right content? This action cannot be undone.'
+            )
+          : true;
+      if (confirmed) {
+        replaceLeftWithRight();
+      }
+    }
+  };
+
+  const handleReplaceRightWithLeft = () => {
+    if (leftContent) {
+      const confirmed =
+        rightContent.length > 50
+          ? window.confirm(
+              'Replace right content with left content? This action cannot be undone.'
+            )
+          : true;
+      if (confirmed) {
+        replaceRightWithLeft();
+      }
+    }
   };
 
   const getThemeIcon = () => {
@@ -134,11 +177,47 @@ export const Toolbar: React.FC = () => {
       {/* Separator */}
       <div className="h-6 w-px bg-gray-300 dark:bg-gray-600" />
 
+      {/* Content Management Controls */}
+      <div className="flex items-center space-x-1">
+        {/* Swap Content */}
+        <button
+          onClick={handleSwapContent}
+          className="p-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+          title="Swap Left and Right Content (Ctrl+Shift+S)"
+          disabled={!leftContent && !rightContent}
+        >
+          <ArrowLeftRight className="h-4 w-4" />
+        </button>
+
+        {/* Replace Left with Right */}
+        <button
+          onClick={handleReplaceLeftWithRight}
+          className="p-2 text-gray-600 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+          title="Replace Left with Right Content (Ctrl+Shift+1)"
+          disabled={!rightContent}
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </button>
+
+        {/* Replace Right with Left */}
+        <button
+          onClick={handleReplaceRightWithLeft}
+          className="p-2 text-gray-600 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+          title="Replace Right with Left Content (Ctrl+Shift+2)"
+          disabled={!leftContent}
+        >
+          <ArrowRight className="h-4 w-4" />
+        </button>
+      </div>
+
+      {/* Separator */}
+      <div className="h-6 w-px bg-gray-300 dark:bg-gray-600" />
+
       {/* Clear Content */}
       <button
         onClick={handleClearContent}
         className="p-2 text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
-        title="Clear All Content"
+        title="Clear All Content (Ctrl+Shift+C)"
         disabled={!leftContent && !rightContent}
       >
         <Trash2 className="h-4 w-4" />
