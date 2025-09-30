@@ -6,12 +6,9 @@ test.describe('Main Process Functionality', () => {
   let electronApp: ElectronApplication;
 
   test.beforeEach(async () => {
-    // Launch Electron app before each test in headless mode
     electronApp = await electron.launch({
       args: ['.'],
       cwd: process.cwd(),
-      // Run in headless mode by default (no GUI windows shown)
-      headless: true,
     });
 
     // Wait for the app to be ready
@@ -331,10 +328,10 @@ test.describe('Main Process Functionality', () => {
       // Verify Menu API functionality
       const canBuildMenu = await electronApp.evaluate(async ({ Menu }) => {
         try {
-          const template: unknown[] = [
+          const template = [
             {
               label: 'Test',
-              submenu: [{ label: 'Test Item', role: 'about' }],
+              submenu: [{ label: 'Test Item', role: 'about' as const }],
             },
           ];
           const menu = Menu.buildFromTemplate(template);
