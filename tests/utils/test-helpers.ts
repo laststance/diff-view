@@ -4,12 +4,21 @@ import { vi } from 'vitest';
  * Test utilities for consistent mocking across test files
  */
 
+// Type definitions for test mocks
+interface FileReaderEvent {
+  target: { result: string | null };
+}
+
+interface ClipboardEventInit {
+  clipboardData?: DataTransfer | null;
+}
+
 // Mock FileReader for file upload tests
 export const createMockFileReader = (content: string = 'File content') => {
   return class MockFileReader {
     result: string | null = null;
-    onload: ((event: any) => void) | null = null;
-    onerror: ((event: any) => void) | null = null;
+    onload: ((event: FileReaderEvent) => void) | null = null;
+    onerror: ((event: FileReaderEvent) => void) | null = null;
 
     readAsText(_file: File) {
       // Use queueMicrotask to make it async but not dependent on timers
@@ -20,7 +29,7 @@ export const createMockFileReader = (content: string = 'File content') => {
         }
       });
     }
-  } as any;
+  } as unknown as typeof FileReader;
 };
 
 // Mock clipboard API
@@ -32,12 +41,12 @@ export const createMockClipboard = () => ({
 // Mock ClipboardEvent and DataTransfer for jsdom
 export const setupClipboardMocks = () => {
   global.ClipboardEvent = class ClipboardEvent extends Event {
-    clipboardData: any;
-    constructor(type: string, eventInitDict?: any) {
+    clipboardData: DataTransfer | null;
+    constructor(type: string, eventInitDict?: ClipboardEventInit) {
       super(type, eventInitDict);
       this.clipboardData = eventInitDict?.clipboardData || null;
     }
-  } as any;
+  } as unknown as typeof window.ClipboardEvent;
 
   global.DataTransfer = class DataTransfer {
     private data: Map<string, string> = new Map();
@@ -49,7 +58,7 @@ export const setupClipboardMocks = () => {
     getData(format: string) {
       return this.data.get(format) || '';
     }
-  } as any;
+  } as unknown as typeof window.DataTransfer;
 };
 
 // Mock ResizeObserver
@@ -171,7 +180,7 @@ export const createTestFile = (
 };
 
 // Mock store utilities
-export const createMockStore = (overrides: any = {}) => ({
+export const createMockStore = (overrides: Record<string, unknown> = {}) => ({
   leftContent: '',
   rightContent: '',
   viewMode: 'split' as const,

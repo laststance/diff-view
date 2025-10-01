@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import '@testing-library/jest-dom';
@@ -16,7 +16,7 @@ const TimerComponent: React.FC<{ onTimeout: () => void; delay: number }> = ({
   onTimeout,
   delay,
 }) => {
-  React.useEffect(() => {
+  useEffect(() => {
     const timer = setTimeout(onTimeout, delay);
     return () => clearTimeout(timer);
   }, [onTimeout, delay]);

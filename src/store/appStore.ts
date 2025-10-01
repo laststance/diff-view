@@ -9,6 +9,7 @@ import type {
   LoadingStates,
   ContentLimits,
 } from '../types/app';
+// import { formatMemorySize } from '../hooks/useMemoryMonitor';
 
 // Default content limits (10MB as mentioned in design doc)
 const defaultContentLimits: ContentLimits = {
@@ -76,6 +77,14 @@ const validateContentSize = (content: string, limits: ContentLimits) => {
   return { valid, warnings };
 };
 
+// Default performance metrics
+const defaultPerformanceMetrics = {
+  memoryUsage: null,
+  renderTime: 0,
+  diffComputationTime: 0,
+  lastUpdated: Date.now(),
+};
+
 // Default state values
 const defaultState: AppState = {
   // Content state
@@ -101,6 +110,8 @@ const defaultState: AppState = {
   // Content limits and warnings
   contentLimits: { ...defaultContentLimits },
 
+  // Performance monitoring
+  performanceMetrics: { ...defaultPerformanceMetrics },
 
   // Settings
   syntaxHighlighting: true,
@@ -116,241 +127,290 @@ export const useAppStore = create<AppStore>()(
     isTestMode
       ? // In test mode, skip persist to avoid potential issues
         (set, _get) => ({
-        ...defaultState,
+          ...defaultState,
 
-        // Content actions with validation
-        setLeftContent: (content: string) =>
-          set(
-            (state) => {
-              const validation = validateContentSize(
-                content,
-                state.contentLimits
-              );
-
-              if (!validation.valid) {
-                const error = createError(
-                  'content-size',
-                  'Content exceeds size limits',
-                  `Content is too large. ${validation.warnings.join(', ')}`,
-                  true
+          // Content actions with validation
+          setLeftContent: (content: string) =>
+            set(
+              (state) => {
+                const validation = validateContentSize(
+                  content,
+                  state.contentLimits
                 );
+
+                if (!validation.valid) {
+                  const error = createError(
+                    'content-size',
+                    'Content exceeds size limits',
+                    `Content is too large. ${validation.warnings.join(', ')}`,
+                    true
+                  );
+                  return {
+                    ...state,
+                    currentError: error,
+                    leftContent: content, // Still set content but show error
+                  };
+                }
+
                 return {
                   ...state,
-                  currentError: error,
-                  leftContent: content, // Still set content but show error
+                  leftContent: content,
+                  currentError: null, // Clear any previous errors
                 };
-              }
-
-              return {
-                ...state,
-                leftContent: content,
-                currentError: null, // Clear any previous errors
-              };
-            },
-            false,
-            'setLeftContent'
-          ),
-
-        setRightContent: (content: string) =>
-          set(
-            (state) => {
-              const validation = validateContentSize(
-                content,
-                state.contentLimits
-              );
-
-              if (!validation.valid) {
-                const error = createError(
-                  'content-size',
-                  'Content exceeds size limits',
-                  `Content is too large. ${validation.warnings.join(', ')}`,
-                  true
-                );
-                return {
-                  ...state,
-                  currentError: error,
-                  rightContent: content, // Still set content but show error
-                };
-              }
-
-              return {
-                ...state,
-                rightContent: content,
-                currentError: null, // Clear any previous errors
-              };
-            },
-            false,
-            'setRightContent'
-          ),
-
-        clearContent: () =>
-          set(
-            (state) => ({
-              ...state,
-              leftContent: '',
-              rightContent: '',
-              diffData: null,
-            }),
-            false,
-            'clearContent'
-          ),
-
-        // Content management actions
-        swapContent: () =>
-          set(
-            (state) => ({
-              ...state,
-              leftContent: state.rightContent,
-              rightContent: state.leftContent,
-              diffData: null, // Reset diff data when content changes
-            }),
-            false,
-            'swapContent'
-          ),
-
-        replaceLeftWithRight: () =>
-          set(
-            (state) => ({
-              ...state,
-              leftContent: state.rightContent,
-              diffData: null, // Reset diff data when content changes
-            }),
-            false,
-            'replaceLeftWithRight'
-          ),
-
-        replaceRightWithLeft: () =>
-          set(
-            (state) => ({
-              ...state,
-              rightContent: state.leftContent,
-              diffData: null, // Reset diff data when content changes
-            }),
-            false,
-            'replaceRightWithLeft'
-          ),
-
-        // UI actions
-        setViewMode: (mode) =>
-          set((state) => ({ ...state, viewMode: mode }), false, 'setViewMode'),
-
-        setTheme: (theme) =>
-          set((state) => ({ ...state, theme }), false, 'setTheme'),
-
-        setFontSize: (size) =>
-          set((state) => ({ ...state, fontSize: size }), false, 'setFontSize'),
-
-        // Diff actions
-        setDiffData: (data) =>
-          set((state) => ({ ...state, diffData: data }), false, 'setDiffData'),
-
-        setProcessing: (processing) =>
-          set(
-            (state) => ({ ...state, isProcessing: processing }),
-            false,
-            'setProcessing'
-          ),
-
-        // Settings actions
-        setSyntaxHighlighting: (enabled) =>
-          set(
-            (state) => ({ ...state, syntaxHighlighting: enabled }),
-            false,
-            'setSyntaxHighlighting'
-          ),
-
-        setShowLineNumbers: (enabled) =>
-          set(
-            (state) => ({ ...state, showLineNumbers: enabled }),
-            false,
-            'setShowLineNumbers'
-          ),
-
-        setWordWrap: (enabled) =>
-          set(
-            (state) => ({ ...state, wordWrap: enabled }),
-            false,
-            'setWordWrap'
-          ),
-
-        // Error handling actions
-        setError: (error: AppError | null) =>
-          set(
-            (state) => ({ ...state, currentError: error }),
-            false,
-            'setError'
-          ),
-
-        clearError: () =>
-          set(
-            (state) => ({ ...state, currentError: null }),
-            false,
-            'clearError'
-          ),
-
-        addErrorToHistory: (error: AppError) =>
-          set(
-            (state) => ({
-              ...state,
-              errorHistory: [...state.errorHistory.slice(-9), error], // Keep last 10 errors
-            }),
-            false,
-            'addErrorToHistory'
-          ),
-
-        clearErrorHistory: () =>
-          set(
-            (state) => ({ ...state, errorHistory: [] }),
-            false,
-            'clearErrorHistory'
-          ),
-
-        // Loading state actions
-        setLoadingState: (operation: keyof LoadingStates, loading: boolean) =>
-          set(
-            (state) => ({
-              ...state,
-              loadingStates: {
-                ...state.loadingStates,
-                [operation]: loading,
               },
-            }),
-            false,
-            'setLoadingState'
-          ),
+              false,
+              'setLeftContent'
+            ),
 
-        clearAllLoadingStates: () =>
-          set(
-            (state) => ({
-              ...state,
-              loadingStates: { ...defaultLoadingStates },
-            }),
-            false,
-            'clearAllLoadingStates'
-          ),
+          setRightContent: (content: string) =>
+            set(
+              (state) => {
+                const validation = validateContentSize(
+                  content,
+                  state.contentLimits
+                );
 
-        // Content validation actions
-        validateContentSize: (content: string) => {
-          const state = _get();
-          return validateContentSize(content, state.contentLimits);
-        },
+                if (!validation.valid) {
+                  const error = createError(
+                    'content-size',
+                    'Content exceeds size limits',
+                    `Content is too large. ${validation.warnings.join(', ')}`,
+                    true
+                  );
+                  return {
+                    ...state,
+                    currentError: error,
+                    rightContent: content, // Still set content but show error
+                  };
+                }
 
-        setContentLimits: (limits: Partial<ContentLimits>) =>
-          set(
-            (state) => ({
-              ...state,
-              contentLimits: { ...state.contentLimits, ...limits },
-            }),
-            false,
-            'setContentLimits'
-          ),
+                return {
+                  ...state,
+                  rightContent: content,
+                  currentError: null, // Clear any previous errors
+                };
+              },
+              false,
+              'setRightContent'
+            ),
 
+          clearContent: () =>
+            set(
+              (state) => ({
+                ...state,
+                leftContent: '',
+                rightContent: '',
+                diffData: null,
+              }),
+              false,
+              'clearContent'
+            ),
 
+          // Content management actions
+          swapContent: () =>
+            set(
+              (state) => ({
+                ...state,
+                leftContent: state.rightContent,
+                rightContent: state.leftContent,
+                diffData: null, // Reset diff data when content changes
+              }),
+              false,
+              'swapContent'
+            ),
 
-        // Utility actions
-        resetToDefaults: () =>
-          set(() => ({ ...defaultState }), false, 'resetToDefaults'),
-      })
+          replaceLeftWithRight: () =>
+            set(
+              (state) => ({
+                ...state,
+                leftContent: state.rightContent,
+                diffData: null, // Reset diff data when content changes
+              }),
+              false,
+              'replaceLeftWithRight'
+            ),
+
+          replaceRightWithLeft: () =>
+            set(
+              (state) => ({
+                ...state,
+                rightContent: state.leftContent,
+                diffData: null, // Reset diff data when content changes
+              }),
+              false,
+              'replaceRightWithLeft'
+            ),
+
+          // UI actions
+          setViewMode: (mode) =>
+            set(
+              (state) => ({ ...state, viewMode: mode }),
+              false,
+              'setViewMode'
+            ),
+
+          setTheme: (theme) =>
+            set((state) => ({ ...state, theme }), false, 'setTheme'),
+
+          setFontSize: (size) =>
+            set(
+              (state) => ({ ...state, fontSize: size }),
+              false,
+              'setFontSize'
+            ),
+
+          // Diff actions
+          setDiffData: (data) =>
+            set(
+              (state) => ({ ...state, diffData: data }),
+              false,
+              'setDiffData'
+            ),
+
+          setProcessing: (processing) =>
+            set(
+              (state) => ({ ...state, isProcessing: processing }),
+              false,
+              'setProcessing'
+            ),
+
+          // Settings actions
+          setSyntaxHighlighting: (enabled) =>
+            set(
+              (state) => ({ ...state, syntaxHighlighting: enabled }),
+              false,
+              'setSyntaxHighlighting'
+            ),
+
+          setShowLineNumbers: (enabled) =>
+            set(
+              (state) => ({ ...state, showLineNumbers: enabled }),
+              false,
+              'setShowLineNumbers'
+            ),
+
+          setWordWrap: (enabled) =>
+            set(
+              (state) => ({ ...state, wordWrap: enabled }),
+              false,
+              'setWordWrap'
+            ),
+
+          // Error handling actions
+          setError: (error: AppError | null) =>
+            set(
+              (state) => ({ ...state, currentError: error }),
+              false,
+              'setError'
+            ),
+
+          clearError: () =>
+            set(
+              (state) => ({ ...state, currentError: null }),
+              false,
+              'clearError'
+            ),
+
+          addErrorToHistory: (error: AppError) =>
+            set(
+              (state) => ({
+                ...state,
+                errorHistory: [...state.errorHistory.slice(-9), error], // Keep last 10 errors
+              }),
+              false,
+              'addErrorToHistory'
+            ),
+
+          clearErrorHistory: () =>
+            set(
+              (state) => ({ ...state, errorHistory: [] }),
+              false,
+              'clearErrorHistory'
+            ),
+
+          // Loading state actions
+          setLoadingState: (operation: keyof LoadingStates, loading: boolean) =>
+            set(
+              (state) => ({
+                ...state,
+                loadingStates: {
+                  ...state.loadingStates,
+                  [operation]: loading,
+                },
+              }),
+              false,
+              'setLoadingState'
+            ),
+
+          clearAllLoadingStates: () =>
+            set(
+              (state) => ({
+                ...state,
+                loadingStates: { ...defaultLoadingStates },
+              }),
+              false,
+              'clearAllLoadingStates'
+            ),
+
+          // Content validation actions
+          validateContentSize: (content: string) => {
+            const state = _get();
+            return validateContentSize(content, state.contentLimits);
+          },
+
+          setContentLimits: (limits: Partial<ContentLimits>) =>
+            set(
+              (state) => ({
+                ...state,
+                contentLimits: { ...state.contentLimits, ...limits },
+              }),
+              false,
+              'setContentLimits'
+            ),
+
+          // Performance monitoring actions
+          updateMemoryUsage: (usage) =>
+            set(
+              (state) => ({
+                ...state,
+                performanceMetrics: {
+                  ...state.performanceMetrics,
+                  memoryUsage: usage,
+                  lastUpdated: Date.now(),
+                },
+              }),
+              false,
+              'updateMemoryUsage'
+            ),
+
+          updatePerformanceMetrics: (metrics) =>
+            set(
+              (state) => ({
+                ...state,
+                performanceMetrics: {
+                  ...state.performanceMetrics,
+                  ...metrics,
+                  lastUpdated: Date.now(),
+                },
+              }),
+              false,
+              'updatePerformanceMetrics'
+            ),
+
+          clearPerformanceMetrics: () =>
+            set(
+              (state) => ({
+                ...state,
+                performanceMetrics: { ...defaultPerformanceMetrics },
+              }),
+              false,
+              'clearPerformanceMetrics'
+            ),
+
+          // Utility actions
+          resetToDefaults: () =>
+            set(() => ({ ...defaultState }), false, 'resetToDefaults'),
+        })
       : persist(
           (set, _get) => ({
             ...defaultState,
@@ -469,17 +529,29 @@ export const useAppStore = create<AppStore>()(
 
             // UI actions
             setViewMode: (mode) =>
-              set((state) => ({ ...state, viewMode: mode }), false, 'setViewMode'),
+              set(
+                (state) => ({ ...state, viewMode: mode }),
+                false,
+                'setViewMode'
+              ),
 
             setTheme: (theme) =>
               set((state) => ({ ...state, theme }), false, 'setTheme'),
 
             setFontSize: (size) =>
-              set((state) => ({ ...state, fontSize: size }), false, 'setFontSize'),
+              set(
+                (state) => ({ ...state, fontSize: size }),
+                false,
+                'setFontSize'
+              ),
 
             // Diff actions
             setDiffData: (data) =>
-              set((state) => ({ ...state, diffData: data }), false, 'setDiffData'),
+              set(
+                (state) => ({ ...state, diffData: data }),
+                false,
+                'setDiffData'
+              ),
 
             setProcessing: (processing) =>
               set(
@@ -543,7 +615,10 @@ export const useAppStore = create<AppStore>()(
               ),
 
             // Loading state actions
-            setLoadingState: (operation: keyof LoadingStates, loading: boolean) =>
+            setLoadingState: (
+              operation: keyof LoadingStates,
+              loading: boolean
+            ) =>
               set(
                 (state) => ({
                   ...state,
@@ -582,7 +657,44 @@ export const useAppStore = create<AppStore>()(
                 'setContentLimits'
               ),
 
+            // Performance monitoring actions
+            updateMemoryUsage: (usage) =>
+              set(
+                (state) => ({
+                  ...state,
+                  performanceMetrics: {
+                    ...state.performanceMetrics,
+                    memoryUsage: usage,
+                    lastUpdated: Date.now(),
+                  },
+                }),
+                false,
+                'updateMemoryUsage'
+              ),
 
+            updatePerformanceMetrics: (metrics) =>
+              set(
+                (state) => ({
+                  ...state,
+                  performanceMetrics: {
+                    ...state.performanceMetrics,
+                    ...metrics,
+                    lastUpdated: Date.now(),
+                  },
+                }),
+                false,
+                'updatePerformanceMetrics'
+              ),
+
+            clearPerformanceMetrics: () =>
+              set(
+                (state) => ({
+                  ...state,
+                  performanceMetrics: { ...defaultPerformanceMetrics },
+                }),
+                false,
+                'clearPerformanceMetrics'
+              ),
 
             // Utility actions
             resetToDefaults: () =>
@@ -622,7 +734,6 @@ export const useLoadingStates = () =>
   useAppStore((state) => state.loadingStates);
 export const useContentLimits = () =>
   useAppStore((state) => state.contentLimits);
-
 
 // Action selectors
 export const useContentActions = () =>
@@ -667,5 +778,15 @@ export const useValidationActions = () =>
   useAppStore((state) => ({
     validateContentSize: state.validateContentSize,
     setContentLimits: state.setContentLimits,
+  }));
 
+// Performance monitoring selectors
+export const usePerformanceMetrics = () =>
+  useAppStore((state) => state.performanceMetrics);
+
+export const usePerformanceActions = () =>
+  useAppStore((state) => ({
+    updateMemoryUsage: state.updateMemoryUsage,
+    updatePerformanceMetrics: state.updatePerformanceMetrics,
+    clearPerformanceMetrics: state.clearPerformanceMetrics,
   }));

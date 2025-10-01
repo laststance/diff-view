@@ -66,6 +66,9 @@ export interface AppState {
   // Content limits
   contentLimits: ContentLimits;
 
+  // Performance monitoring
+  performanceMetrics: PerformanceMetrics;
+
   // Settings
   syntaxHighlighting: boolean;
   showLineNumbers: boolean;
@@ -126,6 +129,11 @@ export interface AppActions {
   setShowLineNumbers: (enabled: boolean) => void;
   setWordWrap: (enabled: boolean) => void;
 
+  // Performance monitoring actions
+  updateMemoryUsage: (usage: MemoryUsage | null) => void;
+  updatePerformanceMetrics: (metrics: Partial<PerformanceMetrics>) => void;
+  clearPerformanceMetrics: () => void;
+
   // Utility actions
   resetToDefaults: () => void;
 }
@@ -163,6 +171,22 @@ export interface LoadingStates {
   diffComputation: boolean;
   contentValidation: boolean;
   fileProcessing: boolean;
+}
+
+// Memory monitoring types
+export interface MemoryUsage {
+  usedJSHeapSize: number;
+  totalJSHeapSize: number;
+  jsHeapSizeLimit: number;
+  usedPercentage: number;
+  isHighUsage: boolean;
+}
+
+export interface PerformanceMetrics {
+  memoryUsage: MemoryUsage | null;
+  renderTime: number;
+  diffComputationTime: number;
+  lastUpdated: number;
 }
 
 // Error boundary state
