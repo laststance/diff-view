@@ -91,16 +91,11 @@ test.describe('Performance Optimizations', () => {
         (_, i) => `Line ${i + 1}: This is a test line with some content`
       ).join('\n');
 
-      // Wait for the store to be available
-      await page.waitForFunction(() => window.useAppStore !== undefined);
+      // Fill the textarea - virtual scrolling will activate after content is set
+      await page.getByTestId('textarea-left').fill(largeContent);
 
-      // Use page.evaluate to set content directly in the store to bypass textarea limitations
-      await page.evaluate((content) => {
-        window.useAppStore!.getState().setLeftContent(content);
-      }, largeContent);
-
-      // Wait for content to be processed
-      await page.waitForTimeout(500);
+      // Wait for content to be processed and virtual scrolling to activate
+      await page.waitForTimeout(1000);
 
       // Check if virtual scrolling indicator is present
       const virtualScrollingIndicator = page.locator(
