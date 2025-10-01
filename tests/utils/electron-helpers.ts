@@ -66,3 +66,20 @@ export class ElectronTestHelper {
 }
 
 export const electronHelper = new ElectronTestHelper();
+
+// Helper functions for simple test cases
+export async function startElectronApp(): Promise<ElectronApplication> {
+  const app = await electron.launch({
+    args: ['.'],
+    cwd: process.cwd(),
+    env: {
+      ...process.env,
+      ELECTRON_TEST_MODE: 'true',
+    },
+  });
+  return app;
+}
+
+export async function stopElectronApp(app: ElectronApplication): Promise<void> {
+  await app.close();
+}

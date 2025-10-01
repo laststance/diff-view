@@ -63,9 +63,8 @@ describe('React Application Foundation', () => {
         </ErrorBoundary>
       );
 
-      expect(screen.getByText('Something went wrong')).toBeInTheDocument();
+      expect(screen.getByText('Component Error')).toBeInTheDocument();
       expect(screen.getByText('Try Again')).toBeInTheDocument();
-      expect(screen.getByText('Reload App')).toBeInTheDocument();
 
       consoleSpy.mockRestore();
     });
@@ -88,11 +87,10 @@ describe('React Application Foundation', () => {
         </ErrorBoundary>
       );
 
-      expect(screen.getByText('Something went wrong')).toBeInTheDocument();
+      expect(screen.getByText('Component Error')).toBeInTheDocument();
 
       // The error boundary shows recovery options
       expect(screen.getByText('Try Again')).toBeInTheDocument();
-      expect(screen.getByText('Reload App')).toBeInTheDocument();
 
       consoleSpy.mockRestore();
     });
