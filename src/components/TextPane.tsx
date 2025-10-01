@@ -308,9 +308,9 @@ export const TextPane: React.FC<TextPaneProps> = memo(function TextPane({
                 fontFamily:
                   'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace',
               }}
-            >
-              {virtualScrolling.renderLine}
-            </List>
+              rowComponent={virtualScrolling.renderLine}
+              rowProps={{}}
+            />
             {/* Performance indicator */}
             <div className="absolute top-2 right-2 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs px-2 py-1 rounded">
               Virtual scrolling enabled ({stats.lines.toLocaleString()} lines)

@@ -53,7 +53,7 @@ test.describe('Diff Display Features', () => {
     // Should show empty state or debug info (in test mode)
     const diffViewerText = await diffViewer.textContent();
     expect(diffViewerText).toMatch(
-      /Add content to both panes|DiffViewer Debug Info/i
+      /Add content to both (panes|text areas)|DiffViewer Debug Info/i
     );
   });
 
@@ -407,7 +407,7 @@ Line 5 newly added`);
     const diffViewer = page.locator('.diff-viewer-container');
     const diffViewerText = await diffViewer.textContent();
     expect(diffViewerText).toMatch(
-      /Add content to both panes|DiffViewer Debug Info/i
+      /Add content to both (panes|text areas)|DiffViewer Debug Info/i
     );
 
     // Add content to one pane only

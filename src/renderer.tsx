@@ -15,6 +15,13 @@ const App: React.FC = () => {
   // Initialize keyboard shortcuts
   useKeyboardShortcuts();
 
+  // Expose store to window in test mode for Playwright access
+  useEffect(() => {
+    if (window.electronAPI?.isTestMode) {
+      window.useAppStore = useAppStore;
+    }
+  }, []);
+
   // Initialize theme and listen for system theme changes
   useEffect(() => {
     const initializeTheme = async () => {

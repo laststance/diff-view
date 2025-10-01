@@ -11,15 +11,20 @@ export interface VirtualScrollingOptions {
 export interface VirtualScrollingResult {
   shouldUseVirtualScrolling: boolean;
   listProps: {
-    height: number;
-    itemCount: number;
-    itemSize: number;
+    defaultHeight: number;
+    rowCount: number;
+    rowHeight: number;
     overscanCount: number;
   };
   renderItem: (props: {
+    ariaAttributes: {
+      'aria-posinset': number;
+      'aria-setsize': number;
+      role: 'listitem';
+    };
     index: number;
     style: React.CSSProperties;
-  }) => React.ReactElement;
+  }) => React.ReactNode;
 }
 
 /**
@@ -43,18 +48,30 @@ export function useVirtualScrolling<T>(
 
   const listProps = useMemo(
     () => ({
-      height: containerHeight,
-      itemCount: items.length,
-      itemSize: itemHeight,
+      defaultHeight: containerHeight,
+      rowCount: items.length,
+      rowHeight: itemHeight,
       overscanCount: overscan,
     }),
     [containerHeight, items.length, itemHeight, overscan]
   );
 
   const renderItem = useCallback(
-    ({ index, style }: { index: number; style: React.CSSProperties }) => {
+    ({
+      ariaAttributes,
+      index,
+      style,
+    }: {
+      ariaAttributes: {
+        'aria-posinset': number;
+        'aria-setsize': number;
+        role: 'listitem';
+      };
+      index: number;
+      style: React.CSSProperties;
+    }) => {
       return (
-        <div style={style} key={index}>
+        <div {...ariaAttributes} style={style} key={index}>
           {renderItemContent(items[index], index)}
         </div>
       );
@@ -81,15 +98,20 @@ export function useVirtualTextScrolling(
   lines: string[];
   shouldUseVirtualScrolling: boolean;
   listProps: {
-    height: number;
-    itemCount: number;
-    itemSize: number;
+    defaultHeight: number;
+    rowCount: number;
+    rowHeight: number;
     overscanCount: number;
   };
   renderLine: (props: {
+    ariaAttributes: {
+      'aria-posinset': number;
+      'aria-setsize': number;
+      role: 'listitem';
+    };
     index: number;
     style: React.CSSProperties;
-  }) => React.ReactElement;
+  }) => React.ReactNode;
 } {
   const { lineThreshold = 1000, ...virtualOptions } = options;
 
@@ -99,9 +121,9 @@ export function useVirtualTextScrolling(
 
   const listProps = useMemo(
     () => ({
-      height: virtualOptions.containerHeight,
-      itemCount: lines.length,
-      itemSize: virtualOptions.itemHeight,
+      defaultHeight: virtualOptions.containerHeight,
+      rowCount: lines.length,
+      rowHeight: virtualOptions.itemHeight,
       overscanCount: virtualOptions.overscan || 10,
     }),
     [
@@ -113,9 +135,22 @@ export function useVirtualTextScrolling(
   );
 
   const renderLine = useCallback(
-    ({ index, style }: { index: number; style: React.CSSProperties }) => {
+    ({
+      ariaAttributes,
+      index,
+      style,
+    }: {
+      ariaAttributes: {
+        'aria-posinset': number;
+        'aria-setsize': number;
+        role: 'listitem';
+      };
+      index: number;
+      style: React.CSSProperties;
+    }) => {
       return (
         <div
+          {...ariaAttributes}
           style={style}
           key={index}
           className="font-mono text-sm whitespace-pre"

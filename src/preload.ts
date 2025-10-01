@@ -25,6 +25,9 @@ export interface ElectronAPI {
     }) => void
   ) => void;
   removeThemeListeners: () => void;
+
+  // Environment info
+  isTestMode: boolean;
 }
 
 // Note: IPC channel validation is handled by the specific method implementations
@@ -63,6 +66,9 @@ const electronAPI: ElectronAPI = {
   removeThemeListeners: () => {
     ipcRenderer.removeAllListeners('theme:updated');
   },
+
+  // Environment info
+  isTestMode: process.env.ELECTRON_TEST_MODE === 'true',
 };
 
 // Expose the secure API to the renderer process

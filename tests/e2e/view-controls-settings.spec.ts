@@ -137,11 +137,11 @@ test.describe('View Controls and Settings', () => {
     const uniqueTitles = new Set([initialTitle, secondTitle, thirdTitle]);
     expect(uniqueTitles.size).toBe(3);
 
-    // Verify all titles are valid font size titles
+    // Verify all titles are valid font size titles (includes keyboard shortcut hint)
     const validTitles = [
-      'Font Size: small',
-      'Font Size: medium',
-      'Font Size: large',
+      'Font Size: small (Ctrl+Plus/Minus)',
+      'Font Size: medium (Ctrl+Plus/Minus)',
+      'Font Size: large (Ctrl+Plus/Minus)',
     ];
     [initialTitle, secondTitle, thirdTitle].forEach((title) => {
       expect(validTitles.includes(title || '')).toBe(true);

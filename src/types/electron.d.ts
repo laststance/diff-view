@@ -24,6 +24,9 @@ export interface ElectronAPI {
     }) => void
   ) => void;
   removeThemeListeners: () => void;
+
+  // Environment info
+  isTestMode: boolean;
 }
 
 declare global {

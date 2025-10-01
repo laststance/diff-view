@@ -121,16 +121,18 @@ describe('DiffViewer Component', () => {
       render(<DiffViewer />);
 
       expect(
-        screen.getByText('Left content: 11 characters')
+        screen.getByText(/Left content: 11 characters \(2 lines\)/)
       ).toBeInTheDocument();
       expect(
-        screen.getByText('Right content: 19 characters')
+        screen.getByText(/Right content: 19 characters \(3 lines\)/)
       ).toBeInTheDocument();
     });
 
     it('should show processing status correctly', () => {
       (useAppStore as any).mockReturnValue({
         ...mockStore,
+        leftContent: 'test',
+        rightContent: 'test2',
         isProcessing: true,
       });
 
@@ -309,10 +311,19 @@ describe('DiffViewer Component', () => {
 
   describe('Content Changes', () => {
     it('should react to content changes', async () => {
-      const { rerender } = render(<DiffViewer />);
+      // Start with empty content
+      (useAppStore as any).mockReturnValue({
+        ...mockStore,
+        leftContent: '',
+        rightContent: '',
+      });
+
+      const { unmount } = render(<DiffViewer />);
 
       // Initially empty
       expect(screen.getByText('Ready to Compare')).toBeInTheDocument();
+
+      unmount();
 
       // Update store to have content
       (useAppStore as any).mockReturnValue({
@@ -321,7 +332,8 @@ describe('DiffViewer Component', () => {
         rightContent: 'World',
       });
 
-      rerender(<DiffViewer />);
+      // Render again with new content
+      render(<DiffViewer />);
 
       await waitFor(() => {
         expect(screen.getByText('Diff Comparison Result')).toBeInTheDocument();
@@ -349,7 +361,7 @@ describe('DiffViewer Component', () => {
   });
 
   describe('Error Recovery', () => {
-    it('should clear errors when content is successfully processed', () => {
+    it('should clear errors when content is successfully processed', async () => {
       // Start with error state
       (useAppStore as any).mockReturnValue({
         ...mockStore,
@@ -362,11 +374,13 @@ describe('DiffViewer Component', () => {
         },
       });
 
-      const { rerender } = render(<DiffViewer />);
+      const { unmount } = render(<DiffViewer />);
 
       expect(
         screen.getByTestId('error-message-diff-computation')
       ).toBeInTheDocument();
+
+      unmount();
 
       // Update to success state
       (useAppStore as any).mockReturnValue({
@@ -376,11 +390,14 @@ describe('DiffViewer Component', () => {
         currentError: null,
       });
 
-      rerender(<DiffViewer />);
+      // Render again with new state
+      render(<DiffViewer />);
 
-      expect(
-        screen.queryByTestId('error-message-diff-computation')
-      ).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId('error-message-diff-computation')
+        ).not.toBeInTheDocument();
+      });
       expect(screen.getByText('Diff Comparison Result')).toBeInTheDocument();
     });
   });

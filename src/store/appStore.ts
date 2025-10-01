@@ -120,7 +120,14 @@ const defaultState: AppState = {
 };
 
 // Create the Zustand store with persistence and devtools
-const isTestMode = process.env.ELECTRON_TEST_MODE === 'true';
+const isTestMode = typeof window !== 'undefined' && window.electronAPI?.isTestMode;
+
+// Type declaration for window with store in test mode
+declare global {
+  interface Window {
+    useAppStore?: typeof useAppStore;
+  }
+}
 
 export const useAppStore = create<AppStore>()(
   devtools(

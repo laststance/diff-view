@@ -20,7 +20,7 @@ test.describe('Complete User Workflows', () => {
   test.describe('Text Comparison Workflow', () => {
     test('should complete full text comparison workflow', async () => {
       // Step 1: Verify initial state
-      await expect(page.getByText('Diff View')).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Diff View' })).toBeVisible();
       await expect(page.getByText('Ready to compare')).toBeVisible();
 
       // Step 2: Add content to left pane

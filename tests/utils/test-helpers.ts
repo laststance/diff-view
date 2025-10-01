@@ -43,7 +43,7 @@ export const setupClipboardMocks = () => {
   global.ClipboardEvent = class ClipboardEvent extends Event {
     clipboardData: DataTransfer | null;
     constructor(type: string, eventInitDict?: ClipboardEventInit) {
-      super(type, eventInitDict);
+      super(type, eventInitDict as EventInit);
       this.clipboardData = eventInitDict?.clipboardData || null;
     }
   } as unknown as typeof window.ClipboardEvent;
@@ -87,14 +87,36 @@ export const setupMatchMediaMock = () => {
   });
 };
 
-// Mock window.location.reload safely
-export const createLocationReloadMock = () => {
-  try {
-    return vi.spyOn(window.location, 'reload').mockImplementation(() => {});
-  } catch {
-    // If already mocked, return a mock function
-    return vi.fn();
+// Global window.location.reload mock - created once and reused
+let globalReloadMock: ReturnType<typeof vi.fn> | null = null;
+
+// Mock window.location.reload safely - returns existing mock or creates new one
+export const getLocationReloadMock = () => {
+  if (!globalReloadMock) {
+    globalReloadMock = vi.fn();
+
+    // Try to delete existing property first, then define new one
+    try {
+      delete (window.location as any).reload;
+    } catch {
+      // Property not deletable, that's okay
+    }
+
+    try {
+      Object.defineProperty(window.location, 'reload', {
+        value: globalReloadMock,
+        writable: true,
+        configurable: true,
+      });
+    } catch {
+      // Property already defined and not configurable
+      // Check if it's already our mock
+      if (typeof window.location.reload === 'function' && 'mock' in window.location.reload) {
+        globalReloadMock = window.location.reload as any;
+      }
+    }
   }
+  return globalReloadMock;
 };
 
 // Mock window.confirm
@@ -164,6 +186,7 @@ export const createElectronAPIMock = () => ({
   shouldUseDarkColors: vi.fn().mockResolvedValue(false),
   onThemeUpdated: vi.fn(),
   removeThemeListeners: vi.fn(),
+  isTestMode: true,
 });
 
 // Wait for async operations
