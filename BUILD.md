@@ -40,26 +40,26 @@ The application supports building for three major platforms:
 ### Quick Build (Current Platform)
 
 ```bash
-npm run build:current    # Build for current platform
-npm run package:current  # Package for current platform (no installer)
+pnpm build:current    # Build for current platform
+pnpm package:current  # Package for current platform (no installer)
 ```
 
 ### Cross-Platform Builds
 
 ```bash
-npm run build:all        # Build for all platforms (requires platform-specific tools)
-npm run build:windows    # Build Windows installer
-npm run build:macos      # Build macOS DMG and ZIP
-npm run build:linux      # Build Linux DEB and RPM packages
+pnpm build:all        # Build for all platforms (requires platform-specific tools)
+pnpm build:windows    # Build Windows installer
+pnpm build:macos      # Build macOS DMG and ZIP
+pnpm build:linux      # Build Linux DEB and RPM packages
 ```
 
 ### Packaging Only (No Installers)
 
 ```bash
-npm run package:all      # Package for all platforms
-npm run package:windows  # Package for Windows
-npm run package:macos    # Package for macOS
-npm run package:linux    # Package for Linux
+pnpm package:all      # Package for all platforms
+pnpm package:windows  # Package for Windows
+pnpm package:macos    # Package for macOS
+pnpm package:linux    # Package for Linux
 ```
 
 ## Code Signing Configuration
@@ -124,7 +124,7 @@ After successful builds, artifacts will be located in:
 
 ```bash
 npm install
-npm run postinstall
+pnpm postinstall
 ```
 
 **Windows: "MSBuild not found"**
@@ -161,13 +161,13 @@ The build configuration supports automated builds in CI/CD environments:
 ```yaml
 # Example GitHub Actions workflow
 - name: Build for Windows
-  run: npm run build:windows
+  run: pnpm build:windows
   env:
     WINDOWS_CERTIFICATE_FILE: ${{ secrets.WINDOWS_CERT_FILE }}
     WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERT_PASSWORD }}
 
 - name: Build for macOS
-  run: npm run build:macos
+  run: pnpm build:macos
   env:
     APPLE_ID: ${{ secrets.APPLE_ID }}
     APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}

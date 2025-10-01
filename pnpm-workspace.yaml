@@ -1,0 +1,7 @@
+onlyBuiltDependencies:
+  - electron
+  - electron-winstaller
+  - esbuild
+  - fs-xattr
+  - macos-alias
+  - unrs-resolver

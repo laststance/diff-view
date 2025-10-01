@@ -12,7 +12,7 @@ test.describe('Cross-Platform Build Configuration', () => {
   (skipBuildTests ? test.skip : test)('should successfully package application', async () => {
     // Test that packaging works without errors
     try {
-      const output = execSync('npm run package:current', {
+      const output = execSync('pnpm package:current', {
         encoding: 'utf-8',
         timeout: 60000, // 60 second timeout
       });
@@ -27,7 +27,7 @@ test.describe('Cross-Platform Build Configuration', () => {
   (skipBuildTests ? test.skip : test)('should successfully create distributables', async () => {
     // Test that make process works without errors
     try {
-      const output = execSync('npm run build:current', {
+      const output = execSync('pnpm build:current', {
         encoding: 'utf-8',
         timeout: 120000, // 2 minute timeout
       });
@@ -171,10 +171,10 @@ test.describe('Build Configuration Validation', () => {
     expect(buildDoc).toContain('Troubleshooting');
 
     // Check for build commands documentation
-    expect(buildDoc).toContain('npm run build:all');
-    expect(buildDoc).toContain('npm run build:windows');
-    expect(buildDoc).toContain('npm run build:macos');
-    expect(buildDoc).toContain('npm run build:linux');
+    expect(buildDoc).toContain('pnpm build:all');
+    expect(buildDoc).toContain('pnpm build:windows');
+    expect(buildDoc).toContain('pnpm build:macos');
+    expect(buildDoc).toContain('pnpm build:linux');
   });
 
   test('should validate entitlements files for macOS', async () => {
@@ -346,7 +346,7 @@ test.describe('Platform-Specific Build Tests', () => {
   (skipBuildTests ? test.skip : test)('should validate build process can run without errors', async () => {
     // Test that the build configuration is valid by running typecheck
     try {
-      const output = execSync('npm run typecheck', {
+      const output = execSync('pnpm typecheck', {
         encoding: 'utf-8',
         timeout: 30000,
       });

@@ -159,7 +159,7 @@ Created comprehensive test utilities including:
   "test:coverage": "vitest --coverage --run",
   "test:unit": "vitest --run tests/unit",
   "test:integration": "vitest --run tests/integration",
-  "test:all": "npm run test:unit && npm run test:integration && npm run test:e2e"
+  "test:all": "pnpm test:unit && pnpm test:integration && pnpm test:e2e"
 }
 ```
 

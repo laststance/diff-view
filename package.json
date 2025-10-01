@@ -25,20 +25,20 @@
     "test:coverage": "vitest --coverage --run",
     "test:unit": "vitest --run tests/unit",
     "test:integration": "vitest --run tests/integration",
-    "test:all": "npm run test:unit && npm run test:integration && npm run test:e2e",
+    "test:all": "pnpm test:unit && pnpm test:integration && pnpm test:e2e",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "build:all": "npm run build:windows && npm run build:macos && npm run build:linux",
+    "build:all": "pnpm build:windows && pnpm build:macos && pnpm build:linux",
     "build:windows": "electron-forge make --platform=win32",
     "build:macos": "electron-forge make --platform=darwin",
     "build:linux": "electron-forge make --platform=linux",
     "build:current": "electron-forge make",
-    "package:all": "npm run package:windows && npm run package:macos && npm run package:linux",
+    "package:all": "pnpm package:windows && pnpm package:macos && pnpm package:linux",
     "package:windows": "electron-forge package --platform=win32",
     "package:macos": "electron-forge package --platform=darwin",
     "package:linux": "electron-forge package --platform=linux",
     "package:current": "electron-forge package",
-    "prebuild": "npm run lint && npm run typecheck && npm run test",
+    "prebuild": "pnpm lint && pnpm typecheck && pnpm test",
     "postinstall": "electron-rebuild"
   },
   "keywords": [],
@@ -57,6 +57,7 @@
     "@electron-forge/plugin-auto-unpack-natives": "^7.9.0",
     "@electron-forge/plugin-fuses": "^7.9.0",
     "@electron-forge/plugin-vite": "^7.9.0",
+    "@electron-forge/shared-types": "^7.9.0",
     "@electron/fuses": "^1.8.0",
     "@electron/rebuild": "^4.0.1",
     "@playwright/test": "^1.55.1",
@@ -80,6 +81,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-vitest": "^0.5.4",
     "jsdom": "^27.0.0",
+    "playwright": "^1.55.1",
     "postcss": "^8.5.6",
     "prettier": "^3.6.2",
     "tailwindcss": "^3.4.17",
@@ -101,5 +103,6 @@
   },
   "volta": {
     "node": "22.20.0"
-  }
+  },
+  "packageManager": "pnpm@10.17.1+sha512.17c560fca4867ae9473a3899ad84a88334914f379be46d455cbf92e5cf4b39d34985d452d2583baf19967fa76cb5c17bc9e245529d0b98745721aa7200ecaf7a"
 }
