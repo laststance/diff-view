@@ -48,6 +48,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, diffStats }) => {
               className="flex items-center space-x-3"
               role="img"
               aria-label="Diff View application logo"
+              data-testid="app-logo"
             >
               <GitCompare
                 className="h-6 w-6 text-blue-600 dark:text-blue-400"

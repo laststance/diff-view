@@ -45,189 +45,189 @@ export const useKeyboardShortcuts = () => {
   // Define all keyboard shortcuts
   const shortcuts: KeyboardShortcut[] = useMemo(
     () => [
-    // Content management shortcuts
-    {
-      key: 'c',
-      ctrlOrCmd: true,
-      shift: true,
-      action: () => {
-        const hasContent =
-          store.leftContent.length > 50 || store.rightContent.length > 50;
-        if (hasContent) {
-          const confirmed = window.confirm(
-            'Are you sure you want to clear all content? This action cannot be undone.'
-          );
-          if (confirmed) {
+      // Content management shortcuts
+      {
+        key: 'c',
+        ctrlOrCmd: true,
+        shift: true,
+        action: () => {
+          const hasContent =
+            store.leftContent.length > 50 || store.rightContent.length > 50;
+          if (hasContent) {
+            const confirmed = window.confirm(
+              'Are you sure you want to clear all content? This action cannot be undone.'
+            );
+            if (confirmed) {
+              store.clearContent();
+            }
+          } else {
             store.clearContent();
           }
-        } else {
-          store.clearContent();
-        }
+        },
+        description: 'Clear all content',
+        preventDefault: true,
       },
-      description: 'Clear all content',
-      preventDefault: true,
-    },
-    {
-      key: 's',
-      ctrlOrCmd: true,
-      shift: true,
-      action: () => {
-        if (store.leftContent || store.rightContent) {
-          store.swapContent();
-        }
-      },
-      description: 'Swap left and right content',
-      preventDefault: true,
-    },
-    {
-      key: '1',
-      ctrlOrCmd: true,
-      shift: true,
-      action: () => {
-        if (store.rightContent) {
-          const confirmed =
-            store.leftContent.length > 50
-              ? window.confirm(
-                  'Replace left content with right content? This action cannot be undone.'
-                )
-              : true;
-          if (confirmed) {
-            store.replaceLeftWithRight();
+      {
+        key: 's',
+        ctrlOrCmd: true,
+        shift: true,
+        action: () => {
+          if (store.leftContent || store.rightContent) {
+            store.swapContent();
           }
-        }
+        },
+        description: 'Swap left and right content',
+        preventDefault: true,
       },
-      description: 'Replace left with right content',
-      preventDefault: true,
-    },
-    {
-      key: '2',
-      ctrlOrCmd: true,
-      shift: true,
-      action: () => {
-        if (store.leftContent) {
-          const confirmed =
-            store.rightContent.length > 50
-              ? window.confirm(
-                  'Replace right content with left content? This action cannot be undone.'
-                )
-              : true;
-          if (confirmed) {
-            store.replaceRightWithLeft();
+      {
+        key: '1',
+        ctrlOrCmd: true,
+        shift: true,
+        action: () => {
+          if (store.rightContent) {
+            const confirmed =
+              store.leftContent.length > 50
+                ? window.confirm(
+                    'Replace left content with right content? This action cannot be undone.'
+                  )
+                : true;
+            if (confirmed) {
+              store.replaceLeftWithRight();
+            }
           }
-        }
+        },
+        description: 'Replace left with right content',
+        preventDefault: true,
       },
-      description: 'Replace right with left content',
-      preventDefault: true,
-    },
+      {
+        key: '2',
+        ctrlOrCmd: true,
+        shift: true,
+        action: () => {
+          if (store.leftContent) {
+            const confirmed =
+              store.rightContent.length > 50
+                ? window.confirm(
+                    'Replace right content with left content? This action cannot be undone.'
+                  )
+                : true;
+            if (confirmed) {
+              store.replaceRightWithLeft();
+            }
+          }
+        },
+        description: 'Replace right with left content',
+        preventDefault: true,
+      },
 
-    // View mode shortcuts
-    {
-      key: 'v',
-      ctrlOrCmd: true,
-      shift: true,
-      action: () => {
-        store.setViewMode(store.viewMode === 'split' ? 'unified' : 'split');
+      // View mode shortcuts
+      {
+        key: 'v',
+        ctrlOrCmd: true,
+        shift: true,
+        action: () => {
+          store.setViewMode(store.viewMode === 'split' ? 'unified' : 'split');
+        },
+        description: 'Toggle view mode (split/unified)',
+        preventDefault: true,
       },
-      description: 'Toggle view mode (split/unified)',
-      preventDefault: true,
-    },
 
-    // Theme and UI shortcuts
-    {
-      key: 't',
-      ctrlOrCmd: true,
-      action: () => {
-        const themes: Array<'light' | 'dark' | 'system'> = [
-          'light',
-          'dark',
-          'system',
-        ];
-        const currentIndex = themes.indexOf(store.theme);
-        const nextIndex = (currentIndex + 1) % themes.length;
-        store.setTheme(themes[nextIndex]);
+      // Theme and UI shortcuts
+      {
+        key: 't',
+        ctrlOrCmd: true,
+        action: () => {
+          const themes: Array<'light' | 'dark' | 'system'> = [
+            'light',
+            'dark',
+            'system',
+          ];
+          const currentIndex = themes.indexOf(store.theme);
+          const nextIndex = (currentIndex + 1) % themes.length;
+          store.setTheme(themes[nextIndex]);
+        },
+        description: 'Cycle theme (light/dark/system)',
+        preventDefault: true,
       },
-      description: 'Cycle theme (light/dark/system)',
-      preventDefault: true,
-    },
 
-    // Font size shortcuts
-    {
-      key: '=',
-      ctrlOrCmd: true,
-      action: () => {
-        const sizes: Array<'small' | 'medium' | 'large'> = [
-          'small',
-          'medium',
-          'large',
-        ];
-        const currentIndex = sizes.indexOf(store.fontSize);
-        if (currentIndex < sizes.length - 1) {
-          store.setFontSize(sizes[currentIndex + 1]);
-        }
+      // Font size shortcuts
+      {
+        key: '=',
+        ctrlOrCmd: true,
+        action: () => {
+          const sizes: Array<'small' | 'medium' | 'large'> = [
+            'small',
+            'medium',
+            'large',
+          ];
+          const currentIndex = sizes.indexOf(store.fontSize);
+          if (currentIndex < sizes.length - 1) {
+            store.setFontSize(sizes[currentIndex + 1]);
+          }
+        },
+        description: 'Increase font size',
+        preventDefault: true,
       },
-      description: 'Increase font size',
-      preventDefault: true,
-    },
-    {
-      key: '-',
-      ctrlOrCmd: true,
-      action: () => {
-        const sizes: Array<'small' | 'medium' | 'large'> = [
-          'small',
-          'medium',
-          'large',
-        ];
-        const currentIndex = sizes.indexOf(store.fontSize);
-        if (currentIndex > 0) {
-          store.setFontSize(sizes[currentIndex - 1]);
-        }
+      {
+        key: '-',
+        ctrlOrCmd: true,
+        action: () => {
+          const sizes: Array<'small' | 'medium' | 'large'> = [
+            'small',
+            'medium',
+            'large',
+          ];
+          const currentIndex = sizes.indexOf(store.fontSize);
+          if (currentIndex > 0) {
+            store.setFontSize(sizes[currentIndex - 1]);
+          }
+        },
+        description: 'Decrease font size',
+        preventDefault: true,
       },
-      description: 'Decrease font size',
-      preventDefault: true,
-    },
 
-    // Navigation shortcuts
-    {
-      key: '1',
-      ctrlOrCmd: true,
-      action: () => {
-        focusElement('[data-testid="textarea-left"]');
+      // Navigation shortcuts
+      {
+        key: '1',
+        ctrlOrCmd: true,
+        action: () => {
+          focusElement('[data-testid="textarea-left"]');
+        },
+        description: 'Focus left text pane',
+        preventDefault: true,
       },
-      description: 'Focus left text pane',
-      preventDefault: true,
-    },
-    {
-      key: '2',
-      ctrlOrCmd: true,
-      action: () => {
-        focusElement('[data-testid="textarea-right"]');
+      {
+        key: '2',
+        ctrlOrCmd: true,
+        action: () => {
+          focusElement('[data-testid="textarea-right"]');
+        },
+        description: 'Focus right text pane',
+        preventDefault: true,
       },
-      description: 'Focus right text pane',
-      preventDefault: true,
-    },
 
-    // Accessibility shortcuts
-    {
-      key: 'h',
-      ctrlOrCmd: true,
-      shift: true,
-      action: () => {
-        // Show keyboard shortcuts help (could be implemented as a modal)
-        const shortcuts = [
-          'Ctrl+Shift+C: Clear all content',
-          'Ctrl+Shift+S: Swap content',
-          'Ctrl+Shift+V: Toggle view mode',
-          'Ctrl+T: Cycle theme',
-          'Ctrl+1: Focus left pane',
-          'Ctrl+2: Focus right pane',
-          'Ctrl+Plus: Increase font size',
-          'Ctrl+Minus: Decrease font size',
-        ];
-        alert('Keyboard Shortcuts:\n\n' + shortcuts.join('\n'));
+      // Accessibility shortcuts
+      {
+        key: 'h',
+        ctrlOrCmd: true,
+        shift: true,
+        action: () => {
+          // Show keyboard shortcuts help (could be implemented as a modal)
+          const shortcuts = [
+            'Ctrl+Shift+C: Clear all content',
+            'Ctrl+Shift+S: Swap content',
+            'Ctrl+Shift+V: Toggle view mode',
+            'Ctrl+T: Cycle theme',
+            'Ctrl+1: Focus left pane',
+            'Ctrl+2: Focus right pane',
+            'Ctrl+Plus: Increase font size',
+            'Ctrl+Minus: Decrease font size',
+          ];
+          alert('Keyboard Shortcuts:\n\n' + shortcuts.join('\n'));
+        },
+        description: 'Show keyboard shortcuts help',
+        preventDefault: true,
       },
-      description: 'Show keyboard shortcuts help',
-      preventDefault: true,
-    },
     ],
     [store, focusElement]
   );

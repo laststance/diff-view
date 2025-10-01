@@ -50,7 +50,9 @@ export function useMemoryMonitor(options: MemoryMonitorOptions = {}): {
     if (!isSupported) return;
 
     try {
-      const memory = (performance as Performance & { memory?: PerformanceMemory }).memory;
+      const memory = (
+        performance as Performance & { memory?: PerformanceMemory }
+      ).memory;
       if (memory) {
         const usedPercentage =
           (memory.usedJSHeapSize / memory.jsHeapSizeLimit) * 100;
