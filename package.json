@@ -24,7 +24,19 @@
     "test:watch": "vitest",
     "test:coverage": "vitest --coverage",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "build:all": "npm run build:windows && npm run build:macos && npm run build:linux",
+    "build:windows": "electron-forge make --platform=win32",
+    "build:macos": "electron-forge make --platform=darwin",
+    "build:linux": "electron-forge make --platform=linux",
+    "build:current": "electron-forge make",
+    "package:all": "npm run package:windows && npm run package:macos && npm run package:linux",
+    "package:windows": "electron-forge package --platform=win32",
+    "package:macos": "electron-forge package --platform=darwin",
+    "package:linux": "electron-forge package --platform=linux",
+    "package:current": "electron-forge package",
+    "prebuild": "npm run lint && npm run typecheck && npm run test",
+    "postinstall": "electron-rebuild"
   },
   "keywords": [],
   "author": {
@@ -35,6 +47,7 @@
   "devDependencies": {
     "@electron-forge/cli": "^7.9.0",
     "@electron-forge/maker-deb": "^7.9.0",
+    "@electron-forge/maker-dmg": "^7.9.0",
     "@electron-forge/maker-rpm": "^7.9.0",
     "@electron-forge/maker-squirrel": "^7.9.0",
     "@electron-forge/maker-zip": "^7.9.0",
@@ -42,6 +55,7 @@
     "@electron-forge/plugin-fuses": "^7.9.0",
     "@electron-forge/plugin-vite": "^7.9.0",
     "@electron/fuses": "^1.8.0",
+    "@electron/rebuild": "^4.0.1",
     "@playwright/test": "^1.55.1",
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^16.3.0",
