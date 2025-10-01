@@ -30,8 +30,9 @@ const createWindow = () => {
   mainWindow.once('ready-to-show', () => {
     if (process.env.ELECTRON_TEST_MODE === 'true') {
       // In test mode, show without stealing focus
+      mainWindow?.showInactive();
+      // Mac Only: Hide from dock during test
       app.setActivationPolicy('accessory');
-      mainWindow?.showInactive()
     } else {
       // In normal mode, show and focus the window
       mainWindow?.hide();

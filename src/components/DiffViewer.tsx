@@ -239,8 +239,8 @@ export const DiffViewer: React.FC<DiffViewerProps> = memo(function DiffViewer({
           />
         )}
 
-        {/* Content status */}
-        {!loadingStates.diffComputation && !currentError && (
+        {/* Content status - only show when there's content */}
+        {!loadingStates.diffComputation && !currentError && (leftContent || rightContent) && (
           <div
             className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg"
             role="status"

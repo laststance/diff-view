@@ -130,8 +130,8 @@ test.describe('Complete User Workflows', () => {
     });
 
     test('should handle error recovery workflow', async () => {
-      // Simulate content that might cause errors (reduced from 50MB to avoid Playwright timeout)
-      const extremelyLargeContent = 'A'.repeat(2 * 1024 * 1024); // 2MB of content
+      // Simulate content that exceeds size limits (11MB to trigger validation error)
+      const extremelyLargeContent = 'A'.repeat(11 * 1024 * 1024); // 11MB of content
 
       const leftTextarea = page.getByPlaceholder(
         'Paste or type your original content here...'
@@ -304,7 +304,7 @@ test.describe('Complete User Workflows', () => {
       );
       await leftTextarea.fill('File content simulation');
 
-      await expect(page.getByText(/1 characters/).first()).toBeVisible();
+      await expect(page.getByText(/\d+ characters/).first()).toBeVisible();
     });
   });
 

@@ -414,11 +414,11 @@ Line 5 newly added`);
     await leftTextarea.fill('Only left content');
     await page.waitForTimeout(300);
 
-    // Should show appropriate message (check for partial content state)
+    // Should show debug status information when there's content
     const diffViewerPartial = page.locator('.diff-viewer-container');
     const partialText = await diffViewerPartial.textContent();
     expect(partialText).toMatch(
-      /Add content to.*pane|right pane|DiffViewer Debug Info/i
+      /Diff Viewer Status|Left content:|Right content:/i
     );
 
     // Add content to right pane
