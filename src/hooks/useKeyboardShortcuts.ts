@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useMemo } from 'react';
 
 import { useAppStore } from '../store/appStore';
 
@@ -43,7 +43,8 @@ export const useKeyboardShortcuts = () => {
   }, []);
 
   // Define all keyboard shortcuts
-  const shortcuts: KeyboardShortcut[] = [
+  const shortcuts: KeyboardShortcut[] = useMemo(
+    () => [
     // Content management shortcuts
     {
       key: 'c',
@@ -227,7 +228,9 @@ export const useKeyboardShortcuts = () => {
       description: 'Show keyboard shortcuts help',
       preventDefault: true,
     },
-  ];
+    ],
+    [store, focusElement]
+  );
 
   // Keyboard event handler
   const handleKeyDown = useCallback(

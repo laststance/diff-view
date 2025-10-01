@@ -4,6 +4,8 @@ import { Page } from 'playwright';
 import { electronHelper } from '../utils/electron-helpers';
 
 let page: Page;
+const isMac = process.platform === 'darwin';
+const modifier = isMac ? 'Meta' : 'Control';
 
 test.describe('Keyboard Shortcuts and Accessibility', () => {
   test.beforeAll(async () => {
@@ -68,7 +70,7 @@ test.describe('Keyboard Shortcuts and Accessibility', () => {
       );
 
       // Toggle to unified view
-      await page.keyboard.press('Control+Shift+v');
+      await page.keyboard.press(`${modifier}+Shift+KeyV`);
 
       // Check that unified view is now active
       const unifiedButton = page.locator('button[aria-pressed="true"]').first();
@@ -78,7 +80,7 @@ test.describe('Keyboard Shortcuts and Accessibility', () => {
       );
 
       // Toggle back to split view
-      await page.keyboard.press('Control+Shift+v');
+      await page.keyboard.press(`${modifier}+Shift+KeyV`);
 
       // Verify split view is active again
       const splitButtonAgain = page
@@ -96,7 +98,7 @@ test.describe('Keyboard Shortcuts and Accessibility', () => {
       const initialTheme = await themeButton.getAttribute('title');
 
       // Cycle theme
-      await page.keyboard.press('Control+t');
+      await page.keyboard.press(`${modifier}+KeyT`);
 
       // Verify theme changed
       const newTheme = await themeButton.getAttribute('title');
@@ -109,14 +111,14 @@ test.describe('Keyboard Shortcuts and Accessibility', () => {
       );
 
       // Increase font size
-      await page.keyboard.press('Control+=');
+      await page.keyboard.press(`${modifier}+Equal`);
 
       // Check if font size changed (button title should update)
       const increasedSize = await fontButton.getAttribute('title');
       expect(increasedSize).toContain('large');
 
       // Decrease font size
-      await page.keyboard.press('Control+-');
+      await page.keyboard.press(`${modifier}+Minus`);
 
       // Verify font size decreased
       const decreasedSize = await fontButton.getAttribute('title');
@@ -125,7 +127,7 @@ test.describe('Keyboard Shortcuts and Accessibility', () => {
 
     test('should focus text panes with Ctrl+1 and Ctrl+2', async () => {
       // Focus left pane with Ctrl+1
-      await page.keyboard.press('Control+1');
+      await page.keyboard.press(`${modifier}+Digit1`);
 
       // Verify left textarea is focused
       const leftFocused = await page.evaluate(() => {
@@ -137,7 +139,7 @@ test.describe('Keyboard Shortcuts and Accessibility', () => {
       expect(leftFocused).toBe(true);
 
       // Focus right pane with Ctrl+2
-      await page.keyboard.press('Control+2');
+      await page.keyboard.press(`${modifier}+Digit2`);
 
       // Verify right textarea is focused
       const rightFocused = await page.evaluate(() => {
@@ -157,7 +159,7 @@ test.describe('Keyboard Shortcuts and Accessibility', () => {
         .fill('Right content');
 
       // Clear with keyboard shortcut (this will trigger confirmation dialog)
-      await page.keyboard.press('Control+Shift+c');
+      await page.keyboard.press(`${modifier}+Shift+KeyC`);
 
       // Handle confirmation dialog
       page.on('dialog', async (dialog) => {
@@ -182,7 +184,7 @@ test.describe('Keyboard Shortcuts and Accessibility', () => {
         .fill('Original right');
 
       // Swap content
-      await page.keyboard.press('Control+Shift+s');
+      await page.keyboard.press(`${modifier}+Shift+KeyS`);
 
       // Verify content was swapped
       await expect(page.locator('[data-testid="textarea-left"]')).toHaveValue(
@@ -201,7 +203,7 @@ test.describe('Keyboard Shortcuts and Accessibility', () => {
         await dialog.accept();
       });
 
-      await page.keyboard.press('Control+Shift+h');
+      await page.keyboard.press(`${modifier}+Shift+KeyH`);
     });
   });
 
@@ -346,7 +348,7 @@ test.describe('Keyboard Shortcuts and Accessibility', () => {
 
     test('should support keyboard navigation in PasteArea', async () => {
       // Clear content first to show paste areas
-      await page.keyboard.press('Control+Shift+c');
+      await page.keyboard.press(`${modifier}+Shift+KeyC`);
 
       // Handle confirmation dialog
       page.on('dialog', async (dialog) => {
@@ -465,7 +467,7 @@ test.describe('Keyboard Shortcuts and Accessibility', () => {
       await page.emulateMedia({ reducedMotion: 'reduce' });
 
       // Trigger an action that normally has animation
-      await page.keyboard.press('Control+t');
+      await page.keyboard.press(`${modifier}+KeyT`);
 
       // Check that animations are disabled or minimal
       const animatedElements = page.locator('[class*="animate-"]');
@@ -490,7 +492,7 @@ test.describe('Keyboard Shortcuts and Accessibility', () => {
 
     test('should maintain color contrast in different themes', async () => {
       // Test light theme
-      await page.keyboard.press('Control+t'); // Cycle to ensure we're in a known state
+      await page.keyboard.press(`${modifier}+KeyT`); // Cycle to ensure we're in a known state
 
       // Check that text has sufficient contrast (this is a basic check)
       const textElements = page.locator('p, span, button, h1, h2, h3');

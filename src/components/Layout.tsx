@@ -1,11 +1,10 @@
 import React from 'react';
 import { GitCompare } from 'lucide-react';
 
-import { useAppStore, useErrorActions } from '../store/appStore';
+import { useAppStore } from '../store/appStore';
 
 import { Toolbar } from './Toolbar';
 // ErrorToast and LoadingIndicator components removed
-
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -23,7 +22,6 @@ interface LayoutProps {
  */
 export const Layout: React.FC<LayoutProps> = ({ children, diffStats }) => {
   const { currentError, loadingStates } = useAppStore();
-  const { clearError } = useErrorActions();
 
   // Check if any loading operation is active
   const isAnyLoading = Object.values(loadingStates).some((loading) => loading);
@@ -96,8 +94,6 @@ export const Layout: React.FC<LayoutProps> = ({ children, diffStats }) => {
             aria-live="polite"
             aria-label="Diff statistics"
           >
-
-
             {/* Diff statistics */}
             {!isAnyLoading && diffStats ? (
               <>
@@ -144,8 +140,6 @@ export const Layout: React.FC<LayoutProps> = ({ children, diffStats }) => {
           </div>
         </div>
       </footer>
-
-
     </div>
   );
 };

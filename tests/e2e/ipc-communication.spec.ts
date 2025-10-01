@@ -97,11 +97,13 @@ test.describe('IPC Communication', () => {
 
     test('should not expose raw ipcRenderer or Node.js APIs', async () => {
       const hasUnsafeAPIs = await page.evaluate(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const win = window as any;
         return {
-          hasIpcRenderer: typeof (window as any).ipcRenderer !== 'undefined',
-          hasRequire: typeof (window as any).require !== 'undefined',
-          hasProcess: typeof (window as any).process !== 'undefined',
-          hasElectron: typeof (window as any).electron !== 'undefined',
+          hasIpcRenderer: typeof win.ipcRenderer !== 'undefined',
+          hasRequire: typeof win.require !== 'undefined',
+          hasProcess: typeof win.process !== 'undefined',
+          hasElectron: typeof win.electron !== 'undefined',
         };
       });
 
@@ -378,14 +380,13 @@ test.describe('IPC Communication', () => {
       const isolationTest = await page.evaluate(() => {
         try {
           // These should not be accessible due to context isolation
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const win = window as any;
           return {
             canAccessMainProcess:
-              typeof (window as any).process?.versions?.electron !==
-              'undefined',
-            canAccessNodeModules:
-              typeof (window as any).require !== 'undefined',
-            canAccessElectronModules:
-              typeof (window as any).ipcRenderer !== 'undefined',
+              typeof win.process?.versions?.electron !== 'undefined',
+            canAccessNodeModules: typeof win.require !== 'undefined',
+            canAccessElectronModules: typeof win.ipcRenderer !== 'undefined',
             hasOnlyElectronAPI: typeof window.electronAPI !== 'undefined',
           };
         } catch {

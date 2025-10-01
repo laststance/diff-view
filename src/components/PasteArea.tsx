@@ -1,6 +1,9 @@
 import React, { useCallback, useState, useRef, useEffect } from 'react';
 import { Upload, FileText, AlertCircle } from 'lucide-react';
 
+import { FileProcessingLoader } from './LoadingIndicator';
+// import { ErrorBoundary } from './ErrorBoundary';
+
 export interface PasteAreaProps {
   onContentPaste: (content: string, fileName?: string) => void;
   className?: string;
@@ -263,6 +266,7 @@ export const PasteArea: React.FC<PasteAreaProps> = ({
   `;
 
   return (
+    // <ErrorBoundary level="component">
     <div className={`${baseClasses} ${className}`}>
       {/* Hidden file input */}
       <input
@@ -295,12 +299,11 @@ export const PasteArea: React.FC<PasteAreaProps> = ({
         }}
       >
         {isProcessing ? (
-          <div className="flex flex-col items-center space-y-3">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Processing file...
-            </p>
-          </div>
+          <FileProcessingLoader
+            type="spinner"
+            size="large"
+            message="Processing file..."
+          />
         ) : error ? (
           <div className="flex flex-col items-center space-y-3">
             <AlertCircle className="h-8 w-8 text-red-500" />
@@ -351,5 +354,6 @@ export const PasteArea: React.FC<PasteAreaProps> = ({
         </div>
       )}
     </div>
+    // </ErrorBoundary>
   );
 };

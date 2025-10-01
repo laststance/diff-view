@@ -1,7 +1,11 @@
 import React, { useRef, useCallback, useEffect, useMemo } from 'react';
 import { FileText, Copy } from 'lucide-react';
 
-// ContentWarning component removed
+// import {
+//   ContentSizeWarning,
+//   useContentSizeValidation,
+// } from './ContentSizeWarning';
+// import { ErrorBoundary } from './ErrorBoundary';
 
 export interface TextPaneProps {
   id: 'left' | 'right';
@@ -190,6 +194,7 @@ export const TextPane: React.FC<TextPaneProps> = ({
   }[fontSize];
 
   return (
+    // <ErrorBoundary level="component">
     <div
       data-testid={`text-pane-${id}`}
       className="flex flex-col bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm h-full"
@@ -229,7 +234,11 @@ export const TextPane: React.FC<TextPaneProps> = ({
             aria-live="polite"
             aria-label={`Content statistics: ${stats.chars} characters, ${stats.lines} lines, ${stats.words} words`}
           >
-<span aria-label={`${stats.words} words`}>{stats.words} words</span>
+            <span aria-label={`${stats.chars} characters`}>{stats.chars} chars</span>
+            <span className="text-gray-400 dark:text-gray-500">•</span>
+            <span aria-label={`${stats.lines} lines`}>{stats.lines} lines</span>
+            <span className="text-gray-400 dark:text-gray-500">•</span>
+            <span aria-label={`${stats.words} words`}>{stats.words} words</span>
           </div>
 
           {/* Action Buttons */}
@@ -254,7 +263,7 @@ export const TextPane: React.FC<TextPaneProps> = ({
         </div>
       </div>
 
-{/* Text Area */}
+      {/* Text Area */}
       <div className="flex-1 relative">
         <textarea
           ref={textareaRef}
@@ -303,6 +312,27 @@ export const TextPane: React.FC<TextPaneProps> = ({
           </div>
         )}
       </div>
+
+      {/* Content Size Warning - Temporarily disabled for debugging */}
+      {/* {sizeValidation.hasWarning && (
+        <div className="p-3 border-t border-gray-200 dark:border-gray-700">
+          <ContentSizeWarning
+            content={value}
+            limits={contentLimits}
+            onOptimize={() => {
+              // Simple optimization: remove extra whitespace
+              const optimized = value
+                .replace(/\n\s*\n\s*\n/g, '\n\n') // Remove multiple empty lines
+                .replace(/[ \t]+$/gm, '') // Remove trailing whitespace
+                .trim();
+              onChange(optimized);
+            }}
+            showDetails={false}
+            className="text-xs"
+          />
+        </div>
+      )} */}
     </div>
+    // </ErrorBoundary>
   );
 };

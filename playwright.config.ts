@@ -5,7 +5,7 @@ import { defineConfig } from '@playwright/test';
  */
 export default defineConfig({
   // Global timeout for all tests
-  timeout: 3 * 1000,
+  timeout: 30 * 1000, // 30 seconds for Electron app interactions
   testDir: './tests/e2e',
   /* Run tests in files in parallel */
   fullyParallel: false, // Electron tests should run sequentially
