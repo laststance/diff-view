@@ -155,7 +155,7 @@ test.describe('Complete User Workflows', () => {
         await page.waitForSelector('text=Retry', { timeout: 5000 });
         const retryButton = page.getByText('Retry');
         await retryButton.click();
-      } catch (error) {
+      } catch {
         // Retry button may not appear if error is transient
         console.log('Retry button not found or disappeared, continuing...');
       }
@@ -167,7 +167,7 @@ test.describe('Complete User Workflows', () => {
           await clearButton.click();
           await expect(page.getByText('Ready to compare').first()).toBeVisible();
         }
-      } catch (error) {
+      } catch {
         // Buttons may not exist if error state is transient
         console.log('Clear Content button not found or disappeared, continuing...');
       }
