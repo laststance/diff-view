@@ -35,7 +35,7 @@ const createWindow = () => {
       app.setActivationPolicy('accessory');
     } else {
       // In normal mode, show and focus the window
-      mainWindow?.hide();
+      mainWindow?.show();
     }
   });
 
