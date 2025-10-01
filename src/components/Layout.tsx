@@ -78,6 +78,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, diffStats }) => {
         className="flex-1 flex flex-col overflow-hidden"
         role="main"
         aria-label="Text comparison interface"
+        tabIndex={-1}
       >
         <div className="flex-1 p-4">{children}</div>
       </main>

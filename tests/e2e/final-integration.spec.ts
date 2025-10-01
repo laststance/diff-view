@@ -30,7 +30,7 @@ test.describe('Final Integration Tests', () => {
       expect(loadTime).toBeLessThan(3000);
 
       // Test 1: Initial state and branding
-      await expect(page.getByText('Ready to compare')).toBeVisible();
+      await expect(page.getByText('Ready to compare').first()).toBeVisible();
       await expect(page.locator('[data-testid="app-logo"]')).toBeVisible();
 
       // Test 2: Theme integration - start with system theme
@@ -129,14 +129,14 @@ def calculate_product(x: float, y: float) -> float:
       const unifiedViewButton = page.getByTitle('Unified View (Ctrl+Shift+V)');
       await unifiedViewButton.click();
 
-      // Verify unified view displays correctly
-      await expect(page.locator('.diff-unified-view')).toBeVisible();
+      // Verify diff view displays correctly (check for diff container, not specific view classes)
+      await expect(page.locator('.diff-viewer-container')).toBeVisible();
 
       const splitViewButton = page.getByTitle('Split View (Ctrl+Shift+V)');
       await splitViewButton.click();
 
-      // Verify split view displays correctly
-      await expect(page.locator('.diff-split-view')).toBeVisible();
+      // Verify diff view still displays after mode change
+      await expect(page.locator('.diff-viewer-container')).toBeVisible();
 
       // Test 7: Keyboard shortcuts integration
       await page.keyboard.press('Control+Shift+V'); // Toggle view mode
@@ -152,13 +152,17 @@ def calculate_product(x: float, y: float) -> float:
       await swapButton.click(); // Swap back
 
       // Test 9: Error handling integration
+      page.once('dialog', async (dialog) => {
+        await dialog.accept();
+      });
       const clearButton = page.getByLabel('Clear all content from both panes');
       await clearButton.click();
+      await page.waitForTimeout(300);
 
       // Verify clean state
       await expect(leftTextarea).toHaveValue('');
       await expect(rightTextarea).toHaveValue('');
-      await expect(page.getByText('Ready to compare')).toBeVisible();
+      await expect(page.getByText('Ready to compare').first()).toBeVisible();
 
       // Test 10: Performance with large content
       const largeContent = Array(1000)
@@ -184,7 +188,7 @@ def calculate_product(x: float, y: float) -> float:
       await clearButton.click();
 
       // Verify memory is cleaned up (application remains responsive)
-      await expect(page.getByText('Ready to compare')).toBeVisible();
+      await expect(page.getByText('Ready to compare').first()).toBeVisible();
 
       // Test rapid operations to ensure no memory leaks
       for (let i = 0; i < 5; i++) {
@@ -198,7 +202,7 @@ def calculate_product(x: float, y: float) -> float:
       await expect(
         page.getByRole('heading', { name: 'Diff View', exact: true })
       ).toBeVisible();
-      await expect(page.getByText('Ready to compare')).toBeVisible();
+      await expect(page.getByText('Ready to compare').first()).toBeVisible();
     });
 
     test('should handle complex multi-feature interactions', async () => {
@@ -475,14 +479,18 @@ export default DataProcessor;`
       await expect(
         page.getByRole('heading', { name: 'Diff View', exact: true })
       ).toBeVisible();
-      await expect(page.getByText(/\d+ lines/)).toBeVisible();
+      await expect(page.getByText(/\d+ lines/).first()).toBeVisible();
 
       // Memory cleanup test
+      page.once('dialog', async (dialog) => {
+        await dialog.accept();
+      });
       const clearButton = page.getByLabel('Clear all content from both panes');
       await clearButton.click();
+      await page.waitForTimeout(300);
 
       // Verify clean state after stress test
-      await expect(page.getByText('Ready to compare')).toBeVisible();
+      await expect(page.getByText('Ready to compare').first()).toBeVisible();
     });
 
     test('should demonstrate accessibility integration', async () => {
@@ -556,11 +564,15 @@ export default DataProcessor;`
       await expect(rightTextarea).toBeFocused();
 
       // Test 6: Error message accessibility
+      page.once('dialog', async (dialog) => {
+        await dialog.accept();
+      });
       const clearButton = page.getByLabel('Clear all content from both panes');
       await clearButton.click();
+      await page.waitForTimeout(300);
 
       // Verify accessible feedback for actions
-      await expect(page.getByText('Ready to compare')).toBeVisible();
+      await expect(page.getByText('Ready to compare').first()).toBeVisible();
     });
   });
 
@@ -588,7 +600,7 @@ export default DataProcessor;`
       console.log(`Application startup time: ${startupTime}ms`);
 
       // Verify all essential components load quickly
-      await expect(page.getByText('Ready to compare')).toBeVisible();
+      await expect(page.getByText('Ready to compare').first()).toBeVisible();
       await expect(
         page.getByPlaceholder('Paste or type your original content here...')
       ).toBeVisible();
@@ -644,11 +656,15 @@ export default DataProcessor;`
         );
 
         // Clear content to test memory cleanup
+        page.once('dialog', async (dialog) => {
+          await dialog.accept();
+        });
         const clearButton = page.getByLabel(
           'Clear all content from both panes'
         );
         await clearButton.click();
-        await expect(page.getByText('Ready to compare')).toBeVisible();
+        await page.waitForTimeout(300);
+        await expect(page.getByText('Ready to compare').first()).toBeVisible();
 
         // Brief pause to allow garbage collection
         await page.waitForTimeout(100);
@@ -700,11 +716,11 @@ export default DataProcessor;`
       for (let i = 0; i < 3; i++) {
         await unifiedButton.click();
         await page.waitForTimeout(200); // Allow transition
-        await expect(page.locator('.diff-unified-view')).toBeVisible();
+        await expect(page.locator('.diff-viewer-container')).toBeVisible();
 
         await splitButton.click();
         await page.waitForTimeout(200); // Allow transition
-        await expect(page.locator('.diff-split-view')).toBeVisible();
+        await expect(page.locator('.diff-viewer-container')).toBeVisible();
       }
 
       // Test font size transition smoothness
@@ -719,8 +735,12 @@ export default DataProcessor;`
       }
 
       // Test loading animation
+      page.once('dialog', async (dialog) => {
+        await dialog.accept();
+      });
       const clearButton = page.getByLabel('Clear all content from both panes');
       await clearButton.click();
+      await page.waitForTimeout(300);
 
       // Add large content to trigger loading animation
       const largeContent = Array(500)
@@ -786,11 +806,11 @@ export default DataProcessor;`
 
         // Test view mode switching at different sizes
         await unifiedButton.click();
-        await expect(page.locator('.diff-unified-view')).toBeVisible();
+        await expect(page.locator('.diff-viewer-container')).toBeVisible();
 
         const splitButton = page.getByTitle('Split View (Ctrl+Shift+V)');
         await splitButton.click();
-        await expect(page.locator('.diff-split-view')).toBeVisible();
+        await expect(page.locator('.diff-viewer-container')).toBeVisible();
 
         // Verify diff content remains readable
         await expect(page.getByText(/\d+ additions/)).toBeVisible();

@@ -17,10 +17,10 @@ test.afterAll(async () => {
 
 test.describe('Performance Optimizations', () => {
   test.beforeEach(async () => {
-    // Clear any existing content
-    await page.getByTestId('textarea-left').fill('');
-    await page.getByTestId('textarea-right').fill('');
-    await page.waitForTimeout(100);
+    // Reload page to reset state (handles virtualized components from previous tests)
+    await page.reload();
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForTimeout(200);
   });
 
   test.describe('Debounced Input Handling', () => {
@@ -235,17 +235,20 @@ test.describe('Performance Optimizations', () => {
     });
 
     test('should show content size warnings for large content', async () => {
-      // Create content that exceeds size thresholds
-      const veryLargeContent = Array.from({ length: 5000 }, (_, i) =>
-        `Line ${i + 1}: This is a very long line with lots of content to test size limits and warnings. `.repeat(
-          10
-        )
+      // Create content that exceeds 1MB threshold (triggers isLargeContent warning)
+      // Using ~1200 chars per line × 1000 lines ≈ 1.2MB to ensure we exceed threshold
+      const longLine = `Line content: This is a very long line with lots of content to test size limits and warnings. `.repeat(
+        12
+      );
+      const veryLargeContent = Array.from(
+        { length: 1000 },
+        (_, i) => `${i + 1}: ${longLine}`
       ).join('\n');
 
       await page.getByTestId('textarea-left').fill(veryLargeContent);
 
-      // Wait for content processing
-      await page.waitForTimeout(1000);
+      // Wait for content processing and memory calculation
+      await page.waitForTimeout(2000);
 
       // Check for large content warning
       const largeContentWarning = page.locator('text=/Large Content Detected/');
@@ -261,29 +264,31 @@ test.describe('Performance Optimizations', () => {
     });
 
     test('should provide performance recommendations', async () => {
-      // Create content that triggers recommendations
-      const contentWithManyLines = Array.from(
-        { length: 15000 },
-        (_, i) => `Line ${i + 1}`
-      ).join('\n');
+      // Create content that triggers recommendations (>5MB for "splitting" recommendation)
+      // Using large content to avoid line count limits with Playwright fill()
+      const largeLine = 'x'.repeat(6000); // ~6KB per line
+      const contentTriggeringRecommendations = Array.from(
+        { length: 900 },
+        (_, i) => `Line ${i + 1}: ${largeLine}`
+      ).join('\n'); // ~5.4MB total
 
-      await page.getByTestId('textarea-left').fill(contentWithManyLines);
-      await page.waitForTimeout(1000);
+      await page.getByTestId('textarea-left').fill(contentTriggeringRecommendations);
+      await page.waitForTimeout(2000);
 
       // Check for performance recommendations
       const recommendations = page.locator('text=/Recommendations:/');
       if (await recommendations.isVisible()) {
         await expect(recommendations).toBeVisible();
 
-        // Should recommend virtual scrolling for many lines
-        const virtualScrollingRec = page.locator('text=/virtual scrolling/i');
-        await expect(virtualScrollingRec).toBeVisible();
+        // Should recommend splitting large content
+        const splittingRec = page.locator('text=/splitting/i');
+        await expect(splittingRec).toBeVisible();
       }
     });
 
     test('should handle content size limits gracefully', async () => {
-      // Test with content approaching limits
-      const approachingLimitContent = 'x'.repeat(8 * 1024 * 1024); // 8MB content
+      // Test with content approaching limits (reduced from 8MB to avoid Playwright timeout)
+      const approachingLimitContent = 'x'.repeat(1500 * 1024); // 1.5MB content
 
       await page.getByTestId('textarea-left').fill(approachingLimitContent);
 
@@ -364,29 +369,13 @@ test.describe('Performance Optimizations', () => {
       // Wait for processing
       await page.waitForTimeout(1000);
 
-      // Clear content
-      const clearButton = page
-        .locator('button[title*="clear"], button[aria-label*="clear"]')
-        .first();
-      if (await clearButton.isVisible()) {
-        await clearButton.click();
-
-        // Confirm clear if dialog appears
-        const confirmButton = page
-          .locator(
-            'button:has-text("Clear"), button:has-text("Yes"), button:has-text("OK")'
-          )
-          .first();
-        if (await confirmButton.isVisible()) {
-          await confirmButton.click();
-        }
-      } else {
-        // Manually clear textareas
-        await page.getByTestId('textarea-left').fill('');
-        await page.getByTestId('textarea-right').fill('');
-      }
-
-      // Wait for cleanup
+      // Clear content with dialog handler
+      page.once('dialog', async (dialog) => {
+        await dialog.accept();
+      });
+      
+      const clearButton = page.getByLabel('Clear all content from both panes');
+      await clearButton.click();
       await page.waitForTimeout(500);
 
       // Verify content is cleared
