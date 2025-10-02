@@ -1,15 +1,15 @@
 import { test, expect } from '@playwright/test';
-import { ElectronApplication, Page , _electron as electron } from 'playwright';
+import type { ElectronApplication, Page } from 'playwright';
+
+import { launchElectronApp } from './helpers/launchElectronApp';
 
 let electronApp: ElectronApplication;
 let page: Page;
 
 test.beforeAll(async () => {
   // Launch Electron app
-  electronApp = await electron.launch({
-    args: ['.'],
+  electronApp = await launchElectronApp({
     env: {
-      ...process.env,
       NODE_ENV: 'test',
     },
   });

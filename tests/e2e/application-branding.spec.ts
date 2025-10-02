@@ -1,15 +1,14 @@
 import { test, expect } from '@playwright/test';
-import { ElectronApplication, Page, _electron as electron } from 'playwright';
+import type { ElectronApplication, Page } from 'playwright';
+
+import { launchElectronApp } from './helpers/launchElectronApp';
 
 test.describe('Application Branding', () => {
   let electronApp: ElectronApplication;
   let page: Page;
 
   test.beforeAll(async () => {
-    electronApp = await electron.launch({
-      args: ['.'],
-      timeout: 30000,
-    });
+    electronApp = await launchElectronApp({ timeout: 30000 });
     page = await electronApp.firstWindow();
     await page.waitForLoadState('domcontentloaded');
   });

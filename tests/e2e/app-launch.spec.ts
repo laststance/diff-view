@@ -1,11 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { _electron as electron } from 'playwright';
+
+import { launchElectronApp } from './helpers/launchElectronApp';
 
 test('Electron app launches and closes successfully', async () => {
-  const electronApp = await electron.launch({
-    args: ['.'],
-    cwd: process.cwd(),
-  });
+  const electronApp = await launchElectronApp();
 
   // Verify the app launched
   expect(electronApp).toBeTruthy();
@@ -27,11 +25,8 @@ test('Electron app launches and closes successfully', async () => {
 });
 
 test('Electron app basic functionality', async () => {
-  // Launch Electron app in headless mode
-  const electronApp = await electron.launch({
-    args: ['.'],
-    cwd: process.cwd(),
-  });
+  // Launch Electron app in controlled test mode
+  const electronApp = await launchElectronApp();
 
   // Wait for the app to be ready
   await electronApp.evaluate(async ({ app }) => {

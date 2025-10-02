@@ -1,16 +1,14 @@
 import { test, expect } from '@playwright/test';
-import { _electron as electron } from 'playwright';
 import type { ElectronApplication, Page } from 'playwright';
+
+import { launchElectronApp } from './helpers/launchElectronApp';
 
 test.describe('IPC Communication', () => {
   let electronApp: ElectronApplication;
   let page: Page;
 
   test.beforeEach(async () => {
-    electronApp = await electron.launch({
-      args: ['.'],
-      cwd: process.cwd(),
-    });
+    electronApp = await launchElectronApp();
 
     // Wait for the app to be ready
     await electronApp.evaluate(async ({ app }) => {

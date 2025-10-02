@@ -1,18 +1,13 @@
-import { ElectronApplication, _electron as electron, Page } from 'playwright';
+import type { ElectronApplication, Page } from 'playwright';
+
+import { launchElectronApp } from '../e2e/helpers/launchElectronApp';
 
 export class ElectronTestHelper {
   private app: ElectronApplication | null = null;
   private window: Page | null = null;
 
   async launch(): Promise<void> {
-    this.app = await electron.launch({
-      args: ['.'],
-      cwd: process.cwd(),
-      env: {
-        ...process.env,
-        ELECTRON_TEST_MODE: 'true',
-      },
-    });
+    this.app = await launchElectronApp();
 
     this.window = await this.app.firstWindow();
     await this.window.waitForLoadState('domcontentloaded');
@@ -69,15 +64,7 @@ export const electronHelper = new ElectronTestHelper();
 
 // Helper functions for simple test cases
 export async function startElectronApp(): Promise<ElectronApplication> {
-  const app = await electron.launch({
-    args: ['.'],
-    cwd: process.cwd(),
-    env: {
-      ...process.env,
-      ELECTRON_TEST_MODE: 'true',
-    },
-  });
-  return app;
+  return launchElectronApp();
 }
 
 export async function stopElectronApp(app: ElectronApplication): Promise<void> {

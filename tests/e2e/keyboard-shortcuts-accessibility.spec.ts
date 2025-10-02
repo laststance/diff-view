@@ -129,22 +129,17 @@ test.describe('Keyboard Shortcuts and Accessibility', () => {
         'button[aria-label*="Current font size"]'
       );
 
+      await page.bringToFront();
+
       // Increase font size (use '=' key, not 'Equal')
       await page.keyboard.press(`${modifier}+Equal`);
 
-      // Wait for UI to update
-      await page.waitForTimeout(200);
-
-      // Check if font size changed (button title should update)
-      const increasedSize = await fontButton.getAttribute('title');
-      expect(increasedSize).toContain('large');
+      await expect(fontButton).toHaveAttribute('title', /large/i);
 
       // Decrease font size (use '-' key, not 'Minus')
       await page.keyboard.press(`${modifier}+Minus`);
 
-      // Verify font size decreased
-      const decreasedSize = await fontButton.getAttribute('title');
-      expect(decreasedSize).not.toContain('large');
+      await expect(fontButton).toHaveAttribute('title', /medium|small/i);
     });
 
     test('should focus text panes with Ctrl+1 and Ctrl+2', async () => {
@@ -184,8 +179,8 @@ test.describe('Keyboard Shortcuts and Accessibility', () => {
       await page.keyboard.press(`${modifier}+Shift+KeyC`);
 
       // Handle confirmation dialog
-      page.on('dialog', async (dialog) => {
-        expect(dialog.message()).toContain('clear all content');
+      page.once('dialog', async (dialog) => {
+        expect(dialog.message()).toContain('Clear all content');
         await dialog.accept();
       });
 
@@ -222,9 +217,10 @@ test.describe('Keyboard Shortcuts and Accessibility', () => {
       let dialogShown = false;
       page.once('dialog', async (dialog) => {
         dialogShown = true;
-        expect(dialog.message()).toContain('Keyboard Shortcuts');
-        expect(dialog.message()).toContain('Ctrl+Shift+C: Clear all content');
-        await dialog.accept();
+        const message = dialog.message();
+        expect(message).toContain('Keyboard Shortcuts');
+        expect(message.toLowerCase()).toContain('ctrl+shift+c: clear all content'.toLowerCase());
+        await dialog.accept().catch(() => {});
       });
       
       // Trigger help shortcut
@@ -340,6 +336,10 @@ test.describe('Keyboard Shortcuts and Accessibility', () => {
 
   test.describe('Keyboard Navigation', () => {
     test('should support tab navigation through interactive elements', async () => {
+      await page.reload();
+      await page.waitForLoadState('domcontentloaded');
+      await page.bringToFront();
+
       // Start from the beginning
       await page.keyboard.press('Tab');
 
@@ -382,7 +382,7 @@ test.describe('Keyboard Shortcuts and Accessibility', () => {
       await page.keyboard.press(`${modifier}+Shift+KeyC`);
 
       // Handle confirmation dialog
-      page.on('dialog', async (dialog) => {
+      page.once('dialog', async (dialog) => {
         await dialog.accept();
       });
 

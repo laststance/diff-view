@@ -144,6 +144,8 @@ describe('DiffViewer Component', () => {
     it('should display current view mode and theme', () => {
       (useAppStore as any).mockReturnValue({
         ...mockStore,
+        leftContent: 'foo',
+        rightContent: 'bar',
         viewMode: 'unified',
         theme: 'dark',
       });
