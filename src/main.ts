@@ -29,6 +29,7 @@ const createWindow = () => {
   // Show window when ready to prevent visual flash
   mainWindow.once('ready-to-show', () => {
     if (process.env.ELECTRON_TEST_MODE === 'true') {
+      app.hide();
       // In test mode, show without stealing focus
       mainWindow?.showInactive();
       // Mac Only: Hide from dock during test
