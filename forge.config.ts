@@ -8,6 +8,106 @@ import { VitePlugin } from '@electron-forge/plugin-vite';
 import { FusesPlugin } from '@electron-forge/plugin-fuses';
 import { FuseV1Options, FuseVersion } from '@electron/fuses';
 
+const isLinux = process.platform === 'linux';
+
+/**
+ * Creates the MakerDeb instance only when running on a Linux host.
+ * Electron Forge requires native tooling (dpkg, fakeroot) that is available on Linux.
+ */
+const createDebMaker = () => {
+  if (!isLinux) {
+    return null;
+  }
+
+  return new MakerDeb(
+    {
+      options: {
+        name: 'diff-view',
+        productName: 'Diff View',
+        genericName: 'Text Diff Viewer',
+        description:
+          'An offline desktop application for GitHub-style text comparison and diff visualization',
+        categories: ['Development', 'Utility'],
+        section: 'devel',
+        priority: 'optional',
+        icon: './assets/icons/linux/icon-256x256.png',
+        maintainer: 'Ryota Murakami <dojce1048@gmail.com>',
+        homepage: 'https://github.com/diff-view/diff-view',
+        depends: [
+          'libgtk-3-0',
+          'libnotify4',
+          'libnss3',
+          'libxss1',
+          'libxtst6',
+          'xdg-utils',
+          'libatspi2.0-0',
+          'libdrm2',
+          'libxcomposite1',
+          'libxdamage1',
+          'libxrandr2',
+          'libgbm1',
+          'libxkbcommon0',
+          'libasound2',
+        ],
+        recommends: ['git'],
+        bin: 'diff-view',
+        mimeType: ['text/plain', 'text/x-diff'],
+      },
+    },
+    ['linux']
+  );
+};
+
+/**
+ * Creates the MakerRpm instance only when running on a Linux host.
+ * rpmbuild is not available on macOS, so this prevents local build failures.
+ */
+const createRpmMaker = () => {
+  if (!isLinux) {
+    return null;
+  }
+
+  return new MakerRpm(
+    {
+      options: {
+        name: 'diff-view',
+        productName: 'Diff View',
+        genericName: 'Text Diff Viewer',
+        description:
+          'An offline desktop application for GitHub-style text comparison and diff visualization',
+        categories: ['Development', 'Utility'],
+        icon: './assets/icons/linux/icon-256x256.png',
+        homepage: 'https://github.com/diff-view/diff-view',
+        license: 'MIT',
+        requires: [
+          'gtk3',
+          'libnotify',
+          'nss',
+          'libXScrnSaver',
+          'libXtst',
+          'xdg-utils',
+          'at-spi2-atk',
+          'libdrm',
+          'libXcomposite',
+          'libXdamage',
+          'libXrandr',
+          'mesa-libgbm',
+          'libxkbcommon',
+          'alsa-lib',
+        ],
+        bin: 'diff-view',
+      },
+    },
+    ['linux']
+  );
+};
+
+const linuxMakers = [
+  new MakerZIP({}, ['linux']),
+  createDebMaker(),
+  createRpmMaker(),
+].filter((maker): maker is MakerZIP | MakerDeb | MakerRpm => maker !== null);
+
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
@@ -97,79 +197,7 @@ const config: ForgeConfig = {
       ['darwin']
     ),
 
-    // Linux DEB package (Ubuntu/Debian)
-    new MakerDeb(
-      {
-        options: {
-          name: 'diff-view',
-          productName: 'Diff View',
-          genericName: 'Text Diff Viewer',
-          description:
-            'An offline desktop application for GitHub-style text comparison and diff visualization',
-          categories: ['Development', 'Utility'],
-          section: 'devel',
-          priority: 'optional',
-          icon: './assets/icons/linux/icon-256x256.png',
-          maintainer: 'Ryota Murakami <dojce1048@gmail.com>',
-          homepage: 'https://github.com/diff-view/diff-view',
-          depends: [
-            'libgtk-3-0',
-            'libnotify4',
-            'libnss3',
-            'libxss1',
-            'libxtst6',
-            'xdg-utils',
-            'libatspi2.0-0',
-            'libdrm2',
-            'libxcomposite1',
-            'libxdamage1',
-            'libxrandr2',
-            'libgbm1',
-            'libxkbcommon0',
-            'libasound2',
-          ],
-          recommends: ['git'], // Recommended packages
-          bin: 'diff-view',
-          mimeType: ['text/plain', 'text/x-diff'],
-        },
-      },
-      ['linux']
-    ),
-
-    // Linux RPM package (RedHat/Fedora/SUSE)
-    new MakerRpm(
-      {
-        options: {
-          name: 'diff-view',
-          productName: 'Diff View',
-          genericName: 'Text Diff Viewer',
-          description:
-            'An offline desktop application for GitHub-style text comparison and diff visualization',
-          categories: ['Development', 'Utility'],
-          icon: './assets/icons/linux/icon-256x256.png',
-          homepage: 'https://github.com/diff-view/diff-view',
-          license: 'MIT',
-          requires: [
-            'gtk3',
-            'libnotify',
-            'nss',
-            'libXScrnSaver',
-            'libXtst',
-            'xdg-utils',
-            'at-spi2-atk',
-            'libdrm',
-            'libXcomposite',
-            'libXdamage',
-            'libXrandr',
-            'mesa-libgbm',
-            'libxkbcommon',
-            'alsa-lib',
-          ],
-          bin: 'diff-view',
-        },
-      },
-      ['linux']
-    ),
+    ...linuxMakers,
   ],
   plugins: [
     new VitePlugin({
