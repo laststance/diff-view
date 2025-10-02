@@ -32,7 +32,7 @@ const createDebMaker = () => {
         priority: 'optional',
         icon: './assets/icons/linux/icon-256x256.png',
         maintainer: 'Ryota Murakami <dojce1048@gmail.com>',
-        homepage: 'https://github.com/diff-view/diff-view',
+        homepage: 'https://github.com/laststance/diff-view',
         depends: [
           'libgtk-3-0',
           'libnotify4',
@@ -77,7 +77,7 @@ const createRpmMaker = () => {
           'An offline desktop application for GitHub-style text comparison and diff visualization',
         categories: ['Development', 'Utility'],
         icon: './assets/icons/linux/icon-256x256.png',
-        homepage: 'https://github.com/diff-view/diff-view',
+        homepage: 'https://github.com/laststance/diff-view',
         license: 'MIT',
         requires: [
           'gtk3',

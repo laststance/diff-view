@@ -1,9 +1,9 @@
 # Diff View
 
-![Lint](https://github.com/diff-view/diff-view/actions/workflows/lint.yml/badge.svg)
-![Type Check](https://github.com/diff-view/diff-view/actions/workflows/typecheck.yml/badge.svg)
-![Unit Tests](https://github.com/diff-view/diff-view/actions/workflows/test.yml/badge.svg)
-![E2E Tests](https://github.com/diff-view/diff-view/actions/workflows/e2e.yml/badge.svg)
+[![Lint](https://github.com/laststance/diff-view/actions/workflows/lint.yml/badge.svg)](https://github.com/laststance/diff-view/actions/workflows/lint.yml)
+[![Type Check](https://github.com/laststance/diff-view/actions/workflows/typecheck.yml/badge.svg)](https://github.com/laststance/diff-view/actions/workflows/typecheck.yml)
+[![Unit Tests](https://github.com/laststance/diff-view/actions/workflows/test.yml/badge.svg)](https://github.com/laststance/diff-view/actions/workflows/test.yml)
+[![E2E Tests](https://github.com/laststance/diff-view/actions/workflows/e2e.yml/badge.svg)](https://github.com/laststance/diff-view/actions/workflows/e2e.yml)
 
 An offline Electron desktop application for GitHub-style text comparison and diff visualization. Built with React, TypeScript, Vite, and Tailwind CSS.
 
@@ -22,13 +22,13 @@ An offline Electron desktop application for GitHub-style text comparison and dif
 
 ### From Pre-built Binaries
 
-Download the latest release for your platform from the [Releases](https://github.com/diff-view/diff-view/releases) page.
+Download the latest release for your platform from the [Releases](https://github.com/laststance/diff-view/releases) page.
 
 ### Build from Source
 
 ```bash
 # Clone the repository
-git clone https://github.com/diff-view/diff-view.git
+git clone https://github.com/laststance/diff-view.git
 cd diff-view
 
 # Install dependencies (requires pnpm)
@@ -186,7 +186,7 @@ MIT License - see [LICENSE](LICENSE) file for details
 
 **Ryota Murakami**
 - Email: dojce1048@gmail.com
-- GitHub: [@diff-view](https://github.com/diff-view)
+- GitHub: [@laststance](https://github.com/laststance)
 
 ## Acknowledgments
 

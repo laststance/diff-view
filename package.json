@@ -3,13 +3,13 @@
   "productName": "Diff View",
   "version": "1.0.0",
   "description": "An offline desktop application for GitHub-style text comparison and diff visualization",
-  "homepage": "https://github.com/diff-view/diff-view",
+  "homepage": "https://github.com/laststance/diff-view",
   "repository": {
     "type": "git",
-    "url": "https://github.com/diff-view/diff-view.git"
+    "url": "https://github.com/laststance/diff-view.git"
   },
   "bugs": {
-    "url": "https://github.com/diff-view/diff-view/issues"
+    "url": "https://github.com/laststance/diff-view/issues"
   },
   "main": ".vite/build/main.js",
   "scripts": {
