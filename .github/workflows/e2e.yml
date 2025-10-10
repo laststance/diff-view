@@ -40,6 +40,9 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps
 
+      - name: Build Electron app
+        run: pnpm package
+
       - name: Run e2e tests
         env:
           CI: true
