@@ -26,8 +26,11 @@ export async function launchElectronApp(
     Object.entries(combinedEnv).filter(([, value]) => value !== undefined)
   ) as Record<string, string>;
 
+  // Add --no-sandbox flag in CI to avoid Linux sandbox configuration issues
+  const electronArgs = process.env.CI ? ['--no-sandbox', ...args] : args;
+
   return electron.launch({
-    args,
+    args: electronArgs,
     cwd,
     env: sanitizedEnv,
     ...rest,
