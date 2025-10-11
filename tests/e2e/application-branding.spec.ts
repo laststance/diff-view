@@ -7,7 +7,7 @@ test.describe('Application Branding', () => {
   let electronApp: ElectronApplication;
   let page: Page;
 
-  test.beforeAll(async () => {
+  test.beforeEach(async () => {
     electronApp = await launchElectronApp({ timeout: 30000 });
     page = await electronApp.firstWindow();
     await page.waitForLoadState('domcontentloaded');
@@ -16,7 +16,7 @@ test.describe('Application Branding', () => {
     await page.waitForTimeout(2000);
   });
 
-  test.afterAll(async () => {
+  test.afterEach(async () => {
     await electronApp.close();
   });
 
