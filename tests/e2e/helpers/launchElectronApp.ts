@@ -30,8 +30,19 @@ export async function launchElectronApp(
   // --no-sandbox: Avoid Linux sandbox configuration issues
   // --disable-gpu: Disable GPU acceleration in xvfb (no hardware GPU)
   // --disable-dev-shm-usage: Prevent shared memory issues in containers
+  // --disable-software-rasterizer: Prevent software rendering fallback issues
+  // --disable-extensions: Reduce initialization complexity
+  // --disable-background-networking: Faster startup, no network requests
   const electronArgs = process.env.CI
-    ? ['--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', ...args]
+    ? [
+        '--no-sandbox',
+        '--disable-gpu',
+        '--disable-dev-shm-usage',
+        '--disable-software-rasterizer',
+        '--disable-extensions',
+        '--disable-background-networking',
+        ...args,
+      ]
     : args;
 
   return electron.launch({
