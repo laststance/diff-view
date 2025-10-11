@@ -26,8 +26,13 @@ export async function launchElectronApp(
     Object.entries(combinedEnv).filter(([, value]) => value !== undefined)
   ) as Record<string, string>;
 
-  // Add --no-sandbox flag in CI to avoid Linux sandbox configuration issues
-  const electronArgs = process.env.CI ? ['--no-sandbox', ...args] : args;
+  // Add flags for CI headless environment compatibility
+  // --no-sandbox: Avoid Linux sandbox configuration issues
+  // --disable-gpu: Disable GPU acceleration in xvfb (no hardware GPU)
+  // --disable-dev-shm-usage: Prevent shared memory issues in containers
+  const electronArgs = process.env.CI
+    ? ['--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', ...args]
+    : args;
 
   return electron.launch({
     args: electronArgs,

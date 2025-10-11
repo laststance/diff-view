@@ -47,7 +47,7 @@ jobs:
         env:
           CI: true
           ELECTRON_RUN_AS_NODE: ''
-        run: xvfb-run --auto-servernum pnpm test:e2e
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" pnpm test:e2e
 
       - name: Upload Playwright report
         if: failure()
