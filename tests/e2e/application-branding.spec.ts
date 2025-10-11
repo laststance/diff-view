@@ -9,11 +9,14 @@ test.describe('Application Branding', () => {
 
   test.beforeEach(async () => {
     electronApp = await launchElectronApp({ timeout: 30000 });
+
+    // Wait for the app to be ready BEFORE getting the window
+    await electronApp.evaluate(async ({ app }) => {
+      return app.whenReady();
+    });
+
     page = await electronApp.firstWindow();
     await page.waitForLoadState('domcontentloaded');
-    // Wait for React to fully render and app to be interactive
-    // This is especially important in CI environments with xvfb
-    await page.waitForTimeout(2000);
   });
 
   test.afterEach(async () => {
