@@ -19,8 +19,6 @@ test.describe('Final Integration Tests', () => {
 
   test.describe('Complete Application Integration', () => {
     test('should demonstrate complete application workflow with all features', async () => {
-      test.skip(!!process.env.CI, 'Skipping in CI due to instability of full workflow scenario');
-
       test.setTimeout(120_000);
 
       // Verify application startup performance
