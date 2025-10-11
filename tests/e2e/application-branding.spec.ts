@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import type { ElectronApplication, Page } from 'playwright';
+import type { ElectronApplication, Page, ConsoleMessage } from 'playwright';
 
 import { launchElectronApp } from './helpers/launchElectronApp';
 
@@ -11,6 +11,9 @@ test.describe('Application Branding', () => {
     electronApp = await launchElectronApp({ timeout: 30000 });
     page = await electronApp.firstWindow();
     await page.waitForLoadState('domcontentloaded');
+    // Wait for React to fully render and app to be interactive
+    // This is especially important in CI environments with xvfb
+    await page.waitForTimeout(2000);
   });
 
   test.afterAll(async () => {
@@ -127,25 +130,33 @@ test.describe('Application Branding', () => {
     // Test that there are no console errors related to missing icons or branding assets
     const consoleErrors: string[] = [];
 
-    page.on('console', (msg) => {
+    // Create handler function so we can properly remove it later
+    const consoleHandler = (msg: ConsoleMessage) => {
       if (msg.type() === 'error') {
         consoleErrors.push(msg.text());
       }
-    });
+    };
 
-    // Reload the page to catch any loading errors
-    await page.reload();
-    await page.waitForLoadState('domcontentloaded');
+    page.on('console', consoleHandler);
 
-    // Filter out errors that might be related to missing icon files
-    const brandingErrors = consoleErrors.filter(
-      (error) =>
-        error.toLowerCase().includes('icon') ||
-        error.toLowerCase().includes('image') ||
-        error.toLowerCase().includes('svg')
-    );
+    try {
+      // Reload the page to catch any loading errors
+      await page.reload();
+      await page.waitForLoadState('domcontentloaded');
 
-    // We expect no branding-related errors
-    expect(brandingErrors.length).toBe(0);
+      // Filter out errors that might be related to missing icon files
+      const brandingErrors = consoleErrors.filter(
+        (error) =>
+          error.toLowerCase().includes('icon') ||
+          error.toLowerCase().includes('image') ||
+          error.toLowerCase().includes('svg')
+      );
+
+      // We expect no branding-related errors
+      expect(brandingErrors.length).toBe(0);
+    } finally {
+      // Clean up event listener to prevent worker teardown issues
+      page.off('console', consoleHandler);
+    }
   });
 });
