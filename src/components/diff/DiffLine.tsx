@@ -39,7 +39,11 @@ export const DiffLine: React.FC<DiffLineProps> = ({
       case 'delete':
         return 'bg-red-50 dark:bg-red-950';
       case 'modify':
-        return 'bg-yellow-50 dark:bg-yellow-950';
+        // In unified view, modified lines are shown as delete + add pairs
+        // In split view, show yellow background
+        return viewMode === 'unified'
+          ? 'bg-white dark:bg-gray-900'
+          : 'bg-yellow-50 dark:bg-yellow-950';
       case 'context':
       default:
         return 'bg-white dark:bg-gray-900';
@@ -130,6 +134,16 @@ export const DiffLine: React.FC<DiffLineProps> = ({
   const lineBackgroundClass = getLineBackgroundClass();
   const linePrefix = getLinePrefix();
 
+  // Determine which line number to show in unified view
+  const getUnifiedLineNumber = (): number | undefined => {
+    // For deleted lines, show old line number
+    if (line.type === 'delete' && line.oldLineNumber !== undefined) {
+      return line.oldLineNumber;
+    }
+    // For added and context lines, show new line number
+    return line.newLineNumber;
+  };
+
   return (
     <div
       className={`flex font-mono text-sm ${lineBackgroundClass} ${className}`}
@@ -143,24 +157,39 @@ export const DiffLine: React.FC<DiffLineProps> = ({
         {linePrefix}
       </span>
 
-      {/* Old line number (for split view) */}
-      {viewMode === 'split' && line.oldLineNumber !== undefined && (
-        <span
-          className="inline-block w-12 flex-shrink-0 select-none pr-2 text-right text-gray-400"
-          data-testid="old-line-number"
-        >
-          {line.oldLineNumber}
-        </span>
-      )}
-
-      {/* New line number */}
-      {line.newLineNumber !== undefined && (
-        <span
-          className="inline-block w-12 flex-shrink-0 select-none pr-2 text-right text-gray-400"
-          data-testid="new-line-number"
-        >
-          {line.newLineNumber}
-        </span>
+      {/* Line numbers - different logic for split vs unified */}
+      {viewMode === 'split' ? (
+        <>
+          {/* Split view: Show both old and new line numbers */}
+          {line.oldLineNumber !== undefined && (
+            <span
+              className="inline-block w-12 flex-shrink-0 select-none pr-2 text-right text-gray-400"
+              data-testid="old-line-number"
+            >
+              {line.oldLineNumber}
+            </span>
+          )}
+          {line.newLineNumber !== undefined && (
+            <span
+              className="inline-block w-12 flex-shrink-0 select-none pr-2 text-right text-gray-400"
+              data-testid="new-line-number"
+            >
+              {line.newLineNumber}
+            </span>
+          )}
+        </>
+      ) : (
+        <>
+          {/* Unified view: Show single line number */}
+          {getUnifiedLineNumber() !== undefined && (
+            <span
+              className="inline-block w-12 flex-shrink-0 select-none pr-2 text-right text-gray-400"
+              data-testid="unified-line-number"
+            >
+              {getUnifiedLineNumber()}
+            </span>
+          )}
+        </>
       )}
 
       {/* Line content with highlights */}
