@@ -11,6 +11,14 @@ interface DiffHunkProps {
   viewMode?: 'split' | 'unified';
   /** Additional CSS classes */
   className?: string;
+  /** Hunk index in the diff (Phase 3 Feature 2) */
+  hunkIndex?: number;
+  /** Function to get change index for a line (Phase 3 Feature 2) */
+  getChangeIndex?: (hunkIndex: number, lineIndex: number) => number | null;
+  /** Currently selected change index (Phase 3 Feature 2) */
+  currentChangeIndex?: number | null;
+  /** Callback to set ref for navigation (Phase 3 Feature 2) */
+  setChangeRef?: (changeIndex: number, element: HTMLDivElement | null) => void;
 }
 
 /**
@@ -31,6 +39,10 @@ export const DiffHunk: React.FC<DiffHunkProps> = ({
   hunk,
   viewMode = 'split',
   className = '',
+  hunkIndex = 0,
+  getChangeIndex,
+  currentChangeIndex = null,
+  setChangeRef,
 }) => {
   /**
    * Format the hunk header in GitHub's standard format:
@@ -53,13 +65,22 @@ export const DiffHunk: React.FC<DiffHunkProps> = ({
 
       {/* Lines in this hunk */}
       <div className="divide-y divide-gray-100 dark:divide-gray-800">
-        {hunk.lines.map((line, index) => (
-          <DiffLine
-            key={`line-${index}-${line.oldLineNumber}-${line.newLineNumber}`}
-            line={line}
-            viewMode={viewMode}
-          />
-        ))}
+        {hunk.lines.map((line, index) => {
+          const changeIndex = getChangeIndex ? getChangeIndex(hunkIndex, index) : null;
+          const isCurrentChange =
+            changeIndex !== null && changeIndex === currentChangeIndex;
+
+          return (
+            <DiffLine
+              key={`line-${index}-${line.oldLineNumber}-${line.newLineNumber}`}
+              line={line}
+              viewMode={viewMode}
+              changeIndex={changeIndex}
+              isCurrentChange={isCurrentChange}
+              setChangeRef={setChangeRef}
+            />
+          );
+        })}
       </div>
     </div>
   );

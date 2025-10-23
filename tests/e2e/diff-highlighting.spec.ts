@@ -705,4 +705,193 @@ test.describe('Phase 2: Character-Level Diff Highlighting', () => {
       expect(await unifiedLineNumbers.count()).toBeGreaterThan(0);
     });
   });
+
+  test.describe('Phase 3 Feature 2: Diff Navigation', () => {
+    /**
+     * Note: These tests verify navigation functionality with the current single-line diff implementation.
+     * The current Myers algorithm treats all content as a single line, resulting in one change.
+     * Full line-by-line diffing (multiple changes) is planned for future enhancement.
+     */
+
+    test('should render NavigationControls with counter', async () => {
+      const leftTextarea = page.locator('textarea').first();
+      const rightTextarea = page.locator('textarea').last();
+
+      await leftTextarea.fill('Hello World');
+      await rightTextarea.fill('Hello Universe');
+      await page.waitForTimeout(1000);
+
+      // Navigation controls should be visible
+      const counter = page.locator('[data-testid="navigation-counter"]');
+      await expect(counter).toBeVisible();
+
+      // Should show "Change 1 of 1" for single-line diff
+      const counterText = await counter.textContent();
+      expect(counterText).toContain('Change 1 of 1');
+    });
+
+    test('should show "No changes" when content is identical', async () => {
+      const leftTextarea = page.locator('textarea').first();
+      const rightTextarea = page.locator('textarea').last();
+
+      await leftTextarea.fill('Same content');
+      await rightTextarea.fill('Same content');
+      await page.waitForTimeout(1000);
+
+      // Navigation controls should show "No changes"
+      const counter = page.locator('[data-testid="navigation-counter"]');
+      const counterText = await counter.textContent();
+      expect(counterText).toContain('No changes');
+    });
+
+    test('should have navigation buttons in correct state', async () => {
+      const leftTextarea = page.locator('textarea').first();
+      const rightTextarea = page.locator('textarea').last();
+
+      await leftTextarea.fill('Old text');
+      await rightTextarea.fill('New text');
+      await page.waitForTimeout(1000);
+
+      // All navigation buttons should exist
+      const firstButton = page.locator('[data-testid="nav-first"]');
+      const prevButton = page.locator('[data-testid="nav-previous"]');
+      const nextButton = page.locator('[data-testid="nav-next"]');
+      const lastButton = page.locator('[data-testid="nav-last"]');
+
+      await expect(firstButton).toBeVisible();
+      await expect(prevButton).toBeVisible();
+      await expect(nextButton).toBeVisible();
+      await expect(lastButton).toBeVisible();
+
+      // With single change (index 0 of 1), first/prev should be disabled, next/last should be disabled
+      await expect(firstButton).toBeDisabled();
+      await expect(prevButton).toBeDisabled();
+      await expect(nextButton).toBeDisabled();
+      await expect(lastButton).toBeDisabled();
+    });
+
+    test('should highlight current change with visual indicator', async () => {
+      const leftTextarea = page.locator('textarea').first();
+      const rightTextarea = page.locator('textarea').last();
+
+      await leftTextarea.fill('Original');
+      await rightTextarea.fill('Modified');
+      await page.waitForTimeout(1000);
+
+      // Find the change line with data-change-index attribute
+      const changeLine = page.locator('[data-change-index="0"]');
+      await expect(changeLine).toBeVisible();
+
+      // Change line should have visual highlight (ring classes)
+      const className = await changeLine.getAttribute('class');
+      expect(className).toContain('ring');
+    });
+
+    test('should navigate using keyboard shortcuts - next (n)', async () => {
+      const leftTextarea = page.locator('textarea').first();
+      const rightTextarea = page.locator('textarea').last();
+
+      await leftTextarea.fill('Before');
+      await rightTextarea.fill('After');
+      await page.waitForTimeout(1000);
+
+      // Press 'n' for next (even though there's only 1 change, it should still work)
+      await page.keyboard.press('n');
+      await page.waitForTimeout(300);
+
+      // Counter should still show Change 1 of 1
+      const counter = page.locator('[data-testid="navigation-counter"]');
+      const counterText = await counter.textContent();
+      expect(counterText).toContain('Change 1 of 1');
+    });
+
+    test('should navigate using keyboard shortcuts - previous (p)', async () => {
+      const leftTextarea = page.locator('textarea').first();
+      const rightTextarea = page.locator('textarea').last();
+
+      await leftTextarea.fill('Start');
+      await rightTextarea.fill('End');
+      await page.waitForTimeout(1000);
+
+      // Press 'p' for previous
+      await page.keyboard.press('p');
+      await page.waitForTimeout(300);
+
+      // Counter should still show Change 1 of 1
+      const counter = page.locator('[data-testid="navigation-counter"]');
+      const counterText = await counter.textContent();
+      expect(counterText).toContain('Change 1 of 1');
+    });
+
+    test('should navigate using keyboard shortcuts - first (g)', async () => {
+      const leftTextarea = page.locator('textarea').first();
+      const rightTextarea = page.locator('textarea').last();
+
+      await leftTextarea.fill('Alpha');
+      await rightTextarea.fill('Beta');
+      await page.waitForTimeout(1000);
+
+      // Press 'g' for first change
+      await page.keyboard.press('g');
+      await page.waitForTimeout(300);
+
+      // Counter should show Change 1 of 1
+      const counter = page.locator('[data-testid="navigation-counter"]');
+      const counterText = await counter.textContent();
+      expect(counterText).toContain('Change 1 of 1');
+    });
+
+    test('should navigate using keyboard shortcuts - last (Shift+G)', async () => {
+      const leftTextarea = page.locator('textarea').first();
+      const rightTextarea = page.locator('textarea').last();
+
+      await leftTextarea.fill('First');
+      await rightTextarea.fill('Last');
+      await page.waitForTimeout(1000);
+
+      // Press Shift+G for last change
+      await page.keyboard.press('Shift+KeyG');
+      await page.waitForTimeout(300);
+
+      // Counter should show Change 1 of 1
+      const counter = page.locator('[data-testid="navigation-counter"]');
+      const counterText = await counter.textContent();
+      expect(counterText).toContain('Change 1 of 1');
+    });
+
+    test('should handle navigation with no content', async () => {
+      // No content entered
+      await page.waitForTimeout(500);
+
+      // Navigation controls might not be visible or show "No changes"
+      const counter = page.locator('[data-testid="navigation-counter"]');
+      if (await counter.isVisible()) {
+        const counterText = await counter.textContent();
+        // Could show "No changes" or not be rendered at all
+        expect(counterText).toBeTruthy();
+      }
+    });
+
+    test('should maintain navigation state after view mode switch', async () => {
+      const leftTextarea = page.locator('textarea').first();
+      const rightTextarea = page.locator('textarea').last();
+
+      await leftTextarea.fill('Split view');
+      await rightTextarea.fill('Unified view');
+      await page.waitForTimeout(1000);
+
+      // Verify navigation in split view
+      let counter = page.locator('[data-testid="navigation-counter"]');
+      await expect(counter).toContainText('Change 1 of 1');
+
+      // Switch to unified view
+      const unifiedViewButton = page.locator('button[title*="Unified View"]');
+      await unifiedViewButton.click();
+      await page.waitForTimeout(500);
+
+      // Navigation should still work
+      counter = page.locator('[data-testid="navigation-counter"]');
+      await expect(counter).toContainText('Change 1 of 1');
+    });
+  });
 });

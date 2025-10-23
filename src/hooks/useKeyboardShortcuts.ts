@@ -206,6 +206,49 @@ export const useKeyboardShortcuts = () => {
         preventDefault: true,
       },
 
+      // Diff navigation shortcuts (Phase 3 Feature 2)
+      {
+        key: 'n',
+        action: () => {
+          if (store.totalChanges > 0) {
+            store.navigateNext();
+          }
+        },
+        description: 'Navigate to next change',
+        preventDefault: true,
+      },
+      {
+        key: 'p',
+        action: () => {
+          if (store.totalChanges > 0) {
+            store.navigatePrevious();
+          }
+        },
+        description: 'Navigate to previous change',
+        preventDefault: true,
+      },
+      {
+        key: 'g',
+        action: () => {
+          if (store.totalChanges > 0) {
+            store.navigateFirst();
+          }
+        },
+        description: 'Navigate to first change',
+        preventDefault: true,
+      },
+      {
+        key: 'G',
+        shift: true,
+        action: () => {
+          if (store.totalChanges > 0) {
+            store.navigateLast();
+          }
+        },
+        description: 'Navigate to last change (Shift+G)',
+        preventDefault: true,
+      },
+
       // Accessibility shortcuts
       {
         key: 'h',
@@ -222,6 +265,12 @@ export const useKeyboardShortcuts = () => {
             'Ctrl+2: Focus right pane',
             'Ctrl+Plus: Increase font size',
             'Ctrl+Minus: Decrease font size',
+            '',
+            'Diff Navigation:',
+            'n: Next change',
+            'p: Previous change',
+            'g: First change',
+            'Shift+G: Last change',
           ];
           alert('Keyboard Shortcuts:\n\n' + shortcuts.join('\n'));
         },
@@ -240,7 +289,7 @@ export const useKeyboardShortcuts = () => {
       const isInputField = ['INPUT', 'TEXTAREA'].includes(target.tagName);
 
       // Allow certain global shortcuts even in input fields
-      const globalShortcuts = ['t', 'h', 'c', 's', 'v', '1', '2']; // theme toggle, help, and app shortcuts
+      const globalShortcuts = ['t', 'h', 'c', 's', 'v', '1', '2', 'n', 'p', 'g']; // theme toggle, help, app shortcuts, and diff navigation
       const isGlobalShortcut = globalShortcuts.includes(
         event.key.toLowerCase()
       );

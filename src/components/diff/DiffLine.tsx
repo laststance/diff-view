@@ -11,6 +11,12 @@ interface DiffLineProps {
   viewMode?: 'split' | 'unified';
   /** Additional CSS classes */
   className?: string;
+  /** Change index if this line is a change (Phase 3 Feature 2) */
+  changeIndex?: number | null;
+  /** Whether this is the currently selected change (Phase 3 Feature 2) */
+  isCurrentChange?: boolean;
+  /** Callback to set ref for navigation (Phase 3 Feature 2) */
+  setChangeRef?: (changeIndex: number, element: HTMLDivElement | null) => void;
 }
 
 /**
@@ -30,6 +36,9 @@ export const DiffLine: React.FC<DiffLineProps> = ({
   line,
   viewMode = 'split',
   className = '',
+  changeIndex = null,
+  isCurrentChange = false,
+  setChangeRef,
 }) => {
   // Determine line background color based on type
   const getLineBackgroundClass = (): string => {
@@ -146,8 +155,18 @@ export const DiffLine: React.FC<DiffLineProps> = ({
 
   return (
     <div
-      className={`flex font-mono text-sm ${lineBackgroundClass} ${className}`}
+      ref={(el) => {
+        if (changeIndex !== null && setChangeRef) {
+          setChangeRef(changeIndex, el);
+        }
+      }}
+      className={`flex font-mono text-sm ${lineBackgroundClass} ${className} ${
+        isCurrentChange
+          ? 'ring-2 ring-inset ring-blue-500 dark:ring-blue-400'
+          : ''
+      }`}
       data-line-type={line.type}
+      data-change-index={changeIndex !== null ? changeIndex : undefined}
     >
       {/* Line prefix ('+', '-', ' ') */}
       <span

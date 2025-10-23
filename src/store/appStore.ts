@@ -123,6 +123,10 @@ const defaultState: AppState = {
   syntaxHighlighting: true,
   showLineNumbers: true,
   wordWrap: false,
+
+  // Navigation state (Phase 3 Feature 2)
+  currentChangeIndex: null,
+  totalChanges: 0,
 };
 
 // Create the Zustand store with persistence and devtools
@@ -387,6 +391,76 @@ export const useAppStore = create<AppStore>()(
               (state) => ({ ...state, wordWrap: enabled }),
               false,
               'setWordWrap'
+            ),
+
+          // Navigation actions (Phase 3 Feature 2)
+          setCurrentChangeIndex: (index: number | null) =>
+            set(
+              (state) => ({ ...state, currentChangeIndex: index }),
+              false,
+              'setCurrentChangeIndex'
+            ),
+
+          navigateToChange: (index: number) =>
+            set(
+              (state) => {
+                const clampedIndex = Math.max(
+                  0,
+                  Math.min(index, state.totalChanges - 1)
+                );
+                return { ...state, currentChangeIndex: clampedIndex };
+              },
+              false,
+              'navigateToChange'
+            ),
+
+          navigateNext: () =>
+            set(
+              (state) => {
+                if (state.currentChangeIndex === null || state.totalChanges === 0) {
+                  return { ...state, currentChangeIndex: 0 };
+                }
+                const nextIndex = Math.min(
+                  state.currentChangeIndex + 1,
+                  state.totalChanges - 1
+                );
+                return { ...state, currentChangeIndex: nextIndex };
+              },
+              false,
+              'navigateNext'
+            ),
+
+          navigatePrevious: () =>
+            set(
+              (state) => {
+                if (state.currentChangeIndex === null || state.totalChanges === 0) {
+                  return { ...state, currentChangeIndex: 0 };
+                }
+                const prevIndex = Math.max(state.currentChangeIndex - 1, 0);
+                return { ...state, currentChangeIndex: prevIndex };
+              },
+              false,
+              'navigatePrevious'
+            ),
+
+          navigateFirst: () =>
+            set(
+              (state) => {
+                if (state.totalChanges === 0) return state;
+                return { ...state, currentChangeIndex: 0 };
+              },
+              false,
+              'navigateFirst'
+            ),
+
+          navigateLast: () =>
+            set(
+              (state) => {
+                if (state.totalChanges === 0) return state;
+                return { ...state, currentChangeIndex: state.totalChanges - 1 };
+              },
+              false,
+              'navigateLast'
             ),
 
           // Error handling actions
@@ -762,6 +836,76 @@ export const useAppStore = create<AppStore>()(
                 'setWordWrap'
               ),
 
+            // Navigation actions (Phase 3 Feature 2)
+            setCurrentChangeIndex: (index: number | null) =>
+              set(
+                (state) => ({ ...state, currentChangeIndex: index }),
+                false,
+                'setCurrentChangeIndex'
+              ),
+
+            navigateToChange: (index: number) =>
+              set(
+                (state) => {
+                  const clampedIndex = Math.max(
+                    0,
+                    Math.min(index, state.totalChanges - 1)
+                  );
+                  return { ...state, currentChangeIndex: clampedIndex };
+                },
+                false,
+                'navigateToChange'
+              ),
+
+            navigateNext: () =>
+              set(
+                (state) => {
+                  if (state.currentChangeIndex === null || state.totalChanges === 0) {
+                    return { ...state, currentChangeIndex: 0 };
+                  }
+                  const nextIndex = Math.min(
+                    state.currentChangeIndex + 1,
+                    state.totalChanges - 1
+                  );
+                  return { ...state, currentChangeIndex: nextIndex };
+                },
+                false,
+                'navigateNext'
+              ),
+
+            navigatePrevious: () =>
+              set(
+                (state) => {
+                  if (state.currentChangeIndex === null || state.totalChanges === 0) {
+                    return { ...state, currentChangeIndex: 0 };
+                  }
+                  const prevIndex = Math.max(state.currentChangeIndex - 1, 0);
+                  return { ...state, currentChangeIndex: prevIndex };
+                },
+                false,
+                'navigatePrevious'
+              ),
+
+            navigateFirst: () =>
+              set(
+                (state) => {
+                  if (state.totalChanges === 0) return state;
+                  return { ...state, currentChangeIndex: 0 };
+                },
+                false,
+                'navigateFirst'
+              ),
+
+            navigateLast: () =>
+              set(
+                (state) => {
+                  if (state.totalChanges === 0) return state;
+                  return { ...state, currentChangeIndex: state.totalChanges - 1 };
+                },
+                false,
+                'navigateLast'
+              ),
+
             // Error handling actions
             setError: (error: AppError | null) =>
               set(
@@ -970,4 +1114,20 @@ export const usePerformanceActions = () =>
     updateMemoryUsage: state.updateMemoryUsage,
     updatePerformanceMetrics: state.updatePerformanceMetrics,
     clearPerformanceMetrics: state.clearPerformanceMetrics,
+  }));
+
+// Navigation selectors (Phase 3 Feature 2)
+export const useCurrentChangeIndex = () =>
+  useAppStore((state) => state.currentChangeIndex);
+
+export const useTotalChanges = () => useAppStore((state) => state.totalChanges);
+
+export const useNavigationActions = () =>
+  useAppStore((state) => ({
+    setCurrentChangeIndex: state.setCurrentChangeIndex,
+    navigateToChange: state.navigateToChange,
+    navigateNext: state.navigateNext,
+    navigatePrevious: state.navigatePrevious,
+    navigateFirst: state.navigateFirst,
+    navigateLast: state.navigateLast,
   }));

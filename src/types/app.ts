@@ -79,6 +79,10 @@ export interface AppState {
   syntaxHighlighting: boolean;
   showLineNumbers: boolean;
   wordWrap: boolean;
+
+  // Navigation state (Phase 3 Feature 2)
+  currentChangeIndex: number | null;
+  totalChanges: number;
 }
 
 // User settings interface
@@ -143,6 +147,14 @@ export interface AppActions {
 
   // Utility actions
   resetToDefaults: () => void;
+
+  // Navigation actions (Phase 3 Feature 2)
+  setCurrentChangeIndex: (index: number | null) => void;
+  navigateToChange: (index: number) => void;
+  navigateNext: () => void;
+  navigatePrevious: () => void;
+  navigateFirst: () => void;
+  navigateLast: () => void;
 }
 
 // Combined store interface

@@ -1,8 +1,10 @@
 import React from 'react';
 
 import type { DiffData } from '../../types/app';
+import { useChangeNavigation } from '../../hooks/useChangeNavigation';
 
 import { DiffHunk } from './DiffHunk';
+import { NavigationControls } from './NavigationControls';
 
 interface DiffRendererProps {
   /** Diff data from Phase 1's Myers algorithm calculation */
@@ -30,6 +32,8 @@ export const DiffRenderer: React.FC<DiffRendererProps> = ({
   viewMode = 'split',
   className = '',
 }) => {
+  // Phase 3 Feature 2: Diff navigation
+  const { setChangeRef, getChangeIndex, currentChangeIndex } = useChangeNavigation(diffData);
   // Handle empty/null state
   if (!diffData) {
     return (
@@ -85,17 +89,30 @@ export const DiffRenderer: React.FC<DiffRendererProps> = ({
             {diffData.stats.deletions === 1 ? 'deletion' : 'deletions'}
           </span>
           {diffData.metadata?.calculationTime && (
-            <span className="ml-auto text-xs text-gray-500">
+            <span className="text-xs text-gray-500">
               {diffData.metadata.calculationTime.toFixed(2)}ms
             </span>
           )}
+
+          {/* Navigation Controls (Phase 3 Feature 2) */}
+          <div className="ml-auto">
+            <NavigationControls />
+          </div>
         </div>
       </div>
 
       {/* Render all hunks */}
       <div className="bg-white dark:bg-gray-900">
         {diffData.hunks.map((hunk, index) => (
-          <DiffHunk key={`hunk-${index}`} hunk={hunk} viewMode={viewMode} />
+          <DiffHunk
+            key={`hunk-${index}`}
+            hunk={hunk}
+            viewMode={viewMode}
+            hunkIndex={index}
+            getChangeIndex={getChangeIndex}
+            currentChangeIndex={currentChangeIndex}
+            setChangeRef={setChangeRef}
+          />
         ))}
       </div>
     </div>
