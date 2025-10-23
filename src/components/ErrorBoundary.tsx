@@ -36,14 +36,51 @@ export class ErrorBoundary extends Component<
 
     // Create AppError object and notify parent
     if (this.props.onError) {
+      // Map error types based on error.name for custom error classes
+      let errorType: AppError['type'] = 'unknown';
+
+      switch (error.name) {
+        case 'DiffTimeoutError':
+          errorType = 'processing-timeout';
+          break;
+        case 'ContentTooLargeError':
+          errorType = 'content-size';
+          break;
+        case 'InvalidContentError':
+          errorType = 'invalid-content';
+          break;
+        case 'DiffCalculationError':
+          errorType = 'diff-computation';
+          break;
+        default:
+          // Check message for legacy error detection
+          if (error.message.includes('timeout') || error.message.includes('timed out')) {
+            errorType = 'processing-timeout';
+          } else if (error.message.includes('too large') || error.message.includes('size')) {
+            errorType = 'content-size';
+          } else if (error.message.includes('diff') || error.message.includes('calculation')) {
+            errorType = 'diff-computation';
+          }
+      }
+
       const appError: AppError = {
-        type: 'unknown',
+        type: errorType,
         message: error.message || 'An unexpected error occurred',
         details: `${error.stack}\n\nComponent Stack:${errorInfo.componentStack}`,
         timestamp: Date.now(),
         recoverable: true,
       };
       this.props.onError(appError);
+
+      // Enhanced logging for diff-specific errors
+      if (errorType !== 'unknown') {
+        console.group('🔍 Diff Error Detected');
+        console.error('Error Type:', errorType);
+        console.error('Error Name:', error.name);
+        console.error('Error Message:', error.message);
+        console.error('Stack Trace:', error.stack);
+        console.groupEnd();
+      }
     }
 
     // In development, you might want to send this to an error reporting service

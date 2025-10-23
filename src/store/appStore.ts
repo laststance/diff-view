@@ -9,6 +9,12 @@ import type {
   LoadingStates,
   ContentLimits,
 } from '../types/app';
+import { calculateDiff } from '../core/diffCalculator';
+import {
+  DiffTimeoutError,
+  ContentTooLargeError,
+  InvalidContentError,
+} from '../errors/diffErrors';
 // import { formatMemorySize } from '../hooks/useMemoryMonitor';
 
 // Default content limits (10MB as mentioned in design doc)
@@ -273,6 +279,93 @@ export const useAppStore = create<AppStore>()(
               false,
               'setProcessing'
             ),
+
+          // Calculate diff with error handling and performance tracking
+          recalculateDiff: async () => {
+            const state = _get();
+            const { leftContent, rightContent } = state;
+
+            // Set processing state
+            set(
+              (prevState) => ({
+                ...prevState,
+                isProcessing: true,
+                loadingStates: {
+                  ...prevState.loadingStates,
+                  diffComputation: true,
+                },
+                currentError: null,
+              }),
+              false,
+              'recalculateDiff:start'
+            );
+
+            try {
+              // Calculate diff
+              const result = await calculateDiff(leftContent, rightContent);
+
+              // Update state with result and performance metrics
+              set(
+                (prevState) => ({
+                  ...prevState,
+                  diffData: result,
+                  isProcessing: false,
+                  loadingStates: {
+                    ...prevState.loadingStates,
+                    diffComputation: false,
+                  },
+                  performanceMetrics: {
+                    ...prevState.performanceMetrics,
+                    diffComputationTime: result.metadata?.calculationTime || 0,
+                    lastUpdated: Date.now(),
+                  },
+                  currentError: null,
+                }),
+                false,
+                'recalculateDiff:success'
+              );
+            } catch (error) {
+              // Map error to ErrorType
+              let errorType: ErrorType = 'unknown';
+              let errorMessage = '予期しないエラーが発生しました。';
+
+              if (error instanceof DiffTimeoutError) {
+                errorType = 'processing-timeout';
+                errorMessage = error.message;
+              } else if (error instanceof ContentTooLargeError) {
+                errorType = 'content-size';
+                errorMessage = error.message;
+              } else if (error instanceof InvalidContentError) {
+                errorType = 'invalid-content';
+                errorMessage = error.message;
+              } else if (error instanceof Error) {
+                errorType = 'diff-computation';
+                errorMessage = error.message;
+              }
+
+              const appError = createError(
+                errorType,
+                errorMessage,
+                error instanceof Error ? error.stack : undefined,
+                true // recoverable
+              );
+
+              set(
+                (prevState) => ({
+                  ...prevState,
+                  isProcessing: false,
+                  loadingStates: {
+                    ...prevState.loadingStates,
+                    diffComputation: false,
+                  },
+                  currentError: appError,
+                  errorHistory: [...prevState.errorHistory.slice(-9), appError],
+                }),
+                false,
+                'recalculateDiff:error'
+              );
+            }
+          },
 
           // Settings actions
           setSyntaxHighlighting: (enabled) =>
@@ -560,6 +653,93 @@ export const useAppStore = create<AppStore>()(
                 'setProcessing'
               ),
 
+            // Calculate diff with error handling and performance tracking
+            recalculateDiff: async () => {
+              const state = _get();
+              const { leftContent, rightContent } = state;
+
+              // Set processing state
+              set(
+                (prevState) => ({
+                  ...prevState,
+                  isProcessing: true,
+                  loadingStates: {
+                    ...prevState.loadingStates,
+                    diffComputation: true,
+                  },
+                  currentError: null,
+                }),
+                false,
+                'recalculateDiff:start'
+              );
+
+              try {
+                // Calculate diff
+                const result = await calculateDiff(leftContent, rightContent);
+
+                // Update state with result and performance metrics
+                set(
+                  (prevState) => ({
+                    ...prevState,
+                    diffData: result,
+                    isProcessing: false,
+                    loadingStates: {
+                      ...prevState.loadingStates,
+                      diffComputation: false,
+                    },
+                    performanceMetrics: {
+                      ...prevState.performanceMetrics,
+                      diffComputationTime: result.metadata?.calculationTime || 0,
+                      lastUpdated: Date.now(),
+                    },
+                    currentError: null,
+                  }),
+                  false,
+                  'recalculateDiff:success'
+                );
+              } catch (error) {
+                // Map error to ErrorType
+                let errorType: ErrorType = 'unknown';
+                let errorMessage = '予期しないエラーが発生しました。';
+
+                if (error instanceof DiffTimeoutError) {
+                  errorType = 'processing-timeout';
+                  errorMessage = error.message;
+                } else if (error instanceof ContentTooLargeError) {
+                  errorType = 'content-size';
+                  errorMessage = error.message;
+                } else if (error instanceof InvalidContentError) {
+                  errorType = 'invalid-content';
+                  errorMessage = error.message;
+                } else if (error instanceof Error) {
+                  errorType = 'diff-computation';
+                  errorMessage = error.message;
+                }
+
+                const appError = createError(
+                  errorType,
+                  errorMessage,
+                  error instanceof Error ? error.stack : undefined,
+                  true // recoverable
+                );
+
+                set(
+                  (prevState) => ({
+                    ...prevState,
+                    isProcessing: false,
+                    loadingStates: {
+                      ...prevState.loadingStates,
+                      diffComputation: false,
+                    },
+                    currentError: appError,
+                    errorHistory: [...prevState.errorHistory.slice(-9), appError],
+                  }),
+                  false,
+                  'recalculateDiff:error'
+                );
+              }
+            },
+
             // Settings actions
             setSyntaxHighlighting: (enabled) =>
               set(
@@ -757,6 +937,7 @@ export const useDiffActions = () =>
   useAppStore((state) => ({
     setDiffData: state.setDiffData,
     setProcessing: state.setProcessing,
+    recalculateDiff: state.recalculateDiff,
   }));
 
 // Error handling action selectors

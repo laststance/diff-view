@@ -1,5 +1,7 @@
 // Application state types based on design document
 
+import type { HighlightRange, DiffMetadata } from './highlight';
+
 export type ViewMode = 'split' | 'unified';
 export type Theme = 'light' | 'dark' | 'system';
 export type FontSize = 'small' | 'medium' | 'large';
@@ -18,6 +20,8 @@ export interface DiffLine {
   oldLineNumber?: number;
   newLineNumber?: number;
   content: string;
+  /** Character-level highlights for this line (GitHub-style highlighting) */
+  highlightRanges?: HighlightRange[];
 }
 
 export interface DiffStats {
@@ -39,6 +43,8 @@ export interface DiffData {
   };
   hunks: DiffHunk[];
   stats: DiffStats;
+  /** Performance and calculation metadata */
+  metadata?: DiffMetadata;
 }
 
 // Main application state interface
@@ -106,6 +112,7 @@ export interface AppActions {
   // Diff actions
   setDiffData: (data: DiffData | null) => void;
   setProcessing: (processing: boolean) => void;
+  recalculateDiff: () => Promise<void>;
 
   // Error handling actions
   setError: (error: AppError | null) => void;

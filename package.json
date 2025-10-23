@@ -93,6 +93,7 @@
     "@git-diff-view/file": "^0.0.32",
     "@git-diff-view/react": "^0.0.32",
     "@types/react-window": "^1.8.8",
+    "diff": "^8.0.2",
     "electron-squirrel-startup": "^1.0.1",
     "lucide-react": "^0.544.0",
     "react": "^18.3.1",
