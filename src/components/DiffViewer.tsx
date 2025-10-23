@@ -1,7 +1,6 @@
 import React, { useEffect, useCallback, useMemo, memo } from 'react';
 
 import { useAppStore } from '../store/appStore';
-import type { AppError } from '../types/app';
 import { useDebounce } from '../hooks/useDebounce';
 import {
   useMemoryMonitor,
@@ -10,6 +9,7 @@ import {
 
 import { DiffComputationLoader } from './LoadingIndicator';
 import { ErrorMessage } from './ErrorMessage';
+import { DiffRenderer } from './diff';
 // import { ErrorBoundary } from './ErrorBoundary';
 
 export interface DiffViewerProps {
@@ -34,6 +34,7 @@ export const DiffViewer: React.FC<DiffViewerProps> = memo(function DiffViewer({
     isProcessing,
     loadingStates,
     currentError,
+    recalculateDiff,
   } = useAppStore();
 
   // Debounce content changes to avoid excessive diff computations (300ms as per design doc)
@@ -71,133 +72,23 @@ export const DiffViewer: React.FC<DiffViewerProps> = memo(function DiffViewer({
     };
   }, [leftContent, rightContent, leftContentMemory, rightContentMemory]);
 
-  // Simulate diff computation with error handling
-  const computeDiff = useCallback(
-    async (left: string, right: string) => {
-      if (!left || !right) return;
-
-      // Get actions directly from store to avoid dependency issues
-      const { setError, clearError, addErrorToHistory, setLoadingState } =
-        useAppStore.getState();
-
-      try {
-        setLoadingState('diffComputation', true);
-        clearError();
-
-        // Simulate processing time
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        // Check for content size limits
-        const leftSize = new Blob([left]).size;
-        const rightSize = new Blob([right]).size;
-        const maxSize = 10 * 1024 * 1024; // 10MB
-
-        if (leftSize > maxSize || rightSize > maxSize) {
-          throw new Error(
-            `Content too large. Maximum size is ${(maxSize / 1024 / 1024).toFixed(0)}MB`
-          );
-        }
-
-        // Check for line count limits
-        const leftLines = left.split('\n').length;
-        const rightLines = right.split('\n').length;
-        const maxLines = 50000;
-
-        if (leftLines > maxLines || rightLines > maxLines) {
-          throw new Error(
-            `Too many lines. Maximum is ${maxLines.toLocaleString()} lines`
-          );
-        }
-
-        // Simulate potential processing timeout
-        if (leftLines > 10000 || rightLines > 10000) {
-          // Simulate timeout for very large files
-          const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Processing timeout')), 10000)
-          );
-
-          const processingPromise = new Promise((resolve) =>
-            setTimeout(resolve, Math.random() * 2000)
-          );
-
-          await Promise.race([processingPromise, timeoutPromise]);
-        }
-
-        // Success - would normally compute actual diff here
-        console.log('Diff computation successful');
-      } catch (error) {
-        console.error('Diff computation error:', error);
-
-        let appError: AppError;
-
-        if (error instanceof Error) {
-          if (
-            error.message.includes('too large') ||
-            error.message.includes('Maximum size')
-          ) {
-            appError = {
-              type: 'content-size',
-              message: 'Content exceeds size limits',
-              details: error.message,
-              timestamp: Date.now(),
-              recoverable: true,
-            };
-          } else if (error.message.includes('Too many lines')) {
-            appError = {
-              type: 'content-size',
-              message: 'Too many lines to process',
-              details: error.message,
-              timestamp: Date.now(),
-              recoverable: true,
-            };
-          } else if (error.message.includes('timeout')) {
-            appError = {
-              type: 'processing-timeout',
-              message: 'Diff computation timed out',
-              details:
-                'The comparison is taking too long. Try with smaller content.',
-              timestamp: Date.now(),
-              recoverable: true,
-            };
-          } else {
-            appError = {
-              type: 'diff-computation',
-              message: 'Failed to compute differences',
-              details: error.message,
-              timestamp: Date.now(),
-              recoverable: true,
-            };
-          }
-        } else {
-          appError = {
-            type: 'unknown',
-            message: 'An unexpected error occurred',
-            details: 'Unknown error during diff computation',
-            timestamp: Date.now(),
-            recoverable: true,
-          };
-        }
-
-        setError(appError);
-        addErrorToHistory(appError);
-      } finally {
-        setLoadingState('diffComputation', false);
-      }
-    },
-    [] // No dependencies - actions are retrieved from store directly
-  );
+  // Compute diff using Phase 1's Myers algorithm
+  const computeDiff = useCallback(async () => {
+    // recalculateDiff handles all error states and loading indicators
+    await recalculateDiff();
+  }, [recalculateDiff]);
 
   // Auto-compute diff when debounced content changes
   useEffect(() => {
     if (debouncedLeftContent && debouncedRightContent) {
-      computeDiff(debouncedLeftContent, debouncedRightContent);
+      computeDiff();
     }
   }, [debouncedLeftContent, debouncedRightContent, computeDiff]);
 
   // Handle retry action
   const handleRetry = useCallback(() => {
     if (debouncedLeftContent && debouncedRightContent) {
-      computeDiff(debouncedLeftContent, debouncedRightContent);
+      computeDiff();
     }
   }, [debouncedLeftContent, debouncedRightContent, computeDiff]);
 
@@ -297,33 +188,12 @@ export const DiffViewer: React.FC<DiffViewerProps> = memo(function DiffViewer({
           </div>
         )}
 
-        {/* Diff visualization placeholder */}
+        {/* Diff visualization with Phase 2 renderer */}
         {leftContent &&
           rightContent &&
           !loadingStates.diffComputation &&
           !currentError && (
-            <div
-              className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg"
-              role="region"
-              aria-label="Diff comparison result"
-            >
-              <h3 className="font-medium mb-2 text-green-900 dark:text-green-100">
-                Diff Comparison Result
-              </h3>
-              <div className="text-sm text-green-800 dark:text-green-200 space-y-1">
-                <p>✅ Diff computation completed successfully</p>
-                <p>
-                  📊 Comparing {leftContent.split('\n').length.toLocaleString()}{' '}
-                  lines vs {rightContent.split('\n').length.toLocaleString()}{' '}
-                  lines
-                </p>
-                <p>🎨 View mode: {viewMode}</p>
-                <p className="text-xs opacity-75 mt-2">
-                  Actual diff visualization would be rendered here using
-                  @git-diff-view/react
-                </p>
-              </div>
-            </div>
+            <DiffRenderer diffData={diffData} viewMode={viewMode} className="mt-4" />
           )}
 
         {/* Empty state */}
