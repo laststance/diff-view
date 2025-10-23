@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import type { DiffLine as DiffLineType } from '../../types/app';
+import { getThemeColors } from '../../config/diffThemes';
+import { useDiffTheme, useTheme } from '../../store/appStore';
 
 import { HighlightSpan } from './HighlightSpan';
 
@@ -40,22 +42,37 @@ export const DiffLine: React.FC<DiffLineProps> = ({
   isCurrentChange = false,
   setChangeRef,
 }) => {
-  // Determine line background color based on type
+  // Get current theme settings (Phase 3 Feature 3)
+  const diffTheme = useDiffTheme();
+  const theme = useTheme();
+
+  // Memoize dark mode detection to avoid unnecessary re-renders
+  const isDark = useMemo(() => {
+    if (theme === 'dark') return true;
+    if (theme === 'light') return false;
+    // system theme
+    return typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }, [theme]);
+
+  const themeColors = getThemeColors(diffTheme, isDark);
+
+  // Determine line background color based on type and theme
   const getLineBackgroundClass = (): string => {
     switch (line.type) {
       case 'add':
-        return 'bg-green-50 dark:bg-green-950';
+        return themeColors.addBg;
       case 'delete':
-        return 'bg-red-50 dark:bg-red-950';
+        return themeColors.deleteBg;
       case 'modify':
         // In unified view, modified lines are shown as delete + add pairs
-        // In split view, show yellow background
+        // In split view, show modify background
         return viewMode === 'unified'
-          ? 'bg-white dark:bg-gray-900'
-          : 'bg-yellow-50 dark:bg-yellow-950';
+          ? themeColors.contextBg
+          : themeColors.modifyBg;
       case 'context':
       default:
-        return 'bg-white dark:bg-gray-900';
+        return themeColors.contextBg;
     }
   };
 

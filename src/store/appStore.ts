@@ -124,6 +124,9 @@ const defaultState: AppState = {
   showLineNumbers: true,
   wordWrap: false,
 
+  // Diff theme (Phase 3 Feature 3)
+  diffTheme: 'github',
+
   // Navigation state (Phase 3 Feature 2)
   currentChangeIndex: null,
   totalChanges: 0,
@@ -391,6 +394,13 @@ export const useAppStore = create<AppStore>()(
               (state) => ({ ...state, wordWrap: enabled }),
               false,
               'setWordWrap'
+            ),
+
+          setDiffTheme: (theme) =>
+            set(
+              (state) => ({ ...state, diffTheme: theme }),
+              false,
+              'setDiffTheme'
             ),
 
           // Navigation actions (Phase 3 Feature 2)
@@ -836,6 +846,13 @@ export const useAppStore = create<AppStore>()(
                 'setWordWrap'
               ),
 
+            setDiffTheme: (theme) =>
+              set(
+                (state) => ({ ...state, diffTheme: theme }),
+                false,
+                'setDiffTheme'
+              ),
+
             // Navigation actions (Phase 3 Feature 2)
             setCurrentChangeIndex: (index: number | null) =>
               set(
@@ -1034,6 +1051,7 @@ export const useAppStore = create<AppStore>()(
               syntaxHighlighting: state.syntaxHighlighting,
               showLineNumbers: state.showLineNumbers,
               wordWrap: state.wordWrap,
+              diffTheme: state.diffTheme,
             }),
           }
         ),
@@ -1130,4 +1148,12 @@ export const useNavigationActions = () =>
     navigatePrevious: state.navigatePrevious,
     navigateFirst: state.navigateFirst,
     navigateLast: state.navigateLast,
+  }));
+
+// Diff theme selectors (Phase 3 Feature 3)
+export const useDiffTheme = () => useAppStore((state) => state.diffTheme);
+
+export const useDiffThemeActions = () =>
+  useAppStore((state) => ({
+    setDiffTheme: state.setDiffTheme,
   }));

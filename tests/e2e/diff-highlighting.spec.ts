@@ -895,3 +895,91 @@ test.describe('Phase 2: Character-Level Diff Highlighting', () => {
     });
   });
 });
+
+/**
+ * Phase 3 Feature 3: Custom Color Themes
+ *
+ * Tests for diff theme selection and color application:
+ * 1. ThemeSelector component rendering
+ * 2. Theme switching functionality
+ * 3. Theme persistence
+ * 4. Color application in diff rendering
+ */
+test.describe('Phase 3 Feature 3: Custom Color Themes', () => {
+  test('should render ThemeSelector with all theme options', async () => {
+    const themeSelector = page.locator('[data-testid="theme-selector"]');
+    await expect(themeSelector).toBeVisible();
+
+    // Check all theme options are available
+    const options = await themeSelector.locator('option').allTextContents();
+    expect(options).toContain('GitHub');
+    expect(options).toContain('GitLab');
+    expect(options).toContain('Classic');
+    expect(options).toContain('High Contrast');
+  });
+
+  test('should default to GitHub theme', async () => {
+    const themeSelector = page.locator('[data-testid="theme-selector"]');
+    const selectedValue = await themeSelector.inputValue();
+    expect(selectedValue).toBe('github');
+  });
+
+  test('should switch themes when selecting different option', async () => {
+    const themeSelector = page.locator('[data-testid="theme-selector"]');
+
+    // Switch to GitLab theme
+    await themeSelector.selectOption('gitlab');
+    await page.waitForTimeout(500);
+
+    const selectedValue = await themeSelector.inputValue();
+    expect(selectedValue).toBe('gitlab');
+  });
+
+  test('should apply theme colors to diff lines', async () => {
+    const leftTextarea = page.locator('textarea').first();
+    const rightTextarea = page.locator('textarea').last();
+
+    // Create some diff content
+    await leftTextarea.fill('Hello World');
+    await rightTextarea.fill('Hello Universe');
+    await page.waitForTimeout(1000);
+
+    // Check that diff lines have background colors applied
+    const diffLines = page.locator('[data-line-type]');
+    const firstLine = diffLines.first();
+    const classes = await firstLine.getAttribute('class');
+
+    // Should have a background class (e.g., bg-green-50, bg-red-50, etc.)
+    expect(classes).toMatch(/bg-/);
+  });
+
+  test('should persist theme selection after reload', async () => {
+    const themeSelector = page.locator('[data-testid="theme-selector"]');
+
+    // Select Classic theme
+    await themeSelector.selectOption('classic');
+    await page.waitForTimeout(500);
+
+    // Reload the page
+    await page.reload();
+    await page.waitForTimeout(1000);
+
+    // Check theme is still Classic
+    const themeSelector2 = page.locator('[data-testid="theme-selector"]');
+    const selectedValue = await themeSelector2.inputValue();
+    expect(selectedValue).toBe('classic');
+  });
+
+  test('should cycle through all themes correctly', async () => {
+    const themeSelector = page.locator('[data-testid="theme-selector"]');
+    const themes = ['github', 'gitlab', 'classic', 'high-contrast'];
+
+    for (const theme of themes) {
+      await themeSelector.selectOption(theme);
+      await page.waitForTimeout(300);
+
+      const selectedValue = await themeSelector.inputValue();
+      expect(selectedValue).toBe(theme);
+    }
+  });
+});

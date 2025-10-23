@@ -5,6 +5,7 @@ import type { HighlightRange, DiffMetadata } from './highlight';
 export type ViewMode = 'split' | 'unified';
 export type Theme = 'light' | 'dark' | 'system';
 export type FontSize = 'small' | 'medium' | 'large';
+export type DiffTheme = 'github' | 'gitlab' | 'classic' | 'high-contrast';
 
 // Diff data structures
 export interface DiffHunk {
@@ -80,6 +81,9 @@ export interface AppState {
   showLineNumbers: boolean;
   wordWrap: boolean;
 
+  // Diff theme (Phase 3 Feature 3)
+  diffTheme: DiffTheme;
+
   // Navigation state (Phase 3 Feature 2)
   currentChangeIndex: number | null;
   totalChanges: number;
@@ -94,6 +98,7 @@ export interface UserSettings {
   showLineNumbers: boolean;
   wordWrap: boolean;
   autoDetectLanguage: boolean;
+  diffTheme: DiffTheme;
 }
 
 // Actions interface for Zustand store
@@ -139,6 +144,7 @@ export interface AppActions {
   setSyntaxHighlighting: (enabled: boolean) => void;
   setShowLineNumbers: (enabled: boolean) => void;
   setWordWrap: (enabled: boolean) => void;
+  setDiffTheme: (theme: DiffTheme) => void;
 
   // Performance monitoring actions
   updateMemoryUsage: (usage: MemoryUsage | null) => void;
