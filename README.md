@@ -9,14 +9,26 @@ An offline Electron desktop application for GitHub-style text comparison and dif
 
 ## Features
 
-- **GitHub-Style Diff Visualization** - Professional diff rendering with syntax highlighting
-- **Dual View Modes** - Switch between split and unified diff views
-- **Offline-First** - No internet connection required, all processing happens locally
-- **Syntax Highlighting** - Code-aware diff visualization for better readability
+### Core Diff Capabilities
+
+- **Character-Level Diff Highlighting** - Precise character-by-character change detection using Myers diff algorithm
+- **GitHub-Style Diff Visualization** - Professional diff rendering with color-coded additions, deletions, and modifications
+- **Dual View Modes** - Switch between split and unified diff views with full highlighting support
+- **Diff Navigation** - Jump between changes using keyboard shortcuts (`n`, `p`, `g`, `Shift+G`) with visual indicators
+
+### Customization & Themes
+
+- **Custom Color Themes** - Choose from GitHub, GitLab, Classic, or High Contrast themes
+- **Theme Support** - System, light, and dark mode variants for all color themes
 - **Customizable Display** - Adjust font size, line numbers, and word wrap settings
-- **Theme Support** - System, light, and dark themes with automatic detection
+- **Syntax Highlighting** - Code-aware diff visualization for better readability
+
+### User Experience
+
+- **Offline-First** - No internet connection required, all processing happens locally
 - **Cross-Platform** - Available for Windows, macOS, and Linux
 - **Scroll Synchronization** - Synchronized scrolling between left and right panes
+- **Accessibility** - WCAG AA compliant with keyboard navigation and high contrast theme
 
 ## Installation
 
@@ -46,12 +58,30 @@ pnpm make
 
 ## Usage
 
+### Basic Workflow
+
 1. Launch the application
-2. Paste or type text in the left pane
-3. Paste or type text in the right pane
-4. View the diff automatically generated
+2. Paste or type text in the left pane (original content)
+3. Paste or type text in the right pane (modified content)
+4. View the diff automatically generated with character-level highlighting
 5. Switch between split and unified views using the toolbar
-6. Customize display settings as needed
+6. Customize display settings and color themes as needed
+
+### Keyboard Shortcuts
+
+- **`n`** - Navigate to next change
+- **`p`** - Navigate to previous change
+- **`g`** - Jump to first change
+- **`Shift+G`** - Jump to last change
+- **`Ctrl+Shift+V` / `Cmd+Shift+V`** - Toggle between split and unified view modes
+
+### Color Themes
+
+Choose from four professionally designed color themes:
+- **GitHub** - Familiar GitHub diff colors (default)
+- **GitLab** - GitLab-inspired color scheme
+- **Classic** - Traditional diff colors
+- **High Contrast** - WCAG AA compliant high contrast theme for accessibility
 
 ## Development
 
