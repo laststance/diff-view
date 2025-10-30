@@ -72,25 +72,26 @@ export const DiffViewer: React.FC<DiffViewerProps> = memo(function DiffViewer({
     };
   }, [leftContent, rightContent, leftContentMemory, rightContentMemory]);
 
-  // Compute diff using Phase 1's Myers algorithm
-  const computeDiff = useCallback(async () => {
-    // recalculateDiff handles all error states and loading indicators
-    await recalculateDiff();
-  }, [recalculateDiff]);
-
   // Auto-compute diff when debounced content changes
+  // NOTE: We don't use a wrapper function to avoid circular dependencies
+  // that could cause infinite re-renders (see GitHub issue #XX)
   useEffect(() => {
     if (debouncedLeftContent && debouncedRightContent) {
-      computeDiff();
+      // Call recalculateDiff directly to avoid function reference issues
+      recalculateDiff();
     }
-  }, [debouncedLeftContent, debouncedRightContent, computeDiff]);
+    // Only depend on debounced content, not on recalculateDiff function
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedLeftContent, debouncedRightContent]);
 
   // Handle retry action
   const handleRetry = useCallback(() => {
-    if (debouncedLeftContent && debouncedRightContent) {
-      computeDiff();
+    if (leftContent && rightContent) {
+      recalculateDiff();
     }
-  }, [debouncedLeftContent, debouncedRightContent, computeDiff]);
+    // Use leftContent/rightContent directly for immediate retry, not debounced
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [leftContent, rightContent]);
 
   // Handle clear content action
   const handleClearContent = useCallback(() => {
