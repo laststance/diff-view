@@ -1,8 +1,11 @@
 // Application state types based on design document
 
+import type { HighlightRange, DiffMetadata } from './highlight';
+
 export type ViewMode = 'split' | 'unified';
 export type Theme = 'light' | 'dark' | 'system';
 export type FontSize = 'small' | 'medium' | 'large';
+export type DiffTheme = 'github' | 'gitlab' | 'classic' | 'high-contrast';
 
 // Diff data structures
 export interface DiffHunk {
@@ -18,6 +21,8 @@ export interface DiffLine {
   oldLineNumber?: number;
   newLineNumber?: number;
   content: string;
+  /** Character-level highlights for this line (GitHub-style highlighting) */
+  highlightRanges?: HighlightRange[];
 }
 
 export interface DiffStats {
@@ -39,6 +44,8 @@ export interface DiffData {
   };
   hunks: DiffHunk[];
   stats: DiffStats;
+  /** Performance and calculation metadata */
+  metadata?: DiffMetadata;
 }
 
 // Main application state interface
@@ -73,6 +80,13 @@ export interface AppState {
   syntaxHighlighting: boolean;
   showLineNumbers: boolean;
   wordWrap: boolean;
+
+  // Diff theme (Phase 3 Feature 3)
+  diffTheme: DiffTheme;
+
+  // Navigation state (Phase 3 Feature 2)
+  currentChangeIndex: number | null;
+  totalChanges: number;
 }
 
 // User settings interface
@@ -84,6 +98,7 @@ export interface UserSettings {
   showLineNumbers: boolean;
   wordWrap: boolean;
   autoDetectLanguage: boolean;
+  diffTheme: DiffTheme;
 }
 
 // Actions interface for Zustand store
@@ -106,6 +121,7 @@ export interface AppActions {
   // Diff actions
   setDiffData: (data: DiffData | null) => void;
   setProcessing: (processing: boolean) => void;
+  recalculateDiff: () => Promise<void>;
 
   // Error handling actions
   setError: (error: AppError | null) => void;
@@ -128,6 +144,7 @@ export interface AppActions {
   setSyntaxHighlighting: (enabled: boolean) => void;
   setShowLineNumbers: (enabled: boolean) => void;
   setWordWrap: (enabled: boolean) => void;
+  setDiffTheme: (theme: DiffTheme) => void;
 
   // Performance monitoring actions
   updateMemoryUsage: (usage: MemoryUsage | null) => void;
@@ -136,6 +153,14 @@ export interface AppActions {
 
   // Utility actions
   resetToDefaults: () => void;
+
+  // Navigation actions (Phase 3 Feature 2)
+  setCurrentChangeIndex: (index: number | null) => void;
+  navigateToChange: (index: number) => void;
+  navigateNext: () => void;
+  navigatePrevious: () => void;
+  navigateFirst: () => void;
+  navigateLast: () => void;
 }
 
 // Combined store interface

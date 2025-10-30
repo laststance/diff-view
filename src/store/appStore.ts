@@ -9,6 +9,12 @@ import type {
   LoadingStates,
   ContentLimits,
 } from '../types/app';
+import { calculateDiff } from '../core/diffCalculator';
+import {
+  DiffTimeoutError,
+  ContentTooLargeError,
+  InvalidContentError,
+} from '../errors/diffErrors';
 // import { formatMemorySize } from '../hooks/useMemoryMonitor';
 
 // Default content limits (10MB as mentioned in design doc)
@@ -117,6 +123,13 @@ const defaultState: AppState = {
   syntaxHighlighting: true,
   showLineNumbers: true,
   wordWrap: false,
+
+  // Diff theme (Phase 3 Feature 3)
+  diffTheme: 'github',
+
+  // Navigation state (Phase 3 Feature 2)
+  currentChangeIndex: null,
+  totalChanges: 0,
 };
 
 // Create the Zustand store with persistence and devtools
@@ -274,6 +287,93 @@ export const useAppStore = create<AppStore>()(
               'setProcessing'
             ),
 
+          // Calculate diff with error handling and performance tracking
+          recalculateDiff: async () => {
+            const state = _get();
+            const { leftContent, rightContent } = state;
+
+            // Set processing state
+            set(
+              (prevState) => ({
+                ...prevState,
+                isProcessing: true,
+                loadingStates: {
+                  ...prevState.loadingStates,
+                  diffComputation: true,
+                },
+                currentError: null,
+              }),
+              false,
+              'recalculateDiff:start'
+            );
+
+            try {
+              // Calculate diff
+              const result = await calculateDiff(leftContent, rightContent);
+
+              // Update state with result and performance metrics
+              set(
+                (prevState) => ({
+                  ...prevState,
+                  diffData: result,
+                  isProcessing: false,
+                  loadingStates: {
+                    ...prevState.loadingStates,
+                    diffComputation: false,
+                  },
+                  performanceMetrics: {
+                    ...prevState.performanceMetrics,
+                    diffComputationTime: result.metadata?.calculationTime || 0,
+                    lastUpdated: Date.now(),
+                  },
+                  currentError: null,
+                }),
+                false,
+                'recalculateDiff:success'
+              );
+            } catch (error) {
+              // Map error to ErrorType
+              let errorType: ErrorType = 'unknown';
+              let errorMessage = '予期しないエラーが発生しました。';
+
+              if (error instanceof DiffTimeoutError) {
+                errorType = 'processing-timeout';
+                errorMessage = error.message;
+              } else if (error instanceof ContentTooLargeError) {
+                errorType = 'content-size';
+                errorMessage = error.message;
+              } else if (error instanceof InvalidContentError) {
+                errorType = 'invalid-content';
+                errorMessage = error.message;
+              } else if (error instanceof Error) {
+                errorType = 'diff-computation';
+                errorMessage = error.message;
+              }
+
+              const appError = createError(
+                errorType,
+                errorMessage,
+                error instanceof Error ? error.stack : undefined,
+                true // recoverable
+              );
+
+              set(
+                (prevState) => ({
+                  ...prevState,
+                  isProcessing: false,
+                  loadingStates: {
+                    ...prevState.loadingStates,
+                    diffComputation: false,
+                  },
+                  currentError: appError,
+                  errorHistory: [...prevState.errorHistory.slice(-9), appError],
+                }),
+                false,
+                'recalculateDiff:error'
+              );
+            }
+          },
+
           // Settings actions
           setSyntaxHighlighting: (enabled) =>
             set(
@@ -294,6 +394,83 @@ export const useAppStore = create<AppStore>()(
               (state) => ({ ...state, wordWrap: enabled }),
               false,
               'setWordWrap'
+            ),
+
+          setDiffTheme: (theme) =>
+            set(
+              (state) => ({ ...state, diffTheme: theme }),
+              false,
+              'setDiffTheme'
+            ),
+
+          // Navigation actions (Phase 3 Feature 2)
+          setCurrentChangeIndex: (index: number | null) =>
+            set(
+              (state) => ({ ...state, currentChangeIndex: index }),
+              false,
+              'setCurrentChangeIndex'
+            ),
+
+          navigateToChange: (index: number) =>
+            set(
+              (state) => {
+                const clampedIndex = Math.max(
+                  0,
+                  Math.min(index, state.totalChanges - 1)
+                );
+                return { ...state, currentChangeIndex: clampedIndex };
+              },
+              false,
+              'navigateToChange'
+            ),
+
+          navigateNext: () =>
+            set(
+              (state) => {
+                if (state.currentChangeIndex === null || state.totalChanges === 0) {
+                  return { ...state, currentChangeIndex: 0 };
+                }
+                const nextIndex = Math.min(
+                  state.currentChangeIndex + 1,
+                  state.totalChanges - 1
+                );
+                return { ...state, currentChangeIndex: nextIndex };
+              },
+              false,
+              'navigateNext'
+            ),
+
+          navigatePrevious: () =>
+            set(
+              (state) => {
+                if (state.currentChangeIndex === null || state.totalChanges === 0) {
+                  return { ...state, currentChangeIndex: 0 };
+                }
+                const prevIndex = Math.max(state.currentChangeIndex - 1, 0);
+                return { ...state, currentChangeIndex: prevIndex };
+              },
+              false,
+              'navigatePrevious'
+            ),
+
+          navigateFirst: () =>
+            set(
+              (state) => {
+                if (state.totalChanges === 0) return state;
+                return { ...state, currentChangeIndex: 0 };
+              },
+              false,
+              'navigateFirst'
+            ),
+
+          navigateLast: () =>
+            set(
+              (state) => {
+                if (state.totalChanges === 0) return state;
+                return { ...state, currentChangeIndex: state.totalChanges - 1 };
+              },
+              false,
+              'navigateLast'
             ),
 
           // Error handling actions
@@ -560,6 +737,93 @@ export const useAppStore = create<AppStore>()(
                 'setProcessing'
               ),
 
+            // Calculate diff with error handling and performance tracking
+            recalculateDiff: async () => {
+              const state = _get();
+              const { leftContent, rightContent } = state;
+
+              // Set processing state
+              set(
+                (prevState) => ({
+                  ...prevState,
+                  isProcessing: true,
+                  loadingStates: {
+                    ...prevState.loadingStates,
+                    diffComputation: true,
+                  },
+                  currentError: null,
+                }),
+                false,
+                'recalculateDiff:start'
+              );
+
+              try {
+                // Calculate diff
+                const result = await calculateDiff(leftContent, rightContent);
+
+                // Update state with result and performance metrics
+                set(
+                  (prevState) => ({
+                    ...prevState,
+                    diffData: result,
+                    isProcessing: false,
+                    loadingStates: {
+                      ...prevState.loadingStates,
+                      diffComputation: false,
+                    },
+                    performanceMetrics: {
+                      ...prevState.performanceMetrics,
+                      diffComputationTime: result.metadata?.calculationTime || 0,
+                      lastUpdated: Date.now(),
+                    },
+                    currentError: null,
+                  }),
+                  false,
+                  'recalculateDiff:success'
+                );
+              } catch (error) {
+                // Map error to ErrorType
+                let errorType: ErrorType = 'unknown';
+                let errorMessage = '予期しないエラーが発生しました。';
+
+                if (error instanceof DiffTimeoutError) {
+                  errorType = 'processing-timeout';
+                  errorMessage = error.message;
+                } else if (error instanceof ContentTooLargeError) {
+                  errorType = 'content-size';
+                  errorMessage = error.message;
+                } else if (error instanceof InvalidContentError) {
+                  errorType = 'invalid-content';
+                  errorMessage = error.message;
+                } else if (error instanceof Error) {
+                  errorType = 'diff-computation';
+                  errorMessage = error.message;
+                }
+
+                const appError = createError(
+                  errorType,
+                  errorMessage,
+                  error instanceof Error ? error.stack : undefined,
+                  true // recoverable
+                );
+
+                set(
+                  (prevState) => ({
+                    ...prevState,
+                    isProcessing: false,
+                    loadingStates: {
+                      ...prevState.loadingStates,
+                      diffComputation: false,
+                    },
+                    currentError: appError,
+                    errorHistory: [...prevState.errorHistory.slice(-9), appError],
+                  }),
+                  false,
+                  'recalculateDiff:error'
+                );
+              }
+            },
+
             // Settings actions
             setSyntaxHighlighting: (enabled) =>
               set(
@@ -580,6 +844,83 @@ export const useAppStore = create<AppStore>()(
                 (state) => ({ ...state, wordWrap: enabled }),
                 false,
                 'setWordWrap'
+              ),
+
+            setDiffTheme: (theme) =>
+              set(
+                (state) => ({ ...state, diffTheme: theme }),
+                false,
+                'setDiffTheme'
+              ),
+
+            // Navigation actions (Phase 3 Feature 2)
+            setCurrentChangeIndex: (index: number | null) =>
+              set(
+                (state) => ({ ...state, currentChangeIndex: index }),
+                false,
+                'setCurrentChangeIndex'
+              ),
+
+            navigateToChange: (index: number) =>
+              set(
+                (state) => {
+                  const clampedIndex = Math.max(
+                    0,
+                    Math.min(index, state.totalChanges - 1)
+                  );
+                  return { ...state, currentChangeIndex: clampedIndex };
+                },
+                false,
+                'navigateToChange'
+              ),
+
+            navigateNext: () =>
+              set(
+                (state) => {
+                  if (state.currentChangeIndex === null || state.totalChanges === 0) {
+                    return { ...state, currentChangeIndex: 0 };
+                  }
+                  const nextIndex = Math.min(
+                    state.currentChangeIndex + 1,
+                    state.totalChanges - 1
+                  );
+                  return { ...state, currentChangeIndex: nextIndex };
+                },
+                false,
+                'navigateNext'
+              ),
+
+            navigatePrevious: () =>
+              set(
+                (state) => {
+                  if (state.currentChangeIndex === null || state.totalChanges === 0) {
+                    return { ...state, currentChangeIndex: 0 };
+                  }
+                  const prevIndex = Math.max(state.currentChangeIndex - 1, 0);
+                  return { ...state, currentChangeIndex: prevIndex };
+                },
+                false,
+                'navigatePrevious'
+              ),
+
+            navigateFirst: () =>
+              set(
+                (state) => {
+                  if (state.totalChanges === 0) return state;
+                  return { ...state, currentChangeIndex: 0 };
+                },
+                false,
+                'navigateFirst'
+              ),
+
+            navigateLast: () =>
+              set(
+                (state) => {
+                  if (state.totalChanges === 0) return state;
+                  return { ...state, currentChangeIndex: state.totalChanges - 1 };
+                },
+                false,
+                'navigateLast'
               ),
 
             // Error handling actions
@@ -710,6 +1051,7 @@ export const useAppStore = create<AppStore>()(
               syntaxHighlighting: state.syntaxHighlighting,
               showLineNumbers: state.showLineNumbers,
               wordWrap: state.wordWrap,
+              diffTheme: state.diffTheme,
             }),
           }
         ),
@@ -757,6 +1099,7 @@ export const useDiffActions = () =>
   useAppStore((state) => ({
     setDiffData: state.setDiffData,
     setProcessing: state.setProcessing,
+    recalculateDiff: state.recalculateDiff,
   }));
 
 // Error handling action selectors
@@ -789,4 +1132,28 @@ export const usePerformanceActions = () =>
     updateMemoryUsage: state.updateMemoryUsage,
     updatePerformanceMetrics: state.updatePerformanceMetrics,
     clearPerformanceMetrics: state.clearPerformanceMetrics,
+  }));
+
+// Navigation selectors (Phase 3 Feature 2)
+export const useCurrentChangeIndex = () =>
+  useAppStore((state) => state.currentChangeIndex);
+
+export const useTotalChanges = () => useAppStore((state) => state.totalChanges);
+
+export const useNavigationActions = () =>
+  useAppStore((state) => ({
+    setCurrentChangeIndex: state.setCurrentChangeIndex,
+    navigateToChange: state.navigateToChange,
+    navigateNext: state.navigateNext,
+    navigatePrevious: state.navigatePrevious,
+    navigateFirst: state.navigateFirst,
+    navigateLast: state.navigateLast,
+  }));
+
+// Diff theme selectors (Phase 3 Feature 3)
+export const useDiffTheme = () => useAppStore((state) => state.diffTheme);
+
+export const useDiffThemeActions = () =>
+  useAppStore((state) => ({
+    setDiffTheme: state.setDiffTheme,
   }));

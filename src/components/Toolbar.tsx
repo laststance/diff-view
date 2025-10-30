@@ -17,6 +17,8 @@ import {
 
 import { useAppStore } from '../store/appStore';
 
+import { ThemeSelector } from './ThemeSelector';
+
 /**
  * Toolbar component with view controls and settings
  * Provides controls for view mode, theme, font size, and content management
@@ -201,6 +203,9 @@ export const Toolbar: React.FC = () => {
       >
         {getThemeIcon()}
       </button>
+
+      {/* Diff Theme Selector (Phase 3 Feature 3) */}
+      <ThemeSelector />
 
       {/* Separator */}
       <div
