@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useMemo, memo } from 'react';
+import React, { useEffect, useCallback, useMemo, memo, useRef } from 'react';
 
 import { useAppStore } from '../store/appStore';
 import { useDebounce } from '../hooks/useDebounce';
@@ -25,17 +25,21 @@ export interface DiffViewerProps {
 export const DiffViewer: React.FC<DiffViewerProps> = memo(function DiffViewer({
   className,
 }) {
-  const {
-    leftContent,
-    rightContent,
-    viewMode,
-    theme,
-    diffData,
-    isProcessing,
-    loadingStates,
-    currentError,
-    recalculateDiff,
-  } = useAppStore();
+  // Use selective subscriptions to prevent re-renders on unrelated store updates
+  // This is critical to avoid infinite loop when recalculateDiff updates multiple store fields
+  const leftContent = useAppStore((state) => state.leftContent);
+  const rightContent = useAppStore((state) => state.rightContent);
+  const viewMode = useAppStore((state) => state.viewMode);
+  const theme = useAppStore((state) => state.theme);
+  const diffData = useAppStore((state) => state.diffData);
+  const isProcessing = useAppStore((state) => state.isProcessing);
+  const loadingStates = useAppStore((state) => state.loadingStates);
+  const currentError = useAppStore((state) => state.currentError);
+  const recalculateDiff = useAppStore((state) => state.recalculateDiff);
+
+  // Refs to prevent concurrent calculations and unnecessary recalculations
+  const isCalculatingRef = useRef(false);
+  const lastContentHashRef = useRef('');
 
   // Debounce content changes to avoid excessive diff computations (300ms as per design doc)
   const debouncedLeftContent = useDebounce(leftContent, 300);
@@ -77,8 +81,23 @@ export const DiffViewer: React.FC<DiffViewerProps> = memo(function DiffViewer({
   // that could cause infinite re-renders (see GitHub issue #XX)
   useEffect(() => {
     if (debouncedLeftContent && debouncedRightContent) {
+      // Create content hash to detect actual changes
+      const contentHash = `${debouncedLeftContent.length}:${debouncedRightContent.length}:${debouncedLeftContent.slice(0, 100)}:${debouncedRightContent.slice(0, 100)}`;
+
+      // Skip if already calculating or content hasn't changed
+      if (isCalculatingRef.current || contentHash === lastContentHashRef.current) {
+        return;
+      }
+
+      // Update refs and call diff calculation
+      isCalculatingRef.current = true;
+      lastContentHashRef.current = contentHash;
+
       // Call recalculateDiff directly to avoid function reference issues
-      recalculateDiff();
+      recalculateDiff().finally(() => {
+        // Reset calculating flag after completion (success or error)
+        isCalculatingRef.current = false;
+      });
     }
     // Only depend on debounced content, not on recalculateDiff function
     // eslint-disable-next-line react-hooks/exhaustive-deps

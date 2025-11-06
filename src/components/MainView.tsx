@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useRef } from 'react';
 import { Type, Palette } from 'lucide-react';
 
 import { useAppStore } from '../store/appStore';
@@ -13,17 +13,17 @@ import { DiffViewer } from './DiffViewer';
  * Uses the Layout component for consistent header, content, and status bar
  */
 export const MainView: React.FC = () => {
-  const {
-    leftContent,
-    rightContent,
-    viewMode,
-    theme,
-    fontSize,
-    syntaxHighlighting,
-    showLineNumbers,
-    wordWrap,
-  } = useAppStore();
-  const { setLeftContent, setRightContent } = useAppStore();
+  // Use selective subscriptions to prevent re-renders on unrelated store updates
+  const leftContent = useAppStore((state) => state.leftContent);
+  const rightContent = useAppStore((state) => state.rightContent);
+  const viewMode = useAppStore((state) => state.viewMode);
+  const theme = useAppStore((state) => state.theme);
+  const fontSize = useAppStore((state) => state.fontSize);
+  const syntaxHighlighting = useAppStore((state) => state.syntaxHighlighting);
+  const showLineNumbers = useAppStore((state) => state.showLineNumbers);
+  const wordWrap = useAppStore((state) => state.wordWrap);
+  const setLeftContent = useAppStore((state) => state.setLeftContent);
+  const setRightContent = useAppStore((state) => state.setRightContent);
 
   // State for synchronized scrolling
   const [leftScrollPosition, setLeftScrollPosition] = useState({
@@ -38,14 +38,28 @@ export const MainView: React.FC = () => {
     'left' | 'right' | null
   >(null);
 
+  // Ref to prevent scroll sync loops and manage timers
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isSyncingRef = useRef(false);
+
   // Handle synchronized scrolling between panes
   const handleLeftScroll = useCallback(
     (scrollTop: number, scrollLeft: number) => {
-      if (viewMode === 'split') {
+      if (viewMode === 'split' && !isSyncingRef.current) {
+        // Clear any existing timeout
+        if (scrollTimeoutRef.current) {
+          clearTimeout(scrollTimeoutRef.current);
+        }
+
+        isSyncingRef.current = true;
         setLastScrollSource('left');
         setRightScrollPosition({ top: scrollTop, left: scrollLeft });
-        // Reset the scroll source after a short delay to allow for natural scrolling
-        setTimeout(() => setLastScrollSource(null), 150);
+
+        // Reset the scroll source after delay with proper cleanup
+        scrollTimeoutRef.current = setTimeout(() => {
+          setLastScrollSource(null);
+          isSyncingRef.current = false;
+        }, 200);
       }
     },
     [viewMode]
@@ -53,11 +67,21 @@ export const MainView: React.FC = () => {
 
   const handleRightScroll = useCallback(
     (scrollTop: number, scrollLeft: number) => {
-      if (viewMode === 'split') {
+      if (viewMode === 'split' && !isSyncingRef.current) {
+        // Clear any existing timeout
+        if (scrollTimeoutRef.current) {
+          clearTimeout(scrollTimeoutRef.current);
+        }
+
+        isSyncingRef.current = true;
         setLastScrollSource('right');
         setLeftScrollPosition({ top: scrollTop, left: scrollLeft });
-        // Reset the scroll source after a short delay to allow for natural scrolling
-        setTimeout(() => setLastScrollSource(null), 150);
+
+        // Reset the scroll source after delay with proper cleanup
+        scrollTimeoutRef.current = setTimeout(() => {
+          setLastScrollSource(null);
+          isSyncingRef.current = false;
+        }, 200);
       }
     },
     [viewMode]

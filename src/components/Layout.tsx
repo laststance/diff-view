@@ -21,7 +21,9 @@ interface LayoutProps {
  * Includes global error handling and loading state management
  */
 export const Layout: React.FC<LayoutProps> = ({ children, diffStats }) => {
-  const { currentError, loadingStates } = useAppStore();
+  // Use selective subscriptions to prevent re-renders on unrelated store updates
+  const currentError = useAppStore((state) => state.currentError);
+  const loadingStates = useAppStore((state) => state.loadingStates);
 
   // Check if any loading operation is active
   const isAnyLoading = Object.values(loadingStates).some((loading) => loading);
