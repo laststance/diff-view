@@ -50,7 +50,7 @@ jobs:
         env:
           CI: true
           ELECTRON_RUN_AS_NODE: ''
-        run: pnpm test:e2e
+        run: pnpm test:e2e:headless
 
       - name: Upload Playwright report
         if: failure()

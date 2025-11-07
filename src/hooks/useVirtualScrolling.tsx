@@ -111,7 +111,7 @@ export function useVirtualTextScrolling(
     };
     index: number;
     style: React.CSSProperties;
-  }) => React.ReactNode;
+  }) => React.ReactElement;
 } {
   const { lineThreshold = 1000, ...virtualOptions } = options;
 
