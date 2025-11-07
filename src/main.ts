@@ -1,6 +1,7 @@
-import { app, BrowserWindow, ipcMain, nativeTheme } from 'electron';
+import fs from 'node:fs';
 import path from 'node:path';
 
+import { app, BrowserWindow, ipcMain, nativeTheme } from 'electron';
 import started from 'electron-squirrel-startup';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -18,7 +19,7 @@ const createWindow = () => {
     minWidth: 800,
     minHeight: 600,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: false, // Required for some diff functionality
@@ -113,6 +114,48 @@ ipcMain.handle('app:exportDiff', async (_event, content: string) => {
   // In a full implementation, this would open a save dialog
   console.log('Export diff requested:', content.length, 'characters');
   return true;
+});
+
+// Error logging handler - writes errors to file for debugging
+ipcMain.handle('error:log', async (_event, errorData: {
+  message: string;
+  stack?: string;
+  componentStack?: string;
+  errorInfo?: string;
+  timestamp: number;
+  environment: string;
+}) => {
+  try {
+    const logsDir = path.join(app.getPath('userData'), 'logs');
+    if (!fs.existsSync(logsDir)) {
+      fs.mkdirSync(logsDir, { recursive: true });
+    }
+
+    const logFileName = `error-${new Date().toISOString().split('T')[0]}.log`;
+    const logFilePath = path.join(logsDir, logFileName);
+
+    const logEntry = {
+      timestamp: new Date(errorData.timestamp).toISOString(),
+      environment: errorData.environment,
+      message: errorData.message,
+      stack: errorData.stack,
+      componentStack: errorData.componentStack,
+      errorInfo: errorData.errorInfo,
+    };
+
+    const logLine = JSON.stringify(logEntry, null, 2) + '\n\n---\n\n';
+    
+    fs.appendFileSync(logFilePath, logLine, 'utf-8');
+    
+    // Also log to console for immediate visibility
+    console.error('Error logged to file:', logFilePath);
+    console.error('Error details:', logEntry);
+
+    return { success: true, logPath: logFilePath };
+  } catch (error) {
+    console.error('Failed to write error log:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
 });
 
 // Listen for theme changes and notify renderer
