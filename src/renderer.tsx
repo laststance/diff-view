@@ -1,12 +1,32 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { MainView } from './components/MainView';
-import { useAppStore } from './store/appStore';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+import { useAppStore } from './store/appStore';
+import { logError } from './utils/errorLogger';
 
 import './index.css';
+
+// Global error handlers for unhandled errors
+window.addEventListener('error', (event) => {
+  logError(event.error || new Error(event.message), undefined, {
+    filename: event.filename,
+    lineno: event.lineno,
+    colno: event.colno,
+  });
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+  const error = event.reason instanceof Error 
+    ? event.reason 
+    : new Error(String(event.reason));
+  logError(error, undefined, {
+    type: 'unhandledrejection',
+    reason: event.reason,
+  });
+});
 
 // Root App component with error boundaries and global setup
 const App: React.FC = () => {
@@ -14,6 +34,21 @@ const App: React.FC = () => {
 
   // Initialize keyboard shortcuts
   useKeyboardShortcuts();
+
+  // Update document theme classes
+  const updateDocumentTheme = useCallback(
+    (currentTheme: string, shouldUseDark: boolean) => {
+      const isDark =
+        currentTheme === 'dark' || (currentTheme === 'system' && shouldUseDark);
+
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    },
+    []
+  );
 
   // Initialize theme and listen for system theme changes
   useEffect(() => {
@@ -44,22 +79,7 @@ const App: React.FC = () => {
         window.electronAPI.removeThemeListeners();
       }
     };
-  }, [theme]);
-
-  // Update document theme classes
-  const updateDocumentTheme = (
-    currentTheme: string,
-    shouldUseDark: boolean
-  ) => {
-    const isDark =
-      currentTheme === 'dark' || (currentTheme === 'system' && shouldUseDark);
-
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  };
+  }, [theme, updateDocumentTheme]);
 
   return (
     <ErrorBoundary

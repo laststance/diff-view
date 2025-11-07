@@ -187,10 +187,11 @@ export const createElectronAPIMock = () => ({
   onThemeUpdated: vi.fn(),
   removeThemeListeners: vi.fn(),
   isTestMode: true,
+  logError: vi.fn().mockResolvedValue({ success: true, logPath: '/mock/log/path' }),
 });
 
 // Wait for async operations
-export const waitForAsync = () =>
+export const waitForAsync = async () =>
   new Promise((resolve) => setTimeout(resolve, 0));
 
 // Create a test file for file upload tests

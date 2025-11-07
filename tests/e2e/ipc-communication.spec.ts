@@ -95,7 +95,7 @@ test.describe('IPC Communication', () => {
 
     test('should not expose raw ipcRenderer or Node.js APIs', async () => {
       const hasUnsafeAPIs = await page.evaluate(() => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         const win = window as any;
         return {
           hasIpcRenderer: typeof win.ipcRenderer !== 'undefined',
@@ -190,7 +190,7 @@ test.describe('IPC Communication', () => {
     test('should handle isWindowMaximized query via IPC', async () => {
       // Test the query function
       const maximizedState = await page.evaluate(async () => {
-        return await window.electronAPI.isWindowMaximized();
+        return window.electronAPI.isWindowMaximized();
       });
 
       expect(typeof maximizedState).toBe('boolean');
@@ -200,7 +200,7 @@ test.describe('IPC Communication', () => {
   test.describe('Application Action IPC Communication', () => {
     test('should handle clearContent action via IPC', async () => {
       const result = await page.evaluate(async () => {
-        return await window.electronAPI.clearContent();
+        return window.electronAPI.clearContent();
       });
 
       expect(result).toBe(true);
@@ -210,7 +210,7 @@ test.describe('IPC Communication', () => {
       const testContent = 'This is test diff content for export';
 
       const result = await page.evaluate(async (content) => {
-        return await window.electronAPI.exportDiff(content);
+        return window.electronAPI.exportDiff(content);
       }, testContent);
 
       expect(result).toBe(true);
@@ -220,7 +220,7 @@ test.describe('IPC Communication', () => {
       const largeContent = 'A'.repeat(10000); // 10KB of content
 
       const result = await page.evaluate(async (content) => {
-        return await window.electronAPI.exportDiff(content);
+        return window.electronAPI.exportDiff(content);
       }, largeContent);
 
       expect(result).toBe(true);
@@ -230,7 +230,7 @@ test.describe('IPC Communication', () => {
   test.describe('Theme Management IPC Communication', () => {
     test('should get current theme via IPC', async () => {
       const theme = await page.evaluate(async () => {
-        return await window.electronAPI.getTheme();
+        return window.electronAPI.getTheme();
       });
 
       expect(['light', 'dark', 'system']).toContain(theme);
@@ -238,49 +238,49 @@ test.describe('IPC Communication', () => {
 
     test('should set theme to light via IPC', async () => {
       const result = await page.evaluate(async () => {
-        return await window.electronAPI.setTheme('light');
+        return window.electronAPI.setTheme('light');
       });
 
       expect(result).toBe('light');
 
       // Verify the theme was actually set
       const currentTheme = await page.evaluate(async () => {
-        return await window.electronAPI.getTheme();
+        return window.electronAPI.getTheme();
       });
       expect(currentTheme).toBe('light');
     });
 
     test('should set theme to dark via IPC', async () => {
       const result = await page.evaluate(async () => {
-        return await window.electronAPI.setTheme('dark');
+        return window.electronAPI.setTheme('dark');
       });
 
       expect(result).toBe('dark');
 
       // Verify the theme was actually set
       const currentTheme = await page.evaluate(async () => {
-        return await window.electronAPI.getTheme();
+        return window.electronAPI.getTheme();
       });
       expect(currentTheme).toBe('dark');
     });
 
     test('should set theme to system via IPC', async () => {
       const result = await page.evaluate(async () => {
-        return await window.electronAPI.setTheme('system');
+        return window.electronAPI.setTheme('system');
       });
 
       expect(result).toBe('system');
 
       // Verify the theme was actually set
       const currentTheme = await page.evaluate(async () => {
-        return await window.electronAPI.getTheme();
+        return window.electronAPI.getTheme();
       });
       expect(currentTheme).toBe('system');
     });
 
     test('should get shouldUseDarkColors via IPC', async () => {
       const shouldUseDark = await page.evaluate(async () => {
-        return await window.electronAPI.shouldUseDarkColors();
+        return window.electronAPI.shouldUseDarkColors();
       });
 
       expect(typeof shouldUseDark).toBe('boolean');
@@ -288,7 +288,7 @@ test.describe('IPC Communication', () => {
 
     test('should handle theme change listeners', async () => {
       // Set up a theme change listener
-      const listenerPromise = page.evaluate(() => {
+      const listenerPromise = page.evaluate(async () => {
         return new Promise<{
           shouldUseDarkColors: boolean;
           themeSource: string;
@@ -345,7 +345,7 @@ test.describe('IPC Communication', () => {
       try {
         await page.evaluate(async () => {
           // @ts-expect-error - Testing invalid input
-          return await window.electronAPI.setTheme('invalid-theme');
+          return window.electronAPI.setTheme('invalid-theme');
         });
         // If we get here, the call succeeded when it shouldn't have
         expect(false).toBe(true);
@@ -358,10 +358,10 @@ test.describe('IPC Communication', () => {
     test('should handle concurrent IPC calls', async () => {
       // Make multiple concurrent calls
       const promises = [
-        page.evaluate(() => window.electronAPI.getTheme()),
-        page.evaluate(() => window.electronAPI.shouldUseDarkColors()),
-        page.evaluate(() => window.electronAPI.isWindowMaximized()),
-        page.evaluate(() => window.electronAPI.clearContent()),
+        page.evaluate(async () => window.electronAPI.getTheme()),
+        page.evaluate(async () => window.electronAPI.shouldUseDarkColors()),
+        page.evaluate(async () => window.electronAPI.isWindowMaximized()),
+        page.evaluate(async () => window.electronAPI.clearContent()),
       ];
 
       const results = await Promise.all(promises);
@@ -378,7 +378,7 @@ test.describe('IPC Communication', () => {
       const isolationTest = await page.evaluate(() => {
         try {
           // These should not be accessible due to context isolation
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+           
           const win = window as any;
           return {
             canAccessMainProcess:

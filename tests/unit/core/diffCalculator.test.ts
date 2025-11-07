@@ -727,7 +727,7 @@ describe('diffCalculator - Metadata and Performance', () => {
     });
 
     it('should handle concurrent calculations', async () => {
-      const promises = Array.from({ length: 10 }, (_, i) =>
+      const promises = Array.from({ length: 10 }, async (_, i) =>
         calculateDiff(`test${i}`, `test${i + 1}`)
       );
 

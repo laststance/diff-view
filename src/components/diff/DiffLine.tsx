@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 
-import type { DiffLine as DiffLineType } from '../../types/app';
 import { getThemeColors } from '../../config/diffThemes';
 import { useDiffTheme, useTheme } from '../../store/appStore';
+import type { DiffLine as DiffLineType } from '../../types/app';
 
 import { HighlightSpan } from './HighlightSpan';
 

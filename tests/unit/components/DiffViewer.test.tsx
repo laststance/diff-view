@@ -1,5 +1,5 @@
-import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import React from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import '@testing-library/jest-dom';
 
@@ -36,7 +36,13 @@ describe('DiffViewer Component', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useAppStore as any).mockReturnValue(mockStore);
+    (useAppStore as any).mockImplementation((selector: any) => {
+      const fullStore = { ...mockStore, ...mockActions };
+      if (typeof selector === 'function') {
+        return selector(fullStore);
+      }
+      return fullStore;
+    });
     (useAppStore as any).getState = vi.fn().mockReturnValue({
       ...mockStore,
       ...mockActions,
@@ -57,10 +63,16 @@ describe('DiffViewer Component', () => {
     });
 
     it('should render loading state when diff computation is in progress', () => {
-      (useAppStore as any).mockReturnValue({
-        ...mockStore,
-        ...mockActions,
-        loadingStates: { ...mockStore.loadingStates, diffComputation: true },
+      (useAppStore as any).mockImplementation((selector: any) => {
+        const storeWithLoading = {
+          ...mockStore,
+          ...mockActions,
+          loadingStates: { ...mockStore.loadingStates, diffComputation: true },
+        };
+        if (typeof selector === 'function') {
+          return selector(storeWithLoading);
+        }
+        return storeWithLoading;
       });
 
       render(<DiffViewer />);
@@ -80,10 +92,16 @@ describe('DiffViewer Component', () => {
         recoverable: true,
       };
 
-      (useAppStore as any).mockReturnValue({
+      (useAppStore as any).mockImplementation((selector: any) => {
+        const customStore = {
         ...mockStore,
         ...mockActions,
         currentError: mockError,
+      };
+        if (typeof selector === 'function') {
+          return selector(customStore);
+        }
+        return customStore;
       });
 
       render(<DiffViewer />);
@@ -95,11 +113,17 @@ describe('DiffViewer Component', () => {
     });
 
     it('should render success state when both contents are provided', () => {
-      (useAppStore as any).mockReturnValue({
-        ...mockStore,
-        ...mockActions,
-        leftContent: 'Hello World',
-        rightContent: 'Hello Universe',
+      (useAppStore as any).mockImplementation((selector: any) => {
+        const storeWithContent = {
+          ...mockStore,
+          ...mockActions,
+          leftContent: 'Hello World',
+          rightContent: 'Hello Universe',
+        };
+        if (typeof selector === 'function') {
+          return selector(storeWithContent);
+        }
+        return storeWithContent;
       });
 
       render(<DiffViewer />);
@@ -111,11 +135,17 @@ describe('DiffViewer Component', () => {
 
   describe('Content Statistics', () => {
     it('should display correct content statistics', () => {
-      (useAppStore as any).mockReturnValue({
+      (useAppStore as any).mockImplementation((selector: any) => {
+        const customStore = {
         ...mockStore,
         ...mockActions,
         leftContent: 'Hello\nWorld',
         rightContent: 'Hello\nUniverse\nTest',
+      };
+        if (typeof selector === 'function') {
+          return selector(customStore);
+        }
+        return customStore;
       });
 
       render(<DiffViewer />);
@@ -129,12 +159,18 @@ describe('DiffViewer Component', () => {
     });
 
     it('should show processing status correctly', () => {
-      (useAppStore as any).mockReturnValue({
+      (useAppStore as any).mockImplementation((selector: any) => {
+        const customStore = {
         ...mockStore,
         ...mockActions,
         leftContent: 'test',
         rightContent: 'test2',
         isProcessing: true,
+      };
+        if (typeof selector === 'function') {
+          return selector(customStore);
+        }
+        return customStore;
       });
 
       render(<DiffViewer />);
@@ -143,13 +179,19 @@ describe('DiffViewer Component', () => {
     });
 
     it('should display current view mode and theme', () => {
-      (useAppStore as any).mockReturnValue({
+      (useAppStore as any).mockImplementation((selector: any) => {
+        const customStore = {
         ...mockStore,
         ...mockActions,
         leftContent: 'foo',
         rightContent: 'bar',
         viewMode: 'unified',
         theme: 'dark',
+      };
+        if (typeof selector === 'function') {
+          return selector(customStore);
+        }
+        return customStore;
       });
 
       render(<DiffViewer />);
@@ -169,10 +211,16 @@ describe('DiffViewer Component', () => {
         recoverable: true,
       };
 
-      (useAppStore as any).mockReturnValue({
+      (useAppStore as any).mockImplementation((selector: any) => {
+        const customStore = {
         ...mockStore,
         ...mockActions,
         currentError: sizeError,
+      };
+        if (typeof selector === 'function') {
+          return selector(customStore);
+        }
+        return customStore;
       });
 
       render(<DiffViewer />);
@@ -194,10 +242,16 @@ describe('DiffViewer Component', () => {
         recoverable: true,
       };
 
-      (useAppStore as any).mockReturnValue({
+      (useAppStore as any).mockImplementation((selector: any) => {
+        const customStore = {
         ...mockStore,
         ...mockActions,
         currentError: timeoutError,
+      };
+        if (typeof selector === 'function') {
+          return selector(customStore);
+        }
+        return customStore;
       });
 
       render(<DiffViewer />);
@@ -219,12 +273,18 @@ describe('DiffViewer Component', () => {
         recoverable: true,
       };
 
-      (useAppStore as any).mockReturnValue({
+      (useAppStore as any).mockImplementation((selector: any) => {
+        const customStore = {
         ...mockStore,
         ...mockActions,
         leftContent: 'test',
         rightContent: 'test2',
         currentError: mockError,
+      };
+        if (typeof selector === 'function') {
+          return selector(customStore);
+        }
+        return customStore;
       });
 
       render(<DiffViewer />);
@@ -246,10 +306,16 @@ describe('DiffViewer Component', () => {
         recoverable: true,
       };
 
-      (useAppStore as any).mockReturnValue({
+      (useAppStore as any).mockImplementation((selector: any) => {
+        const customStore = {
         ...mockStore,
         ...mockActions,
         currentError: mockError,
+      };
+        if (typeof selector === 'function') {
+          return selector(customStore);
+        }
+        return customStore;
       });
 
       render(<DiffViewer />);
@@ -276,11 +342,17 @@ describe('DiffViewer Component', () => {
     });
 
     it('should have proper status regions', () => {
-      (useAppStore as any).mockReturnValue({
+      (useAppStore as any).mockImplementation((selector: any) => {
+        const customStore = {
         ...mockStore,
         ...mockActions,
         leftContent: 'test',
         rightContent: 'test2',
+      };
+        if (typeof selector === 'function') {
+          return selector(customStore);
+        }
+        return customStore;
       });
 
       render(<DiffViewer />);
@@ -321,11 +393,17 @@ describe('DiffViewer Component', () => {
   describe('Content Changes', () => {
     it('should react to content changes', async () => {
       // Start with empty content
-      (useAppStore as any).mockReturnValue({
+      (useAppStore as any).mockImplementation((selector: any) => {
+        const customStore = {
         ...mockStore,
         ...mockActions,
         leftContent: '',
         rightContent: '',
+      };
+        if (typeof selector === 'function') {
+          return selector(customStore);
+        }
+        return customStore;
       });
 
       const { unmount } = render(<DiffViewer />);
@@ -336,11 +414,17 @@ describe('DiffViewer Component', () => {
       unmount();
 
       // Update store to have content
-      (useAppStore as any).mockReturnValue({
+      (useAppStore as any).mockImplementation((selector: any) => {
+        const customStore = {
         ...mockStore,
         ...mockActions,
         leftContent: 'Hello',
         rightContent: 'World',
+      };
+        if (typeof selector === 'function') {
+          return selector(customStore);
+        }
+        return customStore;
       });
 
       // Render again with new content
@@ -354,11 +438,17 @@ describe('DiffViewer Component', () => {
     it('should handle large content gracefully', () => {
       const largeContent = 'A'.repeat(10000);
 
-      (useAppStore as any).mockReturnValue({
+      (useAppStore as any).mockImplementation((selector: any) => {
+        const customStore = {
         ...mockStore,
         ...mockActions,
         leftContent: largeContent,
         rightContent: largeContent + 'B',
+      };
+        if (typeof selector === 'function') {
+          return selector(customStore);
+        }
+        return customStore;
       });
 
       render(<DiffViewer />);
@@ -375,16 +465,22 @@ describe('DiffViewer Component', () => {
   describe('Error Recovery', () => {
     it('should clear errors when content is successfully processed', async () => {
       // Start with error state
-      (useAppStore as any).mockReturnValue({
-        ...mockStore,
-        ...mockActions,
-        currentError: {
-          type: 'diff-computation' as const,
-          message: 'Failed to compute diff',
-          details: 'Error details',
-          timestamp: Date.now(),
-          recoverable: true,
-        },
+      (useAppStore as any).mockImplementation((selector: any) => {
+        const storeWithError = {
+          ...mockStore,
+          ...mockActions,
+          currentError: {
+            type: 'diff-computation' as const,
+            message: 'Failed to compute diff',
+            details: 'Error details',
+            timestamp: Date.now(),
+            recoverable: true,
+          },
+        };
+        if (typeof selector === 'function') {
+          return selector(storeWithError);
+        }
+        return storeWithError;
       });
 
       const { unmount } = render(<DiffViewer />);
@@ -396,12 +492,18 @@ describe('DiffViewer Component', () => {
       unmount();
 
       // Update to success state
-      (useAppStore as any).mockReturnValue({
+      (useAppStore as any).mockImplementation((selector: any) => {
+        const customStore = {
         ...mockStore,
         ...mockActions,
         leftContent: 'test',
         rightContent: 'test2',
         currentError: null,
+      };
+        if (typeof selector === 'function') {
+          return selector(customStore);
+        }
+        return customStore;
       });
 
       // Render again with new state

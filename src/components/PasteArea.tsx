@@ -1,5 +1,5 @@
-import React, { useCallback, useState, useRef, useEffect, memo } from 'react';
 import { Upload, FileText, AlertCircle } from 'lucide-react';
+import React, { useCallback, useState, useRef, useEffect, memo } from 'react';
 
 import { FileProcessingLoader } from './LoadingIndicator';
 // import { ErrorBoundary } from './ErrorBoundary';

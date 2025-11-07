@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { Page } from 'playwright';
+import type { Page } from 'playwright';
 
 import { electronHelper } from '../utils/electron-helpers';
 

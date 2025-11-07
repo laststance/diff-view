@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   SplitSquareHorizontal,
   AlignLeft,
@@ -14,6 +13,7 @@ import {
   ArrowRight,
   ArrowLeft,
 } from 'lucide-react';
+import React from 'react';
 
 import { useAppStore } from '../store/appStore';
 

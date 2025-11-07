@@ -1,5 +1,5 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import React from 'react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import '@testing-library/jest-dom';
 
@@ -241,7 +241,7 @@ describe('ErrorBoundary Component', () => {
       );
 
       expect(
-        screen.getByText('Show technical details (Development)')
+        screen.getByText(/Technical Details.*Development/i)
       ).toBeInTheDocument();
     });
 
@@ -252,9 +252,7 @@ describe('ErrorBoundary Component', () => {
         </ErrorBoundary>
       );
 
-      const detailsButton = screen.getByText(
-        'Show technical details (Development)'
-      );
+      const detailsButton = screen.getByText(/Technical Details.*Development/i);
       fireEvent.click(detailsButton);
 
       expect(screen.getByText('Stack Trace:')).toBeInTheDocument();

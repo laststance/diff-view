@@ -28,6 +28,16 @@ export interface ElectronAPI {
 
   // Environment info
   isTestMode: boolean;
+
+  // Error logging
+  logError: (errorData: {
+    message: string;
+    stack?: string;
+    componentStack?: string;
+    errorInfo?: string;
+    timestamp: number;
+    environment: string;
+  }) => Promise<{ success: boolean; logPath?: string; error?: string }>;
 }
 
 // Note: IPC channel validation is handled by the specific method implementations
@@ -36,21 +46,21 @@ export interface ElectronAPI {
 // Secure API implementation
 const electronAPI: ElectronAPI = {
   // Window controls
-  minimizeWindow: () => ipcRenderer.invoke('window:minimize'),
-  maximizeWindow: () => ipcRenderer.invoke('window:maximize'),
-  closeWindow: () => ipcRenderer.invoke('window:close'),
-  isWindowMaximized: () => ipcRenderer.invoke('window:isMaximized'),
+  minimizeWindow: async () => ipcRenderer.invoke('window:minimize'),
+  maximizeWindow: async () => ipcRenderer.invoke('window:maximize'),
+  closeWindow: async () => ipcRenderer.invoke('window:close'),
+  isWindowMaximized: async () => ipcRenderer.invoke('window:isMaximized'),
 
   // Application actions
-  clearContent: () => ipcRenderer.invoke('app:clearContent'),
-  exportDiff: (content: string) =>
+  clearContent: async () => ipcRenderer.invoke('app:clearContent'),
+  exportDiff: async (content: string) =>
     ipcRenderer.invoke('app:exportDiff', content),
 
   // Theme management
-  getTheme: () => ipcRenderer.invoke('theme:get'),
-  setTheme: (theme: 'light' | 'dark' | 'system') =>
+  getTheme: async () => ipcRenderer.invoke('theme:get'),
+  setTheme: async (theme: 'light' | 'dark' | 'system') =>
     ipcRenderer.invoke('theme:set', theme),
-  shouldUseDarkColors: () => ipcRenderer.invoke('theme:shouldUseDarkColors'),
+  shouldUseDarkColors: async () => ipcRenderer.invoke('theme:shouldUseDarkColors'),
 
   // Theme change listener
   onThemeUpdated: (callback) => {
@@ -69,6 +79,11 @@ const electronAPI: ElectronAPI = {
 
   // Environment info
   isTestMode: process.env.ELECTRON_TEST_MODE === 'true',
+
+  // Error logging
+  logError: async (errorData) => {
+    return ipcRenderer.invoke('error:log', errorData);
+  },
 };
 
 // Expose the secure API to the renderer process

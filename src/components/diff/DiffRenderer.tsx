@@ -1,7 +1,7 @@
 import React from 'react';
 
-import type { DiffData } from '../../types/app';
 import { useChangeNavigation } from '../../hooks/useChangeNavigation';
+import type { DiffData } from '../../types/app';
 
 import { DiffHunk } from './DiffHunk';
 import { NavigationControls } from './NavigationControls';

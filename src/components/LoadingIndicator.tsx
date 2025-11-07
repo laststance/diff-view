@@ -1,5 +1,5 @@
-import React from 'react';
 import { Loader2, FileText, Zap, Clock } from 'lucide-react';
+import React from 'react';
 
 export type LoadingType = 'spinner' | 'progress' | 'skeleton' | 'pulse';
 export type LoadingSize = 'small' | 'medium' | 'large';

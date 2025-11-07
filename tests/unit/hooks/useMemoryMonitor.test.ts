@@ -16,7 +16,7 @@ const mockMemory = {
 describe('useMemoryMonitor', () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    // Mock performance.memory
+    // Mock performance.memory (requestAnimationFrame is already mocked in setup.ts)
     Object.defineProperty(performance, 'memory', {
       value: mockMemory,
       configurable: true,
@@ -25,7 +25,7 @@ describe('useMemoryMonitor', () => {
 
   afterEach(() => {
     vi.useRealTimers();
-    // Clean up mock
+    // Clean up performance.memory mock
     delete (performance as any).memory;
   });
 
@@ -39,8 +39,14 @@ describe('useMemoryMonitor', () => {
       useMemoryMonitor({ enableMonitoring: true })
     );
 
+    // First RAF starts monitoring - run only pending timers to avoid infinite loops
     act(() => {
-      vi.advanceTimersByTime(100);
+      vi.runOnlyPendingTimers();
+    });
+
+    // Second RAF updates memory usage (triggered by isMonitoring change)
+    act(() => {
+      vi.runOnlyPendingTimers();
     });
 
     expect(result.current.memoryUsage).toEqual({
@@ -70,8 +76,14 @@ describe('useMemoryMonitor', () => {
       })
     );
 
+    // First RAF starts monitoring - run only pending timers to avoid infinite loops
     act(() => {
-      vi.advanceTimersByTime(100);
+      vi.runOnlyPendingTimers();
+    });
+
+    // Second RAF updates memory usage (triggered by isMonitoring change)
+    act(() => {
+      vi.runOnlyPendingTimers();
     });
 
     expect(result.current.memoryUsage?.isHighUsage).toBe(true);
@@ -86,10 +98,16 @@ describe('useMemoryMonitor', () => {
       })
     );
 
-    // Initial update
+    // First RAF starts monitoring - run only pending timers to avoid infinite loops
     act(() => {
-      vi.advanceTimersByTime(100);
+      vi.runOnlyPendingTimers();
     });
+
+    // Second RAF updates memory usage (triggered by isMonitoring change)
+    act(() => {
+      vi.runOnlyPendingTimers();
+    });
+
     expect(result.current.memoryUsage).toBeTruthy();
 
     // Change memory values

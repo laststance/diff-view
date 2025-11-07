@@ -1,12 +1,12 @@
-import React, { useRef, useCallback, useEffect, useMemo, memo } from 'react';
 import { FileText, Copy } from 'lucide-react';
+import React, { useRef, useCallback, useEffect, useMemo, memo } from 'react';
 import { List } from 'react-window';
 
+import { useContentMemoryMonitor } from '../hooks/useMemoryMonitor';
 import {
   useVirtualTextScrolling,
   VirtualScrollingUtils,
 } from '../hooks/useVirtualScrolling';
-import { useContentMemoryMonitor } from '../hooks/useMemoryMonitor';
 
 // import {
 //   ContentSizeWarning,
