@@ -258,20 +258,14 @@ test.describe('Content Management Functionality', () => {
       // Use keyboard shortcut to toggle
       await page.keyboard.press(`${modifier}+Shift+KeyV`);
 
-      // Wait for state update to propagate to DOM
-      await page.waitForTimeout(300);
-
-      // Verify view mode changed to unified
-      await expect(unifiedButton).toHaveClass(/bg-white/);
+      // Wait for view mode to change by checking the unified button becomes active
+      await expect(unifiedButton).toHaveClass(/bg-white/, { timeout: 5000 });
 
       // Toggle back
       await page.keyboard.press(`${modifier}+Shift+KeyV`);
 
-      // Wait for state update to propagate to DOM
-      await page.waitForTimeout(300);
-
-      // Verify view mode changed back to split
-      await expect(splitButton).toHaveClass(/bg-white/);
+      // Wait for view mode to change back by checking the split button becomes active
+      await expect(splitButton).toHaveClass(/bg-white/, { timeout: 5000 });
     });
 
     test('should replace left with right using Ctrl+Shift+1 keyboard shortcut', async () => {
