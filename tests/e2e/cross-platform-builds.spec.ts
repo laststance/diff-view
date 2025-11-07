@@ -1,8 +1,13 @@
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 import { test, expect } from '@playwright/test';
+
+// ESM-compatible __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Skip build tests in development mode as they require properly compiled native modules
 const isDevelopment = process.env.NODE_ENV !== 'production';
