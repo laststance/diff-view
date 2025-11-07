@@ -78,6 +78,9 @@ test.describe('Diff Display Features', () => {
     const splitViewButton = page.locator('button[title*="Split View"]');
     await expect(splitViewButton).toBeVisible();
 
+    // Wait for UI to fully render
+    await page.waitForTimeout(200);
+
     // Verify split view is active (button should have active styling)
     const splitButtonClass = await splitViewButton.getAttribute('class');
     expect(splitButtonClass).toContain('bg-white');

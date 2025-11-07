@@ -258,11 +258,17 @@ test.describe('Content Management Functionality', () => {
       // Use keyboard shortcut to toggle
       await page.keyboard.press(`${modifier}+Shift+KeyV`);
 
+      // Wait for state update to propagate to DOM
+      await page.waitForTimeout(300);
+
       // Verify view mode changed to unified
       await expect(unifiedButton).toHaveClass(/bg-white/);
 
       // Toggle back
       await page.keyboard.press(`${modifier}+Shift+KeyV`);
+
+      // Wait for state update to propagate to DOM
+      await page.waitForTimeout(300);
 
       // Verify view mode changed back to split
       await expect(splitButton).toHaveClass(/bg-white/);
