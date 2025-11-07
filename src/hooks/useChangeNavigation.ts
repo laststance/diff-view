@@ -74,11 +74,18 @@ export const useChangeNavigation = (diffData: DiffData | null) => {
     const storeState = useAppStore.getState();
     const currentIndex = storeState.currentChangeIndex;
 
+    // Initialize currentChangeIndex to 0 when it's null and we have changes
+    if (currentIndex === null && totalChanges > 0) {
+      hasAdjustedIndexRef.current = true;
+      setTimeout(() => {
+        storeState.setCurrentChangeIndex(0);
+      }, 0);
+    }
     // If currentChangeIndex is out of bounds, reset it
     // Use getState() to get setCurrentChangeIndex to avoid subscription re-renders
     // Only update if value actually needs to change
     // Use setTimeout to defer state update and avoid synchronous setState in effect
-    if (currentIndex !== null && currentIndex >= totalChanges && totalChanges > 0) {
+    else if (currentIndex !== null && currentIndex >= totalChanges && totalChanges > 0) {
       if (storeState.currentChangeIndex !== 0) {
         hasAdjustedIndexRef.current = true;
         setTimeout(() => {
@@ -94,7 +101,7 @@ export const useChangeNavigation = (diffData: DiffData | null) => {
       }
     }
     // Only depend on diffData, not on setCurrentChangeIndex function
-     
+
   }, [diffData]);
 
   // Scroll to current change when currentChangeIndex changes
