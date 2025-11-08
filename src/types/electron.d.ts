@@ -27,6 +27,16 @@ export interface ElectronAPI {
 
   // Environment info
   isTestMode: boolean;
+
+  // Error logging
+  logError: (errorData: {
+    message: string;
+    stack?: string;
+    componentStack?: string;
+    errorInfo?: string;
+    timestamp: number;
+    environment: string;
+  }) => Promise<{ success: boolean; logPath?: string; error?: string }>;
 }
 
 declare global {

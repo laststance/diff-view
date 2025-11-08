@@ -276,7 +276,7 @@ test.describe('Main Process Functionality', () => {
 
       // Verify that Node.js APIs are not directly accessible in renderer
       const hasDirectNodeAccess = await window.evaluate(() => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         const win = window as any;
         return (
           typeof win.require !== 'undefined' || typeof win.process !== 'undefined'

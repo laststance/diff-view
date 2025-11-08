@@ -1,4 +1,3 @@
-import React, { useMemo } from 'react';
 import {
   AlertTriangle,
   Info,
@@ -9,6 +8,7 @@ import {
   Zap,
   X,
 } from 'lucide-react';
+import React, { useMemo } from 'react';
 
 import type { ContentLimits } from '../types/app';
 
@@ -21,6 +21,58 @@ export interface ContentSizeWarningProps {
   className?: string;
   showDetails?: boolean;
 }
+
+// Progress bar component - defined outside render to avoid recreation
+interface ProgressBarProps {
+  percentage: number;
+  label: string;
+  current: string;
+  max: string;
+  icon: React.ComponentType<{ className?: string }>;
+  warning: boolean;
+  critical: boolean;
+}
+
+const ProgressBar: React.FC<ProgressBarProps> = ({
+  percentage,
+  label,
+  current,
+  max,
+  icon: Icon,
+  warning,
+  critical,
+}) => {
+  const barColor = critical
+    ? 'bg-red-500'
+    : warning
+      ? 'bg-orange-500'
+      : 'bg-green-500';
+
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center justify-between text-sm">
+        <div className="flex items-center gap-2">
+          <Icon className="h-4 w-4" />
+          <span className="font-medium">{label}</span>
+        </div>
+        <span className="text-xs">
+          {current} / {max} ({percentage.toFixed(1)}%)
+        </span>
+      </div>
+      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+        <div
+          className={`h-2 rounded-full transition-all duration-300 ${barColor}`}
+          style={{ width: `${Math.min(100, percentage)}%` }}
+          role="progressbar"
+          aria-valuenow={percentage}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={`${label}: ${percentage.toFixed(1)}%`}
+        />
+      </div>
+    </div>
+  );
+};
 
 /**
  * ContentSizeWarning component for displaying content size warnings and limits
@@ -120,48 +172,6 @@ export const ContentSizeWarning: React.FC<ContentSizeWarningProps> = ({
 
   // Format number with commas
   const formatNumber = (num: number) => num.toLocaleString();
-
-  // Progress bar component
-  const ProgressBar: React.FC<{
-    percentage: number;
-    label: string;
-    current: string;
-    max: string;
-    icon: React.ComponentType<{ className?: string }>;
-    warning: boolean;
-    critical: boolean;
-  }> = ({ percentage, label, current, max, icon: Icon, warning, critical }) => {
-    const barColor = critical
-      ? 'bg-red-500'
-      : warning
-        ? 'bg-orange-500'
-        : 'bg-green-500';
-
-    return (
-      <div className="space-y-1">
-        <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center gap-2">
-            <Icon className="h-4 w-4" />
-            <span className="font-medium">{label}</span>
-          </div>
-          <span className="text-xs">
-            {current} / {max} ({percentage.toFixed(1)}%)
-          </span>
-        </div>
-        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-          <div
-            className={`h-2 rounded-full transition-all duration-300 ${barColor}`}
-            style={{ width: `${Math.min(100, percentage)}%` }}
-            role="progressbar"
-            aria-valuenow={percentage}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label={`${label}: ${percentage.toFixed(1)}%`}
-          />
-        </div>
-      </div>
-    );
-  };
 
   return (
     <div

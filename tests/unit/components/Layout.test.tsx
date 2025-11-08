@@ -1,5 +1,5 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
+import React from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import '@testing-library/jest-dom';
 
@@ -26,7 +26,12 @@ describe('Layout Component', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useAppStore as any).mockReturnValue(mockStore);
+    (useAppStore as any).mockImplementation((selector: any) => {
+      if (typeof selector === 'function') {
+        return selector(mockStore);
+      }
+      return mockStore;
+    });
   });
 
   describe('Basic Rendering', () => {
@@ -153,9 +158,15 @@ describe('Layout Component', () => {
         recoverable: true,
       };
 
-      (useAppStore as any).mockReturnValue({
-        ...mockStore,
-        currentError: mockError,
+      (useAppStore as any).mockImplementation((selector: any) => {
+        const storeWithError = {
+          ...mockStore,
+          currentError: mockError,
+        };
+        if (typeof selector === 'function') {
+          return selector(storeWithError);
+        }
+        return storeWithError;
       });
 
       render(<Layout>Content</Layout>);

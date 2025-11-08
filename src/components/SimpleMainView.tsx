@@ -2,7 +2,6 @@ import React from 'react';
 
 // Simple main view component without store dependencies for testing
 export const SimpleMainView: React.FC = () => {
-  console.log('SimpleMainView component rendering');
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-4">

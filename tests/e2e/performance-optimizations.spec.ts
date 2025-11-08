@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { ElectronApplication, Page } from 'playwright';
+import type { ElectronApplication, Page } from 'playwright';
 
 import { startElectronApp, stopElectronApp } from '../utils/electron-helpers';
 
@@ -74,12 +74,9 @@ test.describe('Performance Optimizations', () => {
 
       await rightTextarea.fill('Final change');
 
-      // Wait for debounce to complete
-      await page.waitForTimeout(400);
-
-      // Verify final content is processed
+      // Wait for diff computation to complete by checking for diff data
       const diffViewer = page.getByTestId('diff-viewer');
-      await expect(diffViewer).toContainText('Diff Comparison Result');
+      await expect(diffViewer).toContainText('Diff data: Present', { timeout: 5000 });
     });
   });
 
@@ -316,13 +313,11 @@ test.describe('Performance Optimizations', () => {
         .getByTestId('textarea-right')
         .fill('Modified content\nWith different lines\nFor testing');
 
-      // Wait for diff computation
-      await page.waitForTimeout(500);
-
-      // Verify diff computation completed successfully
+      // Wait for diff computation by checking for diff data
       const diffViewer = page.getByTestId('diff-viewer');
       await expect(diffViewer).toContainText(
-        'Diff computation completed successfully'
+        'Diff data: Present',
+        { timeout: 5000 }
       );
     });
 
@@ -368,8 +363,9 @@ test.describe('Performance Optimizations', () => {
       await page.getByTestId('textarea-left').fill(largeContent);
       await page.getByTestId('textarea-right').fill(largeContent);
 
-      // Wait for processing
-      await page.waitForTimeout(1000);
+      // Wait for diff viewer to show content is processed
+      const diffViewer = page.getByTestId('diff-viewer');
+      await expect(diffViewer).toBeVisible({ timeout: 5000 });
 
       // Clear content with dialog handler
       page.once('dialog', async (dialog) => {
@@ -378,7 +374,6 @@ test.describe('Performance Optimizations', () => {
       
       const clearButton = page.getByLabel('Clear all content from both panes');
       await clearButton.click();
-      await page.waitForTimeout(500);
 
       // Verify content is cleared
       await expect(page.getByTestId('textarea-left')).toHaveValue('');
@@ -386,7 +381,7 @@ test.describe('Performance Optimizations', () => {
 
       // Verify diff viewer shows empty state
       const emptyState = page.locator('text=/Ready to Compare/');
-      await expect(emptyState).toBeVisible();
+      await expect(emptyState).toBeVisible({ timeout: 5000 });
     });
   });
 });

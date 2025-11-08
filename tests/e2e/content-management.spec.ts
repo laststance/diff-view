@@ -1,4 +1,5 @@
-import { test, expect, Page } from '@playwright/test';
+import { test, expect } from '@playwright/test';
+import type { Page } from '@playwright/test';
 
 import { ElectronTestHelper } from '../utils/electron-helpers';
 
@@ -248,23 +249,30 @@ test.describe('Content Management Functionality', () => {
     });
 
     test('should toggle view mode with Ctrl+Shift+V keyboard shortcut', async () => {
-      // Check initial view mode (should be split)
+      // Ensure we start in split view (tests run in shared instance, state may persist)
       const splitButton = page.locator('button[title*="Split View"]');
       const unifiedButton = page.locator('button[title*="Unified View"]');
 
-      await expect(splitButton).toHaveClass(/bg-white/);
+      // Explicitly click split view to ensure we're in split mode
+      await splitButton.click();
+      await page.waitForTimeout(200);
+
+      await expect(splitButton).toHaveClass(/bg-white/, { timeout: 5000 });
 
       // Use keyboard shortcut to toggle
       await page.keyboard.press(`${modifier}+Shift+KeyV`);
 
-      // Verify view mode changed to unified
-      await expect(unifiedButton).toHaveClass(/bg-white/);
+      // Wait for view mode to change by checking the unified button becomes active
+      await expect(unifiedButton).toHaveClass(/bg-white/, { timeout: 5000 });
+
+      // Wait for transition to complete before toggling back (CI environments need more time)
+      await page.waitForTimeout(300);
 
       // Toggle back
       await page.keyboard.press(`${modifier}+Shift+KeyV`);
 
-      // Verify view mode changed back to split
-      await expect(splitButton).toHaveClass(/bg-white/);
+      // Wait for view mode to change back by checking the split button becomes active
+      await expect(splitButton).toHaveClass(/bg-white/, { timeout: 5000 });
     });
 
     test('should replace left with right using Ctrl+Shift+1 keyboard shortcut', async () => {

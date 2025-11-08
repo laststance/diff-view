@@ -1,6 +1,13 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
+import { useShallow } from 'zustand/react/shallow';
 
+import { calculateDiff } from '../core/diffCalculator';
+import {
+  DiffTimeoutError,
+  ContentTooLargeError,
+  InvalidContentError,
+} from '../errors/diffErrors';
 import type {
   AppStore,
   AppState,
@@ -9,12 +16,6 @@ import type {
   LoadingStates,
   ContentLimits,
 } from '../types/app';
-import { calculateDiff } from '../core/diffCalculator';
-import {
-  DiffTimeoutError,
-  ContentTooLargeError,
-  InvalidContentError,
-} from '../errors/diffErrors';
 // import { formatMemorySize } from '../hooks/useMemoryMonitor';
 
 // Default content limits (10MB as mentioned in design doc)
@@ -1141,14 +1142,16 @@ export const useCurrentChangeIndex = () =>
 export const useTotalChanges = () => useAppStore((state) => state.totalChanges);
 
 export const useNavigationActions = () =>
-  useAppStore((state) => ({
-    setCurrentChangeIndex: state.setCurrentChangeIndex,
-    navigateToChange: state.navigateToChange,
-    navigateNext: state.navigateNext,
-    navigatePrevious: state.navigatePrevious,
-    navigateFirst: state.navigateFirst,
-    navigateLast: state.navigateLast,
-  }));
+  useAppStore(
+    useShallow((state) => ({
+      setCurrentChangeIndex: state.setCurrentChangeIndex,
+      navigateToChange: state.navigateToChange,
+      navigateNext: state.navigateNext,
+      navigatePrevious: state.navigatePrevious,
+      navigateFirst: state.navigateFirst,
+      navigateLast: state.navigateLast,
+    }))
+  );
 
 // Diff theme selectors (Phase 3 Feature 3)
 export const useDiffTheme = () => useAppStore((state) => state.diffTheme);

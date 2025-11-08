@@ -1,5 +1,6 @@
-import React, { Component, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, RotateCcw } from 'lucide-react';
+import type { ReactNode } from 'react';
+import React, { Component } from 'react';
 
 import type { ErrorBoundaryState, AppError } from '../types/app';
 
@@ -33,6 +34,9 @@ export class ErrorBoundary extends Component<
       error,
       errorInfo,
     });
+
+    // Enhanced error logging with detailed information
+    this.logErrorToFile(error, errorInfo);
 
     // Create AppError object and notify parent
     if (this.props.onError) {
@@ -93,6 +97,87 @@ export class ErrorBoundary extends Component<
     }
   }
 
+  /**
+   * Log error to file via Electron IPC and optionally to Sentry
+   * Captures comprehensive error information for debugging
+   */
+  logErrorToFile = async (error: Error, errorInfo: React.ErrorInfo) => {
+    try {
+      const environment = process.env.NODE_ENV === 'development' 
+        ? 'development' 
+        : process.env.ELECTRON_TEST_MODE === 'true' 
+        ? 'test' 
+        : 'production';
+
+      const errorData = {
+        message: error.message || 'Unknown error',
+        stack: error.stack,
+        componentStack: errorInfo.componentStack || undefined,
+        errorInfo: JSON.stringify(errorInfo, null, 2),
+        timestamp: Date.now(),
+        environment,
+      };
+
+      // Enhanced console logging
+      console.group('🚨 ErrorBoundary - Detailed Error Information');
+      console.error('Error Name:', error.name);
+      console.error('Error Message:', error.message);
+      console.error('Error Stack:', error.stack);
+      console.error('Component Stack:', errorInfo.componentStack);
+      console.error('Environment:', environment);
+      console.error('Full Error Object:', error);
+      console.error('Error Info:', errorInfo);
+      console.groupEnd();
+
+      // Send to Electron main process for file logging
+      if (window.electronAPI?.logError) {
+        try {
+          const result = await window.electronAPI.logError(errorData);
+          if (result.success && result.logPath) {
+            console.log('✅ Error logged to file:', result.logPath);
+          } else {
+            console.warn('⚠️ Failed to log error to file:', result.error);
+          }
+        } catch (ipcError) {
+          console.error('Failed to send error via IPC:', ipcError);
+        }
+      } else {
+        console.warn('⚠️ Electron API not available, error not logged to file');
+      }
+
+      // Optional: Send to Sentry if configured
+      // To enable Sentry, install @sentry/react and @sentry/electron:
+      //   npm install @sentry/react @sentry/electron
+      // Then uncomment the following code and configure SENTRY_DSN in your environment
+      /*
+      if (process.env.SENTRY_DSN) {
+        try {
+          const Sentry = await import('@sentry/react');
+          Sentry.captureException(error, {
+            contexts: {
+              react: {
+                componentStack: errorInfo.componentStack,
+              },
+            },
+            tags: {
+              errorBoundary: true,
+              environment,
+            },
+            extra: {
+              errorInfo: errorInfo.componentStack,
+            },
+          });
+          console.log('✅ Error sent to Sentry');
+        } catch (sentryError) {
+          console.warn('⚠️ Failed to send error to Sentry:', sentryError);
+        }
+      }
+      */
+    } catch (loggingError) {
+      console.error('Failed to log error:', loggingError);
+    }
+  };
+
   handleReset = () => {
     this.setState({ hasError: false, error: undefined, errorInfo: undefined });
   };
@@ -139,28 +224,44 @@ export class ErrorBoundary extends Component<
                     Error: {this.state.error.message}
                   </p>
 
-                  {process.env.NODE_ENV === 'development' && (
-                    <details className="mt-2">
+                  {(process.env.NODE_ENV === 'development' || process.env.ELECTRON_TEST_MODE === 'true') && (
+                    <details className="mt-2" open>
                       <summary className="text-xs font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:underline">
-                        Show technical details (Development)
+                        ▼ Technical Details ({process.env.NODE_ENV === 'development' ? 'Development' : 'Test Mode'})
                       </summary>
-                      <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-800 rounded text-xs font-mono text-gray-800 dark:text-gray-200 overflow-auto max-h-32">
-                        {this.state.error.stack && (
+                      <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-800 rounded text-xs font-mono text-gray-800 dark:text-gray-200 overflow-auto max-h-64">
+                        {this.state.error && (
+                          <div className="mb-2">
+                            <strong>Error Name:</strong> {this.state.error.name}
+                          </div>
+                        )}
+                        {this.state.error?.stack && (
                           <div className="mb-2">
                             <strong>Stack Trace:</strong>
-                            <pre className="whitespace-pre-wrap mt-1">
+                            <pre className="whitespace-pre-wrap mt-1 text-[10px]">
                               {this.state.error.stack}
                             </pre>
                           </div>
                         )}
-                        {this.state.errorInfo && (
-                          <div>
+                        {this.state.errorInfo?.componentStack && (
+                          <div className="mb-2">
                             <strong>Component Stack:</strong>
-                            <pre className="whitespace-pre-wrap mt-1">
+                            <pre className="whitespace-pre-wrap mt-1 text-[10px]">
                               {this.state.errorInfo.componentStack}
                             </pre>
                           </div>
                         )}
+                        {this.state.errorInfo && (
+                          <div className="mb-2">
+                            <strong>Full Error Info:</strong>
+                            <pre className="whitespace-pre-wrap mt-1 text-[10px]">
+                              {JSON.stringify(this.state.errorInfo, null, 2)}
+                            </pre>
+                          </div>
+                        )}
+                        <div className="mt-2 text-[10px] text-gray-500 dark:text-gray-400">
+                          💡 Check console for detailed logs and error file location
+                        </div>
                       </div>
                     </details>
                   )}

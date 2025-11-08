@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from 'react';
 import {
   AlertTriangle,
   AlertCircle,
@@ -11,6 +10,7 @@ import {
   ChevronUp,
   Trash2,
 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 
 import type { AppError, ErrorType } from '../types/app';
 
@@ -126,7 +126,7 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
     },
   };
 
-  const config = errorConfig[error.type];
+  const config = errorConfig[error.type] || errorConfig.unknown;
   const IconComponent = config.icon;
 
   // Format timestamp

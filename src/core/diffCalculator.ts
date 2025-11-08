@@ -7,14 +7,14 @@
 
 import { diffChars, type Change } from 'diff';
 
-import type { DiffData, DiffLine, DiffStats } from '../types/app';
-import type { HighlightRange } from '../types/highlight';
 import {
   DiffTimeoutError,
   ContentTooLargeError,
   DiffCalculationError,
   InvalidContentError,
 } from '../errors/diffErrors';
+import type { DiffData, DiffLine, DiffStats } from '../types/app';
+import type { HighlightRange } from '../types/highlight';
 
 /**
  * Configuration constants for diff calculation

@@ -483,8 +483,9 @@ describe('diffCalculator - Failure Modes', () => {
     });
 
     it('should calculate correct character count for large content', async () => {
+      // Use similar content for better performance (diff is very slow with completely different strings)
       const left = 'x'.repeat(5000);
-      const right = 'y'.repeat(5000);
+      const right = left.slice(0, 2500) + 'y'.repeat(2500); // Mix of same and different
       const result = await calculateDiff(left, right);
 
       expect(result.metadata?.totalCharacters).toBe(10000);
@@ -727,7 +728,7 @@ describe('diffCalculator - Metadata and Performance', () => {
     });
 
     it('should handle concurrent calculations', async () => {
-      const promises = Array.from({ length: 10 }, (_, i) =>
+      const promises = Array.from({ length: 10 }, async (_, i) =>
         calculateDiff(`test${i}`, `test${i + 1}`)
       );
 

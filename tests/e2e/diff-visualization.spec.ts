@@ -74,33 +74,33 @@ test.describe('Diff Display Features', () => {
     const diffViewer = page.locator('.diff-viewer-container');
     await expect(diffViewer).toBeVisible();
 
-    // Test split view (default)
+    // Test split view - ensure we're in split view first (don't assume initial state)
     const splitViewButton = page.locator('button[title*="Split View"]');
+    const unifiedViewButton = page.locator('button[title*="Unified View"]');
     await expect(splitViewButton).toBeVisible();
 
-    // Verify split view is active (button should have active styling)
-    const splitButtonClass = await splitViewButton.getAttribute('class');
-    expect(splitButtonClass).toContain('bg-white');
+    // Explicitly ensure split view is active (tests run in shared instance, state may persist)
+    await splitViewButton.click();
+    await page.waitForTimeout(200);
+
+    // Verify split view is now active (button should have active styling)
+    await expect(splitViewButton).toHaveClass(/bg-white/, { timeout: 5000 });
 
     // Test unified view
-    const unifiedViewButton = page.locator('button[title*="Unified View"]');
     await expect(unifiedViewButton).toBeVisible();
     await unifiedViewButton.click();
 
-    // Wait for view mode change to take effect
-    await page.waitForTimeout(300);
+    // Wait for view mode to change and verify unified view is now active
+    await expect(unifiedViewButton).toHaveClass(/bg-white/, { timeout: 5000 });
 
-    // Verify unified view is now active
-    const unifiedButtonClass = await unifiedViewButton.getAttribute('class');
-    expect(unifiedButtonClass).toContain('bg-white');
+    // Wait for transition to complete before switching back (CI environments need more time)
+    await page.waitForTimeout(300);
 
     // Switch back to split view
     await splitViewButton.click();
-    await page.waitForTimeout(300);
 
-    // Verify split view is active again
-    const splitButtonClassAgain = await splitViewButton.getAttribute('class');
-    expect(splitButtonClassAgain).toContain('bg-white');
+    // Wait for view mode to change back and verify split view is active again
+    await expect(splitViewButton).toHaveClass(/bg-white/, { timeout: 5000 });
   });
 
   test('should display line numbers for both original and modified content', async () => {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 
 export interface PerformanceMemory {
   usedJSHeapSize: number;
@@ -38,7 +38,17 @@ export function useMemoryMonitor(options: MemoryMonitorOptions = {}): {
   stopMonitoring: () => void;
   forceUpdate: () => void;
 } {
-  const config = { ...defaultOptions, ...options };
+  // Memoize config to prevent unnecessary re-renders
+  // React Compiler prefers options object as dependency for proper memoization
+  const config = useMemo(
+    () => ({ ...defaultOptions, ...options }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      options.updateInterval,
+      options.highUsageThreshold,
+      options.enableMonitoring,
+    ]
+  );
   const [memoryUsage, setMemoryUsage] = useState<MemoryUsage | null>(null);
   const [isMonitoring, setIsMonitoring] = useState(false);
 
@@ -88,13 +98,16 @@ export function useMemoryMonitor(options: MemoryMonitorOptions = {}): {
   useEffect(() => {
     if (!isMonitoring || !config.enableMonitoring) return;
 
-    // Initial update
-    updateMemoryUsage();
+    // Initial update - use requestAnimationFrame to avoid synchronous setState
+    const rafId = requestAnimationFrame(() => {
+      updateMemoryUsage();
+    });
 
     // Set up interval
     const interval = setInterval(updateMemoryUsage, config.updateInterval);
 
     return () => {
+      cancelAnimationFrame(rafId);
       clearInterval(interval);
     };
   }, [
@@ -107,7 +120,13 @@ export function useMemoryMonitor(options: MemoryMonitorOptions = {}): {
   // Auto-start monitoring if enabled
   useEffect(() => {
     if (config.enableMonitoring) {
-      startMonitoring();
+      // Use requestAnimationFrame to avoid synchronous setState
+      const rafId = requestAnimationFrame(() => {
+        startMonitoring();
+      });
+      return () => {
+        cancelAnimationFrame(rafId);
+      };
     }
   }, [config.enableMonitoring, startMonitoring]);
 
@@ -138,6 +157,7 @@ export function formatMemorySize(bytes: number): string {
 
 /**
  * Hook for monitoring content size and memory impact
+ * Memoized to prevent unnecessary re-renders
  */
 export function useContentMemoryMonitor(content: string): {
   contentSize: number;
@@ -145,35 +165,42 @@ export function useContentMemoryMonitor(content: string): {
   isLargeContent: boolean;
   recommendations: string[];
 } {
-  const contentSize = new Blob([content]).size;
+  // Memoize the result to prevent creating new objects on every render
+  return useMemo(() => {
+    // Safely handle non-string content (null, undefined, etc.)
+    const safeContent = typeof content === 'string' ? content : '';
 
-  // Rough estimation: content size * 2-3 for DOM representation + processing overhead
-  const estimatedMemoryUsage = contentSize * 2.5;
+    const contentSize = new Blob([safeContent]).size;
 
-  const isLargeContent = contentSize > 1024 * 1024; // 1MB threshold
+    // Rough estimation: content size * 2-3 for DOM representation + processing overhead
+    const estimatedMemoryUsage = contentSize * 2.5;
 
-  const recommendations: string[] = [];
+    const isLargeContent = contentSize > 1024 * 1024; // 1MB threshold
 
-  if (contentSize > 5 * 1024 * 1024) {
-    // 5MB
-    recommendations.push(
-      'Consider splitting large content into smaller chunks'
-    );
-  }
+    const recommendations: string[] = [];
 
-  if (content.split('\n').length > 10000) {
-    recommendations.push('Enable virtual scrolling for better performance');
-  }
+    if (contentSize > 5 * 1024 * 1024) {
+      // 5MB
+      recommendations.push(
+        'Consider splitting large content into smaller chunks'
+      );
+    }
 
-  if (estimatedMemoryUsage > 50 * 1024 * 1024) {
-    // 50MB estimated
-    recommendations.push('Content may cause high memory usage');
-  }
+    const lineCount = safeContent.split('\n').length;
+    if (lineCount > 10000) {
+      recommendations.push('Enable virtual scrolling for better performance');
+    }
 
-  return {
-    contentSize,
-    estimatedMemoryUsage,
-    isLargeContent,
-    recommendations,
-  };
+    if (estimatedMemoryUsage > 50 * 1024 * 1024) {
+      // 50MB estimated
+      recommendations.push('Content may cause high memory usage');
+    }
+
+    return {
+      contentSize,
+      estimatedMemoryUsage,
+      isLargeContent,
+      recommendations,
+    };
+  }, [content]);
 }

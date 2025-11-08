@@ -1,12 +1,12 @@
-import React, { useMemo, useState, useCallback, useRef } from 'react';
 import { Type, Palette } from 'lucide-react';
+import React, { useMemo, useState, useCallback, useRef } from 'react';
 
 import { useAppStore } from '../store/appStore';
 
-import { Layout } from './Layout';
-import { TextPane } from './TextPane';
-import { PasteArea } from './PasteArea';
 import { DiffViewer } from './DiffViewer';
+import { Layout } from './Layout';
+import { PasteArea } from './PasteArea';
+import { TextPane } from './TextPane';
 
 /**
  * Main view component with proper layout structure

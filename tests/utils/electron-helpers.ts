@@ -50,7 +50,7 @@ export class ElectronTestHelper {
 
   async getWindowTitle(): Promise<string> {
     const window = this.getWindow();
-    return await window.title();
+    return window.title();
   }
 
   async isWindowVisible(): Promise<boolean> {

@@ -1,15 +1,15 @@
 import React, { useEffect, useCallback, useMemo, memo, useRef } from 'react';
 
-import { useAppStore } from '../store/appStore';
 import { useDebounce } from '../hooks/useDebounce';
 import {
   useMemoryMonitor,
   useContentMemoryMonitor,
 } from '../hooks/useMemoryMonitor';
+import { useAppStore } from '../store/appStore';
 
-import { DiffComputationLoader } from './LoadingIndicator';
-import { ErrorMessage } from './ErrorMessage';
 import { DiffRenderer } from './diff';
+import { ErrorMessage } from './ErrorMessage';
+import { DiffComputationLoader } from './LoadingIndicator';
 // import { ErrorBoundary } from './ErrorBoundary';
 
 export interface DiffViewerProps {
@@ -35,7 +35,8 @@ export const DiffViewer: React.FC<DiffViewerProps> = memo(function DiffViewer({
   const isProcessing = useAppStore((state) => state.isProcessing);
   const loadingStates = useAppStore((state) => state.loadingStates);
   const currentError = useAppStore((state) => state.currentError);
-  const recalculateDiff = useAppStore((state) => state.recalculateDiff);
+  // Don't subscribe to recalculateDiff to avoid re-renders when store updates
+  // Use getState() directly in useEffect instead
 
   // Refs to prevent concurrent calculations and unnecessary recalculations
   const isCalculatingRef = useRef(false);
@@ -57,8 +58,10 @@ export const DiffViewer: React.FC<DiffViewerProps> = memo(function DiffViewer({
 
   // Memoize content statistics to avoid recalculation
   const contentStats = useMemo(() => {
-    const leftLines = leftContent.split('\n').length;
-    const rightLines = rightContent.split('\n').length;
+    const safeLeftContent = typeof leftContent === 'string' ? leftContent : '';
+    const safeRightContent = typeof rightContent === 'string' ? rightContent : '';
+    const leftLines = safeLeftContent.split('\n').length;
+    const rightLines = safeRightContent.split('\n').length;
     const totalSize =
       leftContentMemory.contentSize + rightContentMemory.contentSize;
     const isLargeComparison =
@@ -80,36 +83,63 @@ export const DiffViewer: React.FC<DiffViewerProps> = memo(function DiffViewer({
   // NOTE: We don't use a wrapper function to avoid circular dependencies
   // that could cause infinite re-renders (see GitHub issue #XX)
   useEffect(() => {
-    if (debouncedLeftContent && debouncedRightContent) {
-      // Create content hash to detect actual changes
-      const contentHash = `${debouncedLeftContent.length}:${debouncedRightContent.length}:${debouncedLeftContent.slice(0, 100)}:${debouncedRightContent.slice(0, 100)}`;
-
-      // Skip if already calculating or content hasn't changed
-      if (isCalculatingRef.current || contentHash === lastContentHashRef.current) {
-        return;
-      }
-
-      // Update refs and call diff calculation
-      isCalculatingRef.current = true;
-      lastContentHashRef.current = contentHash;
-
-      // Call recalculateDiff directly to avoid function reference issues
-      recalculateDiff().finally(() => {
-        // Reset calculating flag after completion (success or error)
-        isCalculatingRef.current = false;
-      });
+    // Early return if content is empty
+    if (!debouncedLeftContent || !debouncedRightContent) {
+      return;
     }
+
+    // Create content hash to detect actual changes
+    const safeLeftContent = typeof debouncedLeftContent === 'string' ? debouncedLeftContent : '';
+    const safeRightContent = typeof debouncedRightContent === 'string' ? debouncedRightContent : '';
+    const contentHash = `${safeLeftContent.length}:${safeRightContent.length}:${safeLeftContent.slice(0, 100)}:${safeRightContent.slice(0, 100)}`;
+
+    // Skip if already calculating or content hasn't changed
+    if (isCalculatingRef.current || contentHash === lastContentHashRef.current) {
+      return;
+    }
+
+    // Double-check store state to prevent concurrent calculations
+    // Note: loadingStates.diffComputation may be true from the early loading state setter,
+    // but we still need to call recalculateDiff to actually compute the diff
+    const storeState = useAppStore.getState();
+    if (storeState.isProcessing) {
+      return;
+    }
+
+    // Update refs and call diff calculation
+    isCalculatingRef.current = true;
+    lastContentHashRef.current = contentHash;
+
+    // Set loading state immediately (synchronously) before requestAnimationFrame
+    // This ensures the loading indicator is visible before the async operation starts
+    const { recalculateDiff, setLoadingState } = useAppStore.getState();
+    setLoadingState('diffComputation', true);
+
+    // Call recalculateDiff via getState() to avoid function reference re-renders
+    // recalculateDiff will also set loadingStates.diffComputation internally (redundant but safe)
+    // Use requestAnimationFrame to defer the call and avoid synchronous setState in effect
+    requestAnimationFrame(() => {
+      recalculateDiff()
+        .catch(() => {
+          // Error is already handled in store, just reset the flag
+          isCalculatingRef.current = false;
+        })
+        .finally(() => {
+          // Reset calculating flag after completion (success or error)
+          isCalculatingRef.current = false;
+        });
+    });
     // Only depend on debounced content, not on recalculateDiff function
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedLeftContent, debouncedRightContent]);
 
   // Handle retry action
   const handleRetry = useCallback(() => {
     if (leftContent && rightContent) {
+      const { recalculateDiff } = useAppStore.getState();
       recalculateDiff();
     }
     // Use leftContent/rightContent directly for immediate retry, not debounced
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [leftContent, rightContent]);
 
   // Handle clear content action
@@ -235,9 +265,6 @@ export const DiffViewer: React.FC<DiffViewerProps> = memo(function DiffViewer({
     );
   } catch (error) {
     console.error('Critical error in DiffViewer:', error);
-
-    // Log critical error for debugging
-    console.error('Critical error details:', error);
 
     return (
       <div

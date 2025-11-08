@@ -1,5 +1,5 @@
-import React from 'react';
 import { GitCompare } from 'lucide-react';
+import React from 'react';
 
 import { useAppStore } from '../store/appStore';
 
