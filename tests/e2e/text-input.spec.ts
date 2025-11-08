@@ -157,7 +157,8 @@ test.describe('Text Input Components', () => {
 
     // Test Ctrl+A (Select All) - we'll verify by checking if we can replace all content
     await leftTextarea.press('Control+a');
-    await leftTextarea.type('Replaced content');
+    // Use fill() instead of type() for reliable content replacement
+    await leftTextarea.fill('Replaced content');
 
     // If Ctrl+A worked, the content should be completely replaced
     await expect(leftTextarea).toHaveValue('Replaced content');

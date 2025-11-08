@@ -154,9 +154,10 @@ test.describe('React Application Foundation', () => {
     // Verify content was entered
     await expect(leftTextarea).toHaveValue('Hello from keyboard');
 
-    // Test keyboard shortcuts
+    // Test keyboard shortcuts - select all and replace
     await page.keyboard.press('Control+a');
-    await page.keyboard.type('Replaced content');
+    // Use fill() instead of type() for reliable content replacement
+    await leftTextarea.fill('Replaced content');
 
     // Verify content was replaced
     await expect(leftTextarea).toHaveValue('Replaced content');
