@@ -793,9 +793,9 @@ export default DataProcessor;`
       await leftTextarea.fill('Responsive design test content');
       await rightTextarea.fill('Modified responsive design test content');
 
-      await expect(
-        page.getByText('Diff computation completed successfully')
-      ).toBeVisible();
+      // Wait for diff viewer to be visible indicating diff computation completed
+      const diffViewer = page.locator('.diff-viewer-container');
+      await expect(diffViewer).toBeVisible({ timeout: 5000 });
 
       for (const size of windowSizes) {
         await page.setViewportSize({ width: size.width, height: size.height });
