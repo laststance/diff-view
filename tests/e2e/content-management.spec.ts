@@ -249,11 +249,15 @@ test.describe('Content Management Functionality', () => {
     });
 
     test('should toggle view mode with Ctrl+Shift+V keyboard shortcut', async () => {
-      // Check initial view mode (should be split)
+      // Ensure we start in split view (tests run in shared instance, state may persist)
       const splitButton = page.locator('button[title*="Split View"]');
       const unifiedButton = page.locator('button[title*="Unified View"]');
 
-      await expect(splitButton).toHaveClass(/bg-white/);
+      // Explicitly click split view to ensure we're in split mode
+      await splitButton.click();
+      await page.waitForTimeout(200);
+
+      await expect(splitButton).toHaveClass(/bg-white/, { timeout: 5000 });
 
       // Use keyboard shortcut to toggle
       await page.keyboard.press(`${modifier}+Shift+KeyV`);
