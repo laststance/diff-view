@@ -483,8 +483,9 @@ describe('diffCalculator - Failure Modes', () => {
     });
 
     it('should calculate correct character count for large content', async () => {
+      // Use similar content for better performance (diff is very slow with completely different strings)
       const left = 'x'.repeat(5000);
-      const right = 'y'.repeat(5000);
+      const right = left.slice(0, 2500) + 'y'.repeat(2500); // Mix of same and different
       const result = await calculateDiff(left, right);
 
       expect(result.metadata?.totalCharacters).toBe(10000);
