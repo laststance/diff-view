@@ -261,8 +261,8 @@ test.describe('Content Management Functionality', () => {
       // Wait for view mode to change by checking the unified button becomes active
       await expect(unifiedButton).toHaveClass(/bg-white/, { timeout: 5000 });
 
-      // Wait for transition to complete before toggling back
-      await page.waitForTimeout(100);
+      // Wait for transition to complete before toggling back (CI environments need more time)
+      await page.waitForTimeout(300);
 
       // Toggle back
       await page.keyboard.press(`${modifier}+Shift+KeyV`);

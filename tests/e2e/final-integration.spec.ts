@@ -818,13 +818,17 @@ export default DataProcessor;`
         // Test view mode switching at different sizes
         await unifiedButton.click();
         await expect(page.locator('.diff-viewer-container')).toBeVisible();
+        // Wait for transition to complete
+        await page.waitForTimeout(300);
 
         const splitButton = page.getByTitle('Split View (Ctrl+Shift+V)');
         await splitButton.click();
         await expect(page.locator('.diff-viewer-container')).toBeVisible();
+        // Wait for transition to complete
+        await page.waitForTimeout(300);
 
-        // Verify diff content remains readable
-        await expect(page.getByText(/\d+ additions/)).toBeVisible();
+        // Verify diff content remains readable - use first() to avoid strict mode violation
+        await expect(page.getByText(/\d+ additions/).first()).toBeVisible();
       }
 
       // Reset to standard size

@@ -89,8 +89,8 @@ test.describe('Diff Display Features', () => {
     // Wait for view mode to change and verify unified view is now active
     await expect(unifiedViewButton).toHaveClass(/bg-white/, { timeout: 5000 });
 
-    // Wait for transition to complete before switching back
-    await page.waitForTimeout(100);
+    // Wait for transition to complete before switching back (CI environments need more time)
+    await page.waitForTimeout(300);
 
     // Switch back to split view
     await splitViewButton.click();
