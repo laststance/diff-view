@@ -329,7 +329,7 @@ export const TextPane: React.FC<TextPaneProps> = memo(function TextPane({
               onScroll={handleScroll}
               placeholder={placeholder}
               readOnly={readOnly}
-              className={`w-full ${fixedHeight || value.length > 100 ? 'h-[400px]' : 'h-full min-h-[300px]'} resize-none border-0 bg-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-800 p-3 ${fontSizeClass} ${
+              className={`w-full ${fixedHeight || value.length > 100 ? 'h-[400px]' : 'h-full min-h-[300px]'} resize-none border-0 bg-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-800 ${showLineNumbers ? 'pl-14 pr-3 py-3' : 'p-3'} ${fontSizeClass} ${
                 wordWrap ? 'whitespace-pre-wrap' : 'whitespace-pre'
               }`}
               style={{
@@ -348,9 +348,9 @@ export const TextPane: React.FC<TextPaneProps> = memo(function TextPane({
 
             {/* Line Numbers Overlay (if enabled and not using virtual scrolling) */}
             {showLineNumbers && value && !shouldUseVirtualScrolling && (
-              <div className="absolute left-0 top-0 p-3 pointer-events-none select-none">
+              <div className="absolute left-0 top-0 py-3 pl-3 w-14 pointer-events-none select-none">
                 <div
-                  className={`text-gray-400 dark:text-gray-500 ${fontSizeClass} leading-normal`}
+                  className={`text-gray-400 dark:text-gray-500 ${fontSizeClass}`}
                   style={{
                     fontFamily:
                       'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace',
@@ -358,7 +358,7 @@ export const TextPane: React.FC<TextPaneProps> = memo(function TextPane({
                   }}
                 >
                   {value.split('\n').map((_, index) => (
-                    <div key={index} className="text-right pr-2 min-w-[2rem]">
+                    <div key={index} className="text-right pr-3">
                       {index + 1}
                     </div>
                   ))}
